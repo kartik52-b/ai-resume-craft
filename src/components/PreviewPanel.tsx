@@ -31,7 +31,15 @@ const PreviewPanel = () => {
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const imageHeight = (canvas.height * pdfWidth) / canvas.width;
+      let renderedHeight = 0;
+      let page = 0;
+      while (renderedHeight < imageHeight) {
+        if (page > 0) pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, -renderedHeight, pdfWidth, imageHeight);
+        renderedHeight += pdfHeight;
+        page += 1;
+      }
       pdf.save(`${resume.personal.fullName || 'Resume'}.pdf`);
       toast.success('PDF downloaded successfully');
     } catch {
@@ -56,7 +64,7 @@ const PreviewPanel = () => {
       {/* A4 Canvas */}
       <div
         ref={canvasRef}
-        className="bg-canvas canvas-shadow rounded-sm origin-top"
+        className="resume-canvas bg-canvas canvas-shadow rounded-sm origin-top"
         style={{
           width: '210mm',
           minHeight: '297mm',
