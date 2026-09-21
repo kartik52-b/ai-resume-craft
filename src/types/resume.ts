@@ -1,3 +1,5 @@
+import { generateId } from '@/lib/id';
+
 export interface PersonalInfo {
   fullName: string;
   email: string;
@@ -46,12 +48,25 @@ export interface Certification {
   link: string;
 }
 
-export type TemplateType = 'modern' | 'minimal' | 'professional';
+export type TemplateType = 'modern' | 'minimal' | 'professional' | 'ats-classic' | 'student' | 'tech' | 'executive' | 'creative' | 'academic' | 'developer' | 'corporate' | 'elegant' | 'compact' | 'two-column' | 'portfolio' | 'startup' | 'engineering' | 'finance' | 'consultant' | 'research' | 'marketing' | 'designer' | 'healthcare' | 'legal' | 'international';
+export const ALL_TEMPLATE_TYPES: TemplateType[] = ['modern', 'minimal', 'professional', 'ats-classic', 'student', 'tech', 'executive', 'creative', 'academic', 'developer', 'corporate', 'elegant', 'compact', 'two-column', 'portfolio', 'startup', 'engineering', 'finance', 'consultant', 'research', 'marketing', 'designer', 'healthcare', 'legal', 'international'];
+
+/** Editable/visible resume sections, in their default order. */
+export type SectionId = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications';
+export const DEFAULT_SECTION_ORDER: SectionId[] = [
+  'personal', 'experience', 'education', 'skills', 'projects', 'certifications',
+];
 
 export interface ResumeData {
   id: string;
   title: string;
   template: TemplateType;
+  /** ISO timestamp of the last modification (set by store updates). */
+  updatedAt?: string;
+  /** Display order of resume sections (missing ids fall back to the default order). */
+  sectionOrder?: SectionId[];
+  /** Sections hidden from the resume output. */
+  hiddenSections?: SectionId[];
   personal: PersonalInfo;
   experience: Experience[];
   education: Education[];
@@ -60,10 +75,17 @@ export interface ResumeData {
   certifications: Certification[];
 }
 
+/**
+ * A completely blank resume. Used as the sanitize fallback, the base for demo
+ * data, and inside tests. NOT what a brand-new user resume looks like — see
+ * createStarterResume for that.
+ */
 export const createEmptyResume = (): ResumeData => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   title: 'Untitled Resume',
   template: 'modern',
+  sectionOrder: [...DEFAULT_SECTION_ORDER],
+  hiddenSections: [],
   personal: {
     fullName: '',
     email: '',
@@ -81,8 +103,33 @@ export const createEmptyResume = (): ResumeData => ({
   certifications: [],
 });
 
+/**
+ * Default starter personal details shown in the editor when a new resume is
+ * created. These are editable example values — every field can be replaced by
+ * the user. Indian formatting throughout.
+ */
+export const DEFAULT_PERSONAL_INFO: PersonalInfo = {
+  fullName: 'Kartik Bhardwaj',
+  email: 'kartik@example.com',
+  phone: '+91 98765 43210',
+  location: 'Agra, Uttar Pradesh, India',
+  website: '',
+  linkedin: 'linkedin.com/in/kartikbhardwaj',
+  github: 'github.com/kartikbhardwaj',
+  summary: '',
+};
+
+/**
+ * A new user-facing resume, pre-filled with the default starter details.
+ * The user can edit every field; their edits become their real resume data.
+ */
+export const createStarterResume = (): ResumeData => ({
+  ...createEmptyResume(),
+  personal: { ...DEFAULT_PERSONAL_INFO },
+});
+
 export const createEmptyExperience = (): Experience => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   company: '',
   position: '',
   location: '',
@@ -93,7 +140,7 @@ export const createEmptyExperience = (): Experience => ({
 });
 
 export const createEmptyEducation = (): Education => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   school: '',
   degree: '',
   field: '',
@@ -103,7 +150,7 @@ export const createEmptyEducation = (): Education => ({
 });
 
 export const createEmptyProject = (): Project => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   name: '',
   link: '',
   description: '',
@@ -111,7 +158,7 @@ export const createEmptyProject = (): Project => ({
 });
 
 export const createEmptyCertification = (): Certification => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   name: '',
   issuer: '',
   date: '',

@@ -1,71 +1,62 @@
-import { useRef, useCallback } from 'react';
-import { useResume } from '@/context/ResumeContext';
-import ModernTemplate from './templates/ModernTemplate';
-import MinimalTemplate from './templates/MinimalTemplate';
-import ProfessionalTemplate from './templates/ProfessionalTemplate';
-import { Download } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import { toast } from 'sonner';
+import { useCallback, useState } from "react";
+import { useResume } from "@/context/ResumeContext";
+import { getTemplate } from "@/lib/templateRegistry";
+import { getSampleResume } from "@/lib/sampleResume";
+import { ZoomIn, ZoomOut, Maximize2, Minimize2, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-const templateComponents = {
-  modern: ModernTemplate,
-  minimal: MinimalTemplate,
-  professional: ProfessionalTemplate,
-};
+const ZOOM_LEVELS = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
 
 const PreviewPanel = () => {
   const { resume } = useResume();
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const Template = templateComponents[resume.template];
+  const Template = getTemplate(resume.template).Component;
+  const [zoomIdx, setZoomIdx] = useState(2);
+  const [fullscreen, setFullscreen] = useState(false);
 
-  const handleDownload = useCallback(async () => {
-    if (!canvasRef.current) return;
-    try {
-      const canvas = await html2canvas(canvasRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-      });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${resume.personal.fullName || 'Resume'}.pdf`);
-      toast.success('PDF downloaded successfully');
-    } catch {
-      toast.error('Failed to generate PDF');
-    }
-  }, [resume.personal.fullName]);
+  const zoom = ZOOM_LEVELS[zoomIdx];
+  const hasContent = resume.personal.fullName || resume.experience.length > 0 || resume.skills.length > 0;
+  const previewData = hasContent ? resume : { ...getSampleResume(), template: resume.template };
+
+  const handleFit = useCallback(() => setZoomIdx(2), []);
 
   return (
-    <div className="h-full bg-workspace overflow-y-auto scrollbar-thin flex flex-col items-center py-8 px-4">
-      {/* Toolbar */}
-      <div className="w-full max-w-[680px] flex justify-between items-center mb-4">
-        <span className="text-xs text-muted-foreground capitalize">{resume.template} template</span>
-        <button
-          onClick={handleDownload}
-          className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground px-3.5 py-1.5 rounded-md text-xs font-medium hover:opacity-90 transition-opacity"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Download PDF
-        </button>
+    <div className={cn("h-full bg-workspace overflow-y-auto scrollbar-thin flex flex-col items-center", fullscreen && "fixed inset-0 z-50 bg-workspace")}>
+      {/* ── Toolbar ── */}
+      <div className="w-full sticky top-0 z-10 bg-workspace/80 backdrop-blur-xl border-b border-border/50 px-4 py-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Live Preview</span>
+          <span className="text-[11px] text-muted-foreground/60 capitalize">{resume.template}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setZoomIdx(Math.max(0, zoomIdx - 1))} disabled={zoomIdx === 0} aria-label="Zoom out">
+            <ZoomOut className="h-3.5 w-3.5" />
+          </Button>
+          <span className="text-[11px] text-muted-foreground tabular-nums w-10 text-center font-medium">{Math.round(zoom * 100)}%</span>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setZoomIdx(Math.min(ZOOM_LEVELS.length - 1, zoomIdx + 1))} disabled={zoomIdx === ZOOM_LEVELS.length - 1} aria-label="Zoom in">
+            <ZoomIn className="h-3.5 w-3.5" />
+          </Button>
+          <div className="h-4 w-px bg-border/60 mx-1" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={handleFit} aria-label="Fit to view" title="Fit to view">
+            <RotateCcw className="h-3 w-3" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setFullscreen(v => !v)} aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}>
+            {fullscreen ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
+          </Button>
+        </div>
       </div>
 
-      {/* A4 Canvas */}
-      <div
-        ref={canvasRef}
-        className="bg-canvas canvas-shadow rounded-sm origin-top"
-        style={{
-          width: '210mm',
-          minHeight: '297mm',
-          padding: '18mm 20mm',
-          transform: 'scale(0.7)',
-          transformOrigin: 'top center',
-        }}
-      >
-        <Template data={resume} />
+      {/* ── A4 Canvas ── */}
+      <div className="flex-1 flex items-start justify-center py-8 px-4 min-h-0">
+        <div className="relative">
+          <div className="absolute inset-0 rounded-sm pointer-events-none"
+            style={{ transform: `scale(${zoom})`, transformOrigin: "top center", width: "210mm", minHeight: "297mm",
+              boxShadow: "0 2px 8px rgba(0,0,0,.08), 0 12px 40px rgba(0,0,0,.06), 0 24px 64px rgba(0,0,0,.04)" }} />
+          <div className="bg-canvas rounded-sm transition-all duration-200 relative"
+            style={{ width: "210mm", minHeight: "297mm", padding: "18mm 20mm", transform: `scale(${zoom})`, transformOrigin: "top center" }}>
+            <Template data={previewData} />
+          </div>
+        </div>
       </div>
     </div>
   );

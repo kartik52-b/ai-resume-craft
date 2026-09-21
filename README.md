@@ -1,58 +1,101 @@
-# Welcome to your MY Project
+# AI Resume Craft
 
-## How can I edit this code?
+A premium, AI-assisted resume creation platform. Build professional, ATS-ready resumes with live preview, 25 professional templates, AI writing assistance, resume health analysis, and high-quality multi-page PDF export.
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use your preferred IDE**
+- **Vite 5** + **React 18** + **TypeScript** (strict)
+- **Tailwind CSS 3** + **shadcn/ui** (Radix primitives)
+- **react-router-dom** for routing
+- **jsPDF** for multi-page PDF export
+- **Bun** as the package manager
+- **Flask** for optional server-side AI proxy
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Getting Started
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install dependencies
+bun install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Start dev server
+bun run dev
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Run checks
+bun tsc -b --noEmit   # TypeScript
+bun run test:run      # Unit tests (vitest)
+bun run build         # Production build
+bun run e2e           # E2E tests (Playwright)
 ```
 
-**Edit a file directly in GitHub**
+## Features
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Resume Editor
+- **25 professional templates**: Modern, Minimal, Professional, ATS Classic, Student, Tech, Executive, Creative, Academic, Developer, Corporate, Elegant, Compact, Two Column, Portfolio, Startup, Engineering, Finance, Consultant, Research, Marketing, Designer, Healthcare, Legal, International
+- **Section management**: reorder, hide/show, drag-and-drop
+- **Inline validation** with real-time feedback
+- **Autosave** with debounced persistence
+- **Undo/redo** with full history
+- **Import** from .txt, .md, .docx files
 
-**Use GitHub Codespaces**
+### AI Assistant (optional)
+- AI-powered resume rewrites (professional, concise, achievement-focused, ATS-friendly)
+- Bullet point generation from context
+- Summary generation from resume content
+- Skill suggestions based on role
+- Job match commentary
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### ATS Analysis
+- Transparent 100-point scoring system
+- Category breakdown: contact, summary, experience, education, skills, formatting
+- Actionable recommendations
+- Section-level actionable findings
 
-## What technologies are used for this project?
+### Job Matching
+- Deterministic keyword and skill matching against job descriptions
+- Match/missing skill visualization
+- Keyword frequency analysis
+- Optional AI commentary
 
-This project is built with:
+### PDF Export
+- Multi-page support with proper A4 page breaks
+- Real selectable text (not rasterized)
+- Template-specific typography profiles
+- Auto-generated page numbers
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## AI Proxy Setup
 
-## Can I connect a custom domain ?
+AI features run through a server-side proxy (`api/app.py`). The `GOOGLE_API_KEY` is read only on the server.
 
-Yes, you can!
+```sh
+GOOGLE_API_KEY=... python3 api/app.py   # defaults to localhost:5000
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Without the key, the app works fully for editing, saving, templates, ATS, and job matching. AI buttons show a "not configured" message.
 
+## Project Structure
+
+```
+src/
+  main.tsx               # App entry point
+  App.tsx                # Root layout with sidebar
+  pages/                 # Route pages
+  context/               # ResumeContext — state + undo/redo + autosave
+  types/resume.ts        # ResumeData model + factories
+  components/
+    EditorPanel.tsx      # Left pane: section editors
+    PreviewPanel.tsx     # Right pane: A4 preview + zoom + PDF
+    editor/              # Per-section editors
+    ai/                  # AI suggestion UI (review-before-apply)
+    templates/           # 25 resume templates
+    ui/                  # shadcn/ui primitives
+  lib/                   # Storage, store ops, PDF engine, ATS, job match
+  test/                  # Unit tests (vitest)
+e2e/                     # Playwright E2E tests
+api/                     # Optional server-side AI proxy (Flask)
+```
+
+## Browser Support
+
+- Chrome/Edge 90+
+- Firefox 90+
+- Safari 15+
