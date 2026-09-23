@@ -1,4 +1,4 @@
-import { type ResumeData, type TemplateType, createEmptyResume, createStarterResume, DEFAULT_SECTION_ORDER } from '@/types/resume';
+import { type ResumeData, type TemplateType, createEmptyResume, DEFAULT_SECTION_ORDER } from '@/types/resume';
 import { generateId } from '@/lib/id';
 
 /**
@@ -99,6 +99,7 @@ export function sanitizeResume(raw: unknown): ResumeData {
       email: asString(personal.email),
       phone: asString(personal.phone),
       location: asString(personal.location),
+      headline: asString(personal.headline),
       website: asString(personal.website),
       linkedin: asString(personal.linkedin),
       github: asString(personal.github),
@@ -125,6 +126,9 @@ function isValidResumeShape(data: unknown): data is ResumeData {
     isRecord(p) &&
     ['fullName', 'email', 'phone', 'location', 'website', 'linkedin', 'github', 'summary']
       .every((k) => typeof p[k] === 'string') &&
+    // `headline` was added after the first release — stored resumes without it
+    // stay valid (sanitizeResume fills it) so existing users keep 'restored'.
+    (p.headline === undefined || typeof p.headline === 'string') &&
     ['experience', 'education', 'skills', 'projects', 'certifications'].every((k) => Array.isArray(data[k])) &&
     (data.sectionOrder === undefined || validSectionIds(data.sectionOrder)) &&
     (data.hiddenSections === undefined || validSectionIds(data.hiddenSections))
@@ -246,17 +250,16 @@ export function loadStore(): LoadResult {
 }
 
 /**
- * Ensures the store always has at least one active resume.
- * Creates a starter resume (default example details) when the store is empty.
- * Pure (does not persist).
+ * Repairs the active pointer so it always references an existing resume.
+ *
+ * An empty store is a legitimate state (a brand-new user who has not created a
+ * resume yet) and stays empty: this function NEVER fabricates a resume, so no
+ * user ever inherits sample or demo content. Pure (does not persist).
  */
 export function ensureActiveResume(store: ResumeStore): ResumeStore {
-  if (store.resumes.length > 0 && store.activeId) return store;
-  if (store.resumes.length > 0) {
-    return { ...store, activeId: store.resumes[0].id };
-  }
-  const resume = { ...createStarterResume(), updatedAt: new Date().toISOString() };
-  return { resumes: [resume], activeId: resume.id };
+  if (store.resumes.length === 0) return { resumes: [], activeId: null };
+  if (store.activeId && store.resumes.some((r) => r.id === store.activeId)) return store;
+  return { ...store, activeId: store.resumes[0].id };
 }
 
 /** Serializes the store into a versioned envelope. Never throws. */

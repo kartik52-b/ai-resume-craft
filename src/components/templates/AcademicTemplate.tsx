@@ -79,6 +79,7 @@ const AcademicTemplate = ({ data }: { data: ResumeData }) => {
       {/* Centered academic header */}
       <div className="text-center pb-3 mb-3 border-b-2 border-teal-800">
         {p.fullName && <h1 className="text-[22px] font-bold tracking-wide text-teal-900">{p.fullName}</h1>}
+        {p.headline && <div className="text-[10px] uppercase tracking-[0.15em] text-teal-800 mt-1">{p.headline}</div>}
         <div className="text-[9.5px] text-zinc-600 mt-1 leading-relaxed">
           {[p.email, p.phone, p.location].filter(Boolean).map((item, i) => <span key={i}>{item}{i < 2 && ' · '}</span>)}
         </div>

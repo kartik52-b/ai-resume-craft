@@ -77,6 +77,7 @@ const CreativeTemplate = ({ data }: { data: ResumeData }) => {
       <div className="text-left pb-3 mb-3 border-b-2 border-purple-500 relative">
         <div className="absolute top-0 right-0 w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-coral-100 -z-10" />
         {p.fullName && <h1 className="text-[24px] font-extrabold tracking-tight bg-gradient-to-r from-purple-700 to-coral-500 bg-clip-text text-transparent leading-tight">{p.fullName}</h1>}
+        {p.headline && <div className="text-[11px] font-semibold text-purple-600 mt-1">{p.headline}</div>}
         <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1.5 text-[9.5px] text-zinc-600">
           {[p.email, p.phone, p.location].filter(Boolean).map((item, i) => <span key={i}>{item}</span>)}
           {[p.website, p.linkedin, p.github].filter(Boolean).map((item, i) => <span key={`l${i}`} className="text-purple-600">{item}</span>)}

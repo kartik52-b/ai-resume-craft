@@ -78,6 +78,7 @@ const ElegantTemplate = ({ data }: { data: ResumeData }) => {
       {/* Elegant centered header with letter-spaced name */}
       <div className="text-center pb-4 mb-4">
         {p.fullName && <h1 className="text-[24px] font-light tracking-[0.12em] text-emerald-950 uppercase">{p.fullName}</h1>}
+        {p.headline && <div className="text-[9.5px] tracking-[0.2em] uppercase text-emerald-800 mt-1.5">{p.headline}</div>}
         <div className="w-12 h-px bg-emerald-400 mx-auto my-2" />
         <div className="text-[9px] text-zinc-500 tracking-[0.08em] uppercase">
           {[p.email, p.phone, p.location].filter(Boolean).join('   ·   ')}

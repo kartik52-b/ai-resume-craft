@@ -89,6 +89,7 @@ const TwoColumnTemplate = ({ data }: { data: ResumeData }) => {
       {/* Teal sidebar */}
       <aside className="w-[34%] bg-teal-800 text-white px-4 py-4 -my-5 -ml-5 shrink-0">
         {p.fullName && <h1 className="text-[17px] font-bold text-white leading-tight mb-0.5">{p.fullName}</h1>}
+        {p.headline && <div className="text-[9px] font-medium text-teal-200">{p.headline}</div>}
         <div className="text-[8.5px] text-teal-100 space-y-0.5 mt-2 break-words">
           {p.email && <div>{p.email}</div>}
           {p.phone && <div>{p.phone}</div>}

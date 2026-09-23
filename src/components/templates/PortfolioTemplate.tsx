@@ -84,6 +84,7 @@ const PortfolioTemplate = ({ data }: { data: ResumeData }) => {
       <div className="pb-3 mb-3 border-b-2 border-violet-500 relative">
         <div className="absolute -top-1 -right-1 w-14 h-14 rounded-full bg-gradient-to-br from-violet-100 via-pink-100 to-transparent" />
         {p.fullName && <h1 className="text-[23px] font-extrabold tracking-tight text-zinc-900 leading-tight">{p.fullName}</h1>}
+        {p.headline && <div className="text-[11px] font-semibold text-violet-700 mt-0.5">{p.headline}</div>}
         {p.summary && <p className="text-[10px] text-violet-800 font-medium italic mt-1 max-w-[85%]">{p.summary}</p>}
         <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 mt-1.5 text-[9px] text-zinc-600">
           {[p.email, p.phone, p.location].filter(Boolean).map((item, i) => <span key={i}>{item}</span>)}

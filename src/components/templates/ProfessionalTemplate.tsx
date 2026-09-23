@@ -85,6 +85,7 @@ const ProfessionalTemplate = ({ data }: { data: ResumeData }) => {
       {/* Header (always first) */}
       <div className="text-center border-b-2 border-zinc-800 pb-3 mb-3">
         {p.fullName && <h1 className="text-2xl font-bold tracking-tight text-zinc-900 uppercase">{p.fullName}</h1>}
+        {p.headline && <div className="text-[12px] italic text-zinc-600 mt-1">{p.headline}</div>}
         <div className="flex flex-wrap items-center justify-center gap-x-2 mt-1 text-[10px] text-zinc-500">
           {[p.email, p.phone, p.location].filter(Boolean).map((item, i) => (
             <span key={i}>{i > 0 && '|'} {item}</span>

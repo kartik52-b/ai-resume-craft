@@ -52,6 +52,7 @@ const MarketingTemplate = ({ data }: { data: ResumeData }) => {
     <div className="font-resume-sans text-[10.5px] leading-[1.5] text-gray-800">
       <div className="bg-violet-50 -mx-0 px-4 py-3 mb-4 -mt-0">
         {p.fullName && <h1 className="text-xl font-black tracking-tight text-violet-900">{p.fullName}</h1>}
+        {p.headline && <div className="text-[11px] font-bold text-violet-600 mt-0.5">{p.headline}</div>}
         <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[9.5px] text-violet-600">
           {p.email && <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{p.email}</span>}
           {p.phone && <span className="flex items-center gap-1"><Phone className="h-2.5 w-2.5" />{p.phone}</span>}

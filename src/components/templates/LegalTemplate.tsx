@@ -51,6 +51,7 @@ const LegalTemplate = ({ data }: { data: ResumeData }) => {
     <div className="font-serif text-[10.5px] leading-[1.6] text-stone-800">
       <div className="text-center mb-4 pb-3 border-b border-stone-400">
         {p.fullName && <h1 className="text-xl font-bold text-stone-900 uppercase tracking-wide">{p.fullName}</h1>}
+        {p.headline && <div className="text-[10px] italic text-stone-600 mt-0.5">{p.headline}</div>}
         <div className="flex flex-wrap justify-center gap-x-2 gap-y-0.5 mt-1 text-[9.5px] text-stone-400 italic">
           {p.email && <span>{p.email}</span>}{p.phone && <span>· {p.phone}</span>}{p.location && <span>· {p.location}</span>}{p.linkedin && <span>· {p.linkedin}</span>}{p.github && <span>· {p.github}</span>}
         </div>

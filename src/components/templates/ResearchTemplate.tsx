@@ -51,6 +51,7 @@ const ResearchTemplate = ({ data }: { data: ResumeData }) => {
     <div className="font-serif text-[10.5px] leading-[1.6] text-gray-800">
       <div className="mb-4">
         {p.fullName && <h1 className="text-xl font-bold text-gray-900">{p.fullName}</h1>}
+        {p.headline && <div className="text-[10px] text-teal-700 mt-0.5">{p.headline}</div>}
         <div className="text-[9.5px] text-gray-400 mt-1 flex flex-wrap gap-x-2">
           {p.email && <span>{p.email}</span>}{p.phone && <span>| {p.phone}</span>}{p.location && <span>| {p.location}</span>}{p.linkedin && <span>| {p.linkedin}</span>}{p.github && <span>| {p.github}</span>}
         </div>

@@ -7,15 +7,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { CheckCircle2, CircleAlert, Loader2, Sparkles, AlertCircle, Target, BookOpen } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import NoResumeNotice from "@/components/NoResumeNotice";
 
 export default function JobMatchPage() {
-  const { resume, resumes, activeId, switchResume } = useResume();
+  const { resume, resumes, activeId, switchResume, hasResume } = useResume();
   const [jobDescription, setJobDescription] = useState("");
   const [analysis, setAnalysis] = useState<ReturnType<typeof matchJob> | null>(null);
   const [aiState, setAiState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [aiCommentary, setAiCommentary] = useState("");
   const result = useMemo(() => (analysis ? matchJob(resume, jobDescription) : null), [analysis, jobDescription, resume]);
   const requestAi = async () => { setAiState("loading"); try { const text = await requestJobMatch(resume, jobDescription); setAiCommentary(text); setAiState("done"); } catch { setAiState("error"); } };
+
+  if (!hasResume) {
+    return (
+      <NoResumeNotice
+        title="Create a resume to match against a job"
+        description="Job Match compares your resume content with a job posting. Create your resume first, then come back and paste the job description."
+      />
+    );
+  }
 
   return (
     <div className="min-h-full bg-workspace overflow-y-auto">

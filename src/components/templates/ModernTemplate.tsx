@@ -96,6 +96,7 @@ const ModernTemplate = ({ data }: { data: ResumeData }) => {
       {/* Header (always first) */}
       <div className="text-center mb-4">
         {p.fullName && <h1 className="text-xl font-bold tracking-tight text-zinc-900">{p.fullName}</h1>}
+        {p.headline && <div className="text-[11px] font-medium text-zinc-500 mt-0.5">{p.headline}</div>}
         {hasContact && (
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 mt-1.5 text-[10px] text-zinc-500">
             {p.email && <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{p.email}</span>}

@@ -10,7 +10,7 @@ import { Upload, FileText, AlertTriangle, CheckCircle2 } from 'lucide-react';
 const MAX_FILE_BYTES = 2 * 1024 * 1024;
 
 export const ImportDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) => {
-  const { resume, setResume } = useResume();
+  const { resume, setResume, hasResume, importResumeAction } = useResume();
   const [parsed, setParsed] = useState<ReturnType<typeof parseImportedText> | null>(null);
   const [error, setError] = useState<ImportError | null>(null);
   const [parsing, setParsing] = useState(false);
@@ -31,7 +31,15 @@ export const ImportDialog = ({ open, onOpenChange }: { open: boolean; onOpenChan
     } catch { setError({ code: 'parse_failed', message: importErrorMessage('parse_failed') }); } finally { setParsing(false); }
   }, [resume.template]);
 
-  const confirm = useCallback(() => { if (!parsed) return; setResume(() => parsed.draft); onOpenChange(false); reset(); }, [parsed, setResume, onOpenChange, reset]);
+  // With no resume yet the draft becomes a new resume; otherwise it replaces
+  // the active resume's content (the behaviour described in the dialog copy).
+  const confirm = useCallback(() => {
+    if (!parsed) return;
+    if (hasResume) setResume(() => parsed.draft);
+    else importResumeAction(parsed.draft);
+    onOpenChange(false);
+    reset();
+  }, [parsed, hasResume, setResume, importResumeAction, onOpenChange, reset]);
   const d = parsed?.draft;
   const count = (n: number | undefined) => n ?? 0;
 
@@ -69,7 +77,9 @@ export const ImportDialog = ({ open, onOpenChange }: { open: boolean; onOpenChan
             {parsed.warnings.length > 0 && (<div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-1">{parsed.warnings.map((w, i) => <p key={i} className="text-[11px] text-amber-500 flex items-start gap-1.5"><AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />{w}</p>)}</div>)}
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={reset} className="text-[12px]">Choose a different file</Button>
-              <Button onClick={confirm} className="text-[12px] font-medium">Replace current resume with this draft</Button>
+              <Button onClick={confirm} className="text-[12px] font-medium">
+                {hasResume ? "Replace current resume with this draft" : "Create my resume from this draft"}
+              </Button>
             </DialogFooter>
           </div>
         )}

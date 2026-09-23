@@ -56,7 +56,7 @@ export default function SettingsPage() {
         {/* Account */}
         <section className="rounded-xl border border-border/60 bg-card p-5 space-y-3 shadow-card">
           <div className="flex items-center gap-2.5"><div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center"><User className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Account</h2></div>
-          <p className="text-[13px] text-muted-foreground leading-relaxed">Your profile information is used as defaults for new resumes. Changes apply to the active resume only.</p>
+          <p className="text-[13px] text-muted-foreground leading-relaxed">These are the contact details of your active resume. New resumes always start blank and are filled in through the create flow.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div className="space-y-1.5">
               <Label className="text-[11px] font-medium text-muted-foreground">Full Name</Label>

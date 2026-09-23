@@ -55,6 +55,7 @@ const DesignerTemplate = ({ data }: { data: ResumeData }) => {
         <div className="flex-1">
           <div className="mb-4">
             {p.fullName && <h1 className="text-xl font-black text-gray-900 tracking-tight">{p.fullName}</h1>}
+            {p.headline && <div className="text-[10.5px] font-semibold text-rose-600 mt-0.5">{p.headline}</div>}
             <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[9.5px] text-gray-400">
               {p.email && <span>{p.email}</span>}{p.phone && <span>· {p.phone}</span>}{p.location && <span>· {p.location}</span>}{p.linkedin && <span>· {p.linkedin}</span>}{p.github && <span>· {p.github}</span>}
             </div>

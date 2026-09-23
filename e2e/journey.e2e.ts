@@ -6,15 +6,59 @@ import { expect, test } from '@playwright/test';
  * Runs against the production build served by `vite preview` (see
  * playwright.config.ts). The AI proxy is NOT running during e2e, which is
  * intentional: it exercises the app's real "AI not configured" degradation.
+ *
+ * Data model note: a brand-new visitor has NO resume. Editor tests therefore
+ * seed one blank resume (exactly what the create flow produces) before
+ * navigating, while the onboarding tests below start from genuinely no data.
  */
 
-// ─── Helper ────────────────────────────────────────────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
-/** Clear localStorage before each test so we start from a fresh state. */
-async function freshApp(page: import('@playwright/test').Page) {
-  await page.goto('/editor');
+/** Removes any stored data and loads the landing page. */
+async function freshVisit(page: import('@playwright/test').Page) {
+  await page.goto('/');
   await page.evaluate(() => localStorage.clear());
-  await page.reload();
+  await page.goto('/');
+}
+
+/**
+ * Seeds one blank resume (the state right after the create flow) and opens the
+ * editor — no sample/personal content is involved.
+ */
+async function freshApp(page: import('@playwright/test').Page) {
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.clear();
+    const id = 'e2e-resume-1';
+    localStorage.setItem('ai-resume-craft:store', JSON.stringify({
+      version: 2,
+      savedAt: new Date().toISOString(),
+      store: {
+        resumes: [{
+          id,
+          title: 'My Resume',
+          template: 'modern',
+          personal: { fullName: '', email: '', phone: '', location: '', headline: '', website: '', linkedin: '', github: '', summary: '' },
+          experience: [], education: [], skills: [], projects: [], certifications: [],
+        }],
+        activeId: id,
+      },
+    }));
+  });
+  await page.goto('/editor');
+  await expect(page.getByPlaceholder('Your full name')).toBeVisible();
+}
+
+/** Walks the three-step create flow with the given details and design index. */
+async function completeOnboarding(page: import('@playwright/test').Page, details: { name: string; email: string; phone: string }, templateIndex = 0) {
+  await expect(page.getByText('Tell us about yourself')).toBeVisible();
+  await page.getByLabel(/Full Name/).fill(details.name);
+  await page.getByLabel(/Email/).fill(details.email);
+  await page.getByLabel(/Phone/).fill(details.phone);
+  await page.getByRole('button', { name: /Next: Choose Design/ }).click();
+  await expect(page.getByText('Choose a design for your resume')).toBeVisible();
+  await page.getByRole('button', { name: /Use This Template/ }).nth(templateIndex).click();
+  await expect(page.getByPlaceholder('Your full name')).toBeVisible({ timeout: 10000 });
 }
 
 // ─── 1. Fresh application ──────────────────────────────────────────────────────
@@ -30,20 +74,34 @@ test('fresh app loads with editor and sidebar', async ({ page }) => {
   await expect(page.getByPlaceholder('Your full name')).toBeVisible();
 });
 
-// ─── 2. Create resume via dashboard ────────────────────────────────────────────
+// ─── 2. New user: welcome state → create flow → editor ─────────────────────────
 
-test('dashboard: create resume from empty state', async ({ page }) => {
-  await freshApp(page);
+test('new user sees the welcome state and completes the create flow', async ({ page }) => {
+  await freshVisit(page);
 
-  // Navigate to dashboard
+  // Dashboard shows the welcome state — never a fake/previous resume.
   await page.getByRole('link', { name: 'My Resumes' }).first().click();
-  await expect(page.getByText('Your Resumes')).toBeVisible();
+  await expect(page.getByText('Welcome to AI Resume Craft')).toBeVisible();
+  await expect(page.getByText('Create your first professional resume.')).toBeVisible();
 
-  // Click "Create Resume" in empty state
-  await page.getByRole('button', { name: /Create Resume/ }).click();
+  // The primary CTA starts the create flow.
+  await page.getByRole('button', { name: /Create New Resume/ }).click();
+  await completeOnboarding(page, { name: 'Jane Smith', email: 'jane@example.com', phone: '+1 555 123 4567' });
 
-  // Should navigate to editor
-  await expect(page.getByPlaceholder('Your full name')).toBeVisible({ timeout: 10000 });
+  // The editor holds the user's own details and nothing else.
+  await expect(page.getByPlaceholder('Your full name')).toHaveValue('Jane Smith');
+  await expect(page.getByPlaceholder('you@example.com')).toHaveValue('jane@example.com');
+});
+
+test('landing CTA creates a resume from scratch', async ({ page }) => {
+  await freshVisit(page);
+
+  await page.getByRole('button', { name: /Create My Resume/ }).first().click();
+  await completeOnboarding(page, { name: 'Sam Lee', email: 'sam@example.com', phone: '5551234567' }, 1);
+
+  await expect(page.getByPlaceholder('Your full name')).toHaveValue('Sam Lee');
+  // No sample persona leaks into the user's resume.
+  await expect(page.getByPlaceholder('Your full name')).not.toHaveValue('Alex Morgan');
 });
 
 // ─── 3-8. Edit all sections ────────────────────────────────────────────────────
@@ -53,13 +111,13 @@ test('edit personal information', async ({ page }) => {
 
   // Fill personal fields
   await page.getByPlaceholder('Your full name').fill('Jane Smith');
-  await page.getByPlaceholder('your@email.com').fill('jane@example.com');
-  await page.getByPlaceholder('+91 98765 43210').fill('+1 555 1234567');
-  await page.getByPlaceholder('Agra, Uttar Pradesh, India').fill('New York, NY');
+  await page.getByPlaceholder('you@example.com').fill('jane@example.com');
+  await page.getByPlaceholder('+1 555 123 4567').fill('+1 555 1234567');
+  await page.getByPlaceholder('City, Country').fill('New York, NY');
 
   // Verify values persist
   await expect(page.getByPlaceholder('Your full name')).toHaveValue('Jane Smith');
-  await expect(page.getByPlaceholder('your@email.com')).toHaveValue('jane@example.com');
+  await expect(page.getByPlaceholder('you@example.com')).toHaveValue('jane@example.com');
 });
 
 test('add experience', async ({ page }) => {
@@ -180,14 +238,14 @@ test('hide and show section', async ({ page }) => {
   await hideBtn.click();
 
   // Section should show hidden message
-  await expect(page.getByText('This section is hidden from your resume')).toBeVisible();
+  await expect(page.getByText('Hidden from resume. Click eye to show.')).toBeVisible();
 
   // Show it again
   const showBtn = page.getByRole('button', { name: /Show Experience/ });
   await showBtn.click();
 
   // Hidden message should be gone
-  await expect(page.getByText('This section is hidden from your resume')).not.toBeVisible();
+  await expect(page.getByText('Hidden from resume. Click eye to show.')).not.toBeVisible();
 });
 
 // ─── 11-12. Undo/Redo ──────────────────────────────────────────────────────────
@@ -243,9 +301,9 @@ test('create, switch, duplicate, and delete resumes', async ({ page }) => {
   await page.getByRole('link', { name: 'My Resumes' }).first().click();
   await expect(page.getByText('Your Resumes')).toBeVisible();
 
-  // Create a new resume
+  // Create a second resume through the guided flow
   await page.getByRole('button', { name: /Create New Resume/ }).click();
-  await expect(page.getByPlaceholder('Your full name')).toBeVisible({ timeout: 10000 });
+  await completeOnboarding(page, { name: 'Second Resume', email: 'second@example.com', phone: '5551234567' });
 
   // Go back to dashboard
   await page.getByRole('link', { name: 'My Resumes' }).first().click();
@@ -276,13 +334,13 @@ test('create, switch, duplicate, and delete resumes', async ({ page }) => {
 test('switch resume template via dialog', async ({ page }) => {
   await freshApp(page);
 
-  // Open template picker via the Template button in the editor toolbar
-  const templateBtn = page.getByRole('button', { name: /Template/ });
+  // Open the template picker via the "Change Template" button in the editor toolbar
+  const templateBtn = page.getByRole('button', { name: /Change Template/ });
   await expect(templateBtn).toBeVisible();
   await templateBtn.click();
 
   // Dialog should open with template options
-  await expect(page.getByText('Choose a template')).toBeVisible({ timeout: 5000 });
+  await expect(page.getByText('Change template')).toBeVisible({ timeout: 5000 });
 
   // Click on Minimal template card
   const minimalCard = page.getByText('Minimal').first();
@@ -344,7 +402,7 @@ test('import dialog opens and closes from dashboard', async ({ page }) => {
 
   // Navigate to dashboard where the import button lives
   await page.getByRole('link', { name: 'My Resumes' }).first().click();
-  await expect(page.getByText('Your Resumes')).toBeVisible();
+  await expect(page.getByText('My Resumes').first()).toBeVisible();
 
   // Open import dialog via the Import button
   const importBtn = page.getByRole('button', { name: /Import/ });
@@ -379,11 +437,11 @@ test('sidebar navigation: all routes load', async ({ page }) => {
   await freshApp(page);
 
   const routes = [
-    { nav: 'Home', heading: 'AI Resume Craft' },
+    { nav: 'Home', heading: 'Build a resume that gets you noticed.' },
     { nav: 'My Resumes', heading: 'Your Resumes' },
     { nav: 'Job Match', heading: 'Paste a Job Description' },
     { nav: 'AI Coach', heading: 'AI Resume Coach' },
-    { nav: 'Templates', heading: 'Choose a professional design' },
+    { nav: 'Templates', heading: 'Choose a resume design' },
     { nav: 'Settings', heading: 'Account' },
   ];
 

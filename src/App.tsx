@@ -1,15 +1,14 @@
-import React, { Suspense, useState, useCallback, useMemo } from "react";
+import React, { Suspense, useState, useCallback } from "react";
 import { BrowserRouter, Route, Routes, Link, useLocation, useNavigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ResumeProvider, useResume } from "@/context/ResumeContext";
 import { ThemeProvider, useTheme } from "next-themes";
-import { analyzeResume } from "@/lib/ats";
 import TemplatePickerDialog from "@/components/TemplatePickerDialog";
 import {
   LayoutDashboard, Sparkles, Brain, Palette,
   Settings, PenLine, PanelLeftClose, PanelLeft, Sun, Moon, Monitor,
-  ArrowLeft, Undo2, Redo2, Download, Search, ChevronRight, HeartPulse,
+  ArrowLeft, Undo2, Redo2, Download, Search, ChevronRight, FilePlus2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +17,7 @@ import { downloadResumePdf } from "@/lib/pdfEngine";
 import { toast } from "sonner";
 
 const LandingPage = React.lazy(() => import("./pages/LandingPage.tsx"));
+const Onboarding = React.lazy(() => import("./pages/Onboarding.tsx"));
 const Index = React.lazy(() => import("./pages/Index.tsx"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard.tsx"));
 const JobMatchPage = React.lazy(() => import("./pages/JobMatchPage.tsx"));
@@ -43,6 +43,7 @@ const NAV_GROUPS = [
       { href: "/", icon: LayoutDashboard, label: "Home" },
       { href: "/editor", icon: PenLine, label: "Resume Editor" },
       { href: "/resumes", icon: LayoutDashboard, label: "My Resumes" },
+      { href: "/create", icon: FilePlus2, label: "Create Resume" },
     ],
   },
   {
@@ -180,12 +181,6 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
   const [titleValue, setTitleValue] = useState(resume.title);
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
 
-  // Compact Resume Health score — only shown in editor
-  const healthResult = useMemo(() => analyzeResume(resume), [resume]);
-  const healthScore = healthResult.score;
-  const healthBand = healthScore >= 80 ? 'strong' : healthScore >= 60 ? 'good' : healthScore >= 40 ? 'fair' : 'weak';
-  const healthColor = healthBand === 'strong' ? 'text-emerald-500' : healthBand === 'good' ? 'text-emerald-500' : healthBand === 'fair' ? 'text-amber-500' : 'text-red-500';
-
   const handleTitleSubmit = useCallback(() => {
     if (titleValue.trim()) renameResumeAction(resume.id, titleValue.trim());
     else setTitleValue(resume.title);
@@ -269,16 +264,6 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
       <div className="flex items-center gap-1 shrink-0">
         {isEditor && (
           <>
-            {/* Compact Resume Health */}
-            <div
-              className="h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground"
-              title="Resume Health"
-              aria-label={`Resume Health: ${healthScore}/100`}
-            >
-              <HeartPulse className={cn('h-3.5 w-3.5', healthColor)} />
-              <span className={cn('tabular-nums font-bold', healthColor)}>{healthScore}</span>
-            </div>
-            <div className="h-5 w-px bg-border/60 mx-1" />
             <button onClick={undo} disabled={!canUndo} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-30" aria-label="Undo" title="Undo">
               <Undo2 className="h-4 w-4" />
             </button>
@@ -291,9 +276,9 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
             <button
               onClick={() => setTemplatePickerOpen(true)}
               className="h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-              title="Change template"
+              title="Change the design of this resume"
             >
-              <Palette className="h-3.5 w-3.5" /> Template
+              <Palette className="h-3.5 w-3.5" /> Change Template
             </button>
             <div className="h-5 w-px bg-border/60 mx-1" />
             <button
@@ -399,6 +384,7 @@ const App = () => (
           <ShellLayout>
             <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/create" element={<Onboarding />} />
             <Route path="/editor" element={<Index />} />
             <Route path="/resumes" element={<Dashboard />} />
             <Route path="/job-match" element={<JobMatchPage />} />

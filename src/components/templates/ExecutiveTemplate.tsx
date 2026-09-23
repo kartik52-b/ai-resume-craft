@@ -11,6 +11,7 @@ const ExecutiveTemplate = ({ data }: { data: ResumeData }) => {
       {/* Header */}
       <div className="text-center mb-4 pb-3 border-b-2 border-gray-800">
         {p.fullName && <h1 className="text-2xl font-bold text-black tracking-wide mb-1">{p.fullName}</h1>}
+        {p.headline && <div className="text-[11px] uppercase tracking-[0.2em] text-gray-600 mb-1">{p.headline}</div>}
         <div className="flex flex-wrap justify-center gap-x-3 text-[9px] text-gray-600 tracking-wide">
           {p.email && <span>{p.email}</span>}
           {p.phone && <span>{p.phone}</span>}

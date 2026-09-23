@@ -84,6 +84,7 @@ const StartupTemplate = ({ data }: { data: ResumeData }) => {
     <div className="font-resume-sans text-[11px] leading-[1.5] text-slate-800">
       <div className="mb-4">
         {p.fullName && <h1 className="text-xl font-extrabold tracking-tight text-slate-900">{p.fullName}</h1>}
+        {p.headline && <div className="text-[11px] font-semibold text-indigo-600 mt-0.5">{p.headline}</div>}
         <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-slate-400">
           {p.email && <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{p.email}</span>}
           {p.phone && <span className="flex items-center gap-1"><Phone className="h-2.5 w-2.5" />{p.phone}</span>}

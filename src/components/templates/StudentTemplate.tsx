@@ -11,6 +11,7 @@ const StudentTemplate = ({ data }: { data: ResumeData }) => {
       {/* Header */}
       <div className="text-center mb-4">
         {p.fullName && <h1 className="text-xl font-bold text-slate-900 mb-1">{p.fullName}</h1>}
+        {p.headline && <div className="text-[10.5px] font-medium text-slate-600 mb-1">{p.headline}</div>}
         <div className="flex flex-wrap justify-center gap-x-2 text-[9px] text-slate-500">
           {p.email && <span>{p.email}</span>}
           {p.phone && <span>•</span>}

@@ -5,12 +5,11 @@ import { Label } from '@/components/ui/label';
 import SummaryGenerator from '@/components/ai/SummaryGenerator';
 import AiToolbar from '@/components/ai/AiToolbar';
 import { resumeToPlainText } from '@/lib/resumeText';
-import { User, Mail, Phone, MapPin, Globe, Linkedin, Github } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Globe, Linkedin, Github, Briefcase } from 'lucide-react';
 
 /**
- * Personal information form. New resumes arrive pre-filled with DEFAULT_PERSONAL_INFO
- * (see src/types/resume.ts) — these placeholders only apply if a field is later
- * cleared, and never leak into the resume data itself.
+ * Personal information form. New resumes start blank — placeholders are hints
+ * only and never become resume data.
  */
 const PersonalSection = () => {
   const { resume, updatePersonal } = useResume();
@@ -18,9 +17,10 @@ const PersonalSection = () => {
 
   const fields = [
     { key: 'fullName', label: 'Full Name', icon: User, placeholder: 'Your full name' },
+    { key: 'headline', label: 'Professional Headline', icon: Briefcase, placeholder: 'Senior Software Engineer' },
     { key: 'email', label: 'Email', icon: Mail, placeholder: 'you@example.com' },
-    { key: 'phone', label: 'Phone', icon: Phone, placeholder: '+91 XXXXX XXXXX' },
-    { key: 'location', label: 'Location', icon: MapPin, placeholder: 'City, State, India' },
+    { key: 'phone', label: 'Phone', icon: Phone, placeholder: '+1 555 123 4567' },
+    { key: 'location', label: 'Location', icon: MapPin, placeholder: 'City, Country' },
     { key: 'website', label: 'Website', icon: Globe, placeholder: 'https://yourwebsite.com' },
     { key: 'linkedin', label: 'LinkedIn', icon: Linkedin, placeholder: 'linkedin.com/in/yourname' },
     { key: 'github', label: 'GitHub', icon: Github, placeholder: 'github.com/yourname' },

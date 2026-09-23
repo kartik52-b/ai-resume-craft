@@ -426,3 +426,103 @@ export function searchTemplates(query: string): TemplateDefinition[] {
 export function getTemplate(id: ResumeData['template']): TemplateDefinition {
   return TEMPLATE_REGISTRY.find((t) => t.id === id) ?? TEMPLATE_REGISTRY[0];
 }
+
+/**
+ * Career-oriented groupings used by the onboarding design step.
+ * Each group lists template ids explicitly (no fuzzy matching), so a group can
+ * never silently resolve to an unintended design.
+ */
+export interface DesignCollection {
+  id: string;
+  label: string;
+  blurb: string;
+  templates: ResumeData['template'][];
+}
+
+export const DESIGN_COLLECTIONS: DesignCollection[] = [
+  {
+    id: 'all',
+    label: 'All',
+    blurb: 'Every design in the gallery.',
+    templates: TEMPLATE_REGISTRY.map((t) => t.id),
+  },
+  {
+    id: 'professional',
+    label: 'Professional',
+    blurb: 'Balanced, recruiter-friendly layouts for most roles.',
+    templates: ['professional', 'modern', 'corporate', 'elegant', 'ats-classic', 'international', 'compact'],
+  },
+  {
+    id: 'modern',
+    label: 'Modern',
+    blurb: 'Contemporary layouts with clean typography.',
+    templates: ['modern', 'startup', 'tech', 'two-column', 'minimal'],
+  },
+  {
+    id: 'minimal',
+    label: 'Minimal',
+    blurb: 'Quiet, whitespace-first designs that let content lead.',
+    templates: ['minimal', 'ats-classic', 'compact', 'elegant'],
+  },
+  {
+    id: 'creative',
+    label: 'Creative',
+    blurb: 'Expressive designs with colour and visual hierarchy.',
+    templates: ['creative', 'portfolio', 'marketing', 'designer', 'startup'],
+  },
+  {
+    id: 'engineering',
+    label: 'Engineering',
+    blurb: 'Structured layouts that surface skills and technical depth.',
+    templates: ['engineering', 'tech', 'developer'],
+  },
+  {
+    id: 'finance',
+    label: 'Finance',
+    blurb: 'Conservative, formal formats for finance and banking.',
+    templates: ['finance', 'corporate', 'professional', 'consultant'],
+  },
+  {
+    id: 'academic',
+    label: 'Academic',
+    blurb: 'Publication- and research-friendly formats.',
+    templates: ['academic', 'research', 'student'],
+  },
+  {
+    id: 'designer',
+    label: 'Designer',
+    blurb: 'Visual layouts for UI, UX and graphic designers.',
+    templates: ['designer', 'portfolio', 'creative', 'two-column'],
+  },
+  {
+    id: 'marketing',
+    label: 'Marketing',
+    blurb: 'Bold, metrics-forward layouts for marketing roles.',
+    templates: ['marketing', 'creative', 'startup'],
+  },
+  {
+    id: 'healthcare',
+    label: 'Healthcare',
+    blurb: 'Clinical experience and credentials up front.',
+    templates: ['healthcare', 'professional', 'international'],
+  },
+  {
+    id: 'legal',
+    label: 'Legal',
+    blurb: 'Traditional, formal formatting for legal roles.',
+    templates: ['legal', 'professional', 'executive'],
+  },
+  {
+    id: 'executive',
+    label: 'Executive',
+    blurb: 'Authority-forward designs for leadership roles.',
+    templates: ['executive', 'consultant', 'corporate', 'finance'],
+  },
+];
+
+/** Resolves a design collection to definitions, skipping any unknown id. */
+export function getCollectionTemplates(collection: DesignCollection): TemplateDefinition[] {
+  return collection.templates
+    .map((id) => TEMPLATE_REGISTRY.find((t) => t.id === id))
+    .filter((t): t is TemplateDefinition => Boolean(t));
+}

@@ -62,6 +62,7 @@ const FinanceTemplate = ({ data }: { data: ResumeData }) => {
     <div className="font-serif text-[10.5px] leading-[1.5] text-gray-800">
       <div className="text-center mb-4 pb-3 border-b-2 border-gray-800">
         {p.fullName && <h1 className="text-xl font-bold text-gray-900 tracking-wide uppercase">{p.fullName}</h1>}
+        {p.headline && <div className="text-[10.5px] italic text-gray-600 mt-0.5">{p.headline}</div>}
         <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5 mt-1 text-[9.5px] text-gray-500">
           {p.email && <span>{p.email}</span>}{p.phone && <span>· {p.phone}</span>}{p.location && <span>· {p.location}</span>}
           {p.linkedin && <span>· {p.linkedin}</span>}{p.github && <span>· {p.github}</span>}{p.website && <span>· {p.website}</span>}

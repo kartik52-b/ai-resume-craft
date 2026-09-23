@@ -1,8 +1,7 @@
 import { useCallback, useState } from "react";
 import { useResume } from "@/context/ResumeContext";
 import { getTemplate } from "@/lib/templateRegistry";
-import { getSampleResume } from "@/lib/sampleResume";
-import { ZoomIn, ZoomOut, Maximize2, Minimize2, RotateCcw } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, Minimize2, RotateCcw, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -15,8 +14,15 @@ const PreviewPanel = () => {
   const [fullscreen, setFullscreen] = useState(false);
 
   const zoom = ZOOM_LEVELS[zoomIdx];
-  const hasContent = resume.personal.fullName || resume.experience.length > 0 || resume.skills.length > 0;
-  const previewData = hasContent ? resume : { ...getSampleResume(), template: resume.template };
+  // Always the user's own resume — sample content is never substituted here.
+  const isEmpty =
+    !resume.personal.fullName &&
+    !resume.personal.summary &&
+    resume.experience.length === 0 &&
+    resume.education.length === 0 &&
+    resume.skills.length === 0 &&
+    resume.projects.length === 0 &&
+    resume.certifications.length === 0;
 
   const handleFit = useCallback(() => setZoomIdx(2), []);
 
@@ -54,7 +60,14 @@ const PreviewPanel = () => {
               boxShadow: "0 2px 8px rgba(0,0,0,.08), 0 12px 40px rgba(0,0,0,.06), 0 24px 64px rgba(0,0,0,.04)" }} />
           <div className="bg-canvas rounded-sm transition-all duration-200 relative"
             style={{ width: "210mm", minHeight: "297mm", padding: "18mm 20mm", transform: `scale(${zoom})`, transformOrigin: "top center" }}>
-            <Template data={previewData} />
+            <Template data={resume} />
+            {isEmpty && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center px-8 pointer-events-none">
+                <Eye className="h-6 w-6 text-zinc-300" />
+                <p className="text-[13px] font-medium text-zinc-400">Your resume preview appears here</p>
+                <p className="text-[11px] text-zinc-400">Fill in the sections on the left and this page updates as you type.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

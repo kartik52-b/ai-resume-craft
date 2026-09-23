@@ -79,6 +79,7 @@ const DeveloperTemplate = ({ data }: { data: ResumeData }) => {
       {/* Dark navy header band */}
       <div className="bg-slate-900 -mx-5 -mt-5 px-5 pt-4 pb-3 mb-4 rounded-b">
         {p.fullName && <h1 className="text-[20px] font-bold text-white tracking-tight">{p.fullName}</h1>}
+        {p.headline && <div className="text-[9.5px] font-mono text-cyan-300 mt-0.5">{p.headline}</div>}
         <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[9px] font-mono text-cyan-300">
           {[p.email, p.phone, p.location].filter(Boolean).map((item, i) => <span key={i}>{item}</span>)}
         </div>

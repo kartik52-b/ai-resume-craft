@@ -1,4 +1,4 @@
-import { type ResumeData, type TemplateType, createStarterResume } from '@/types/resume';
+import { type ResumeData, type TemplateType, createEmptyResume } from '@/types/resume';
 import { type ResumeStore, ensureActiveResume } from '@/lib/storage';
 import { generateId } from '@/lib/id';
 
@@ -7,6 +7,10 @@ import { generateId } from '@/lib/id';
  * All functions are pure: they take and return ResumeStore values and never
  * touch storage or React. Storage is handled by ResumeProvider, which
  * persists the whole store after each mutation.
+ *
+ * Nothing here invents resume content. A new resume always starts blank; the
+ * only way a resume gets personal content is through the onboarding flow or
+ * the user's own edits.
  */
 
 export interface ResumeSummary {
@@ -17,10 +21,9 @@ export interface ResumeSummary {
   updated: string;
 }
 
-/** Creates a store with one fresh starter resume (pre-filled with default details). */
+/** A brand-new store: no resumes until the user creates one. */
 export function createStore(): ResumeStore {
-  const resume = createStarterResume();
-  return { resumes: [resume], activeId: resume.id };
+  return { resumes: [], activeId: null };
 }
 
 export function listResumes(store: ResumeStore): ResumeSummary[] {
@@ -36,13 +39,18 @@ export function getActive(store: ResumeStore): ResumeData | null {
   return store.resumes.find((r) => r.id === store.activeId) ?? store.resumes[0] ?? null;
 }
 
-/** Creates a new resume (pre-filled with default starter details), makes it active, and returns the new store + its id. */
-export function createResume(store: ResumeStore): { store: ResumeStore; id: string } {
-  const resume = createStarterResume();
+/** Inserts a prepared resume (already populated with the user's own data) and makes it active. */
+export function addResume(store: ResumeStore, resume: ResumeData): { store: ResumeStore; id: string } {
+  const prepared: ResumeData = { ...resume, updatedAt: resume.updatedAt ?? new Date().toISOString() };
   return {
-    store: { resumes: [...store.resumes, resume], activeId: resume.id },
-    id: resume.id,
+    store: { resumes: [...store.resumes, prepared], activeId: prepared.id },
+    id: prepared.id,
   };
+}
+
+/** Creates a blank resume, makes it active, and returns the new store + its id. */
+export function createResume(store: ResumeStore): { store: ResumeStore; id: string } {
+  return addResume(store, createEmptyResume());
 }
 
 export function renameResume(store: ResumeStore, id: string, title: string): ResumeStore {

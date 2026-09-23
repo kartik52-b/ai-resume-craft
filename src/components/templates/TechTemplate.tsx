@@ -13,6 +13,7 @@ const TechTemplate = ({ data }: { data: ResumeData }) => {
         <div className="flex items-baseline justify-between">
           {p.fullName && <h1 className="text-lg font-bold text-black">{p.fullName}</h1>}
         </div>
+        {p.headline && <div className="text-[9.5px] text-gray-600 mt-0.5">{p.headline}</div>}
         <div className="text-[8.5px] text-gray-500 mt-0.5">
           {[p.email, p.phone, p.location, p.website, p.linkedin, p.github].filter(Boolean).join(' · ')}
         </div>

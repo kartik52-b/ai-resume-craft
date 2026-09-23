@@ -12,6 +12,7 @@ const AtsClassicTemplate = ({ data }: { data: ResumeData }) => {
       {/* Header */}
       <div className="mb-3 pb-2 border-b border-gray-300">
         {p.fullName && <h1 className="text-lg font-bold text-black mb-0.5">{p.fullName}</h1>}
+        {p.headline && <div className="text-[10px] font-medium text-gray-700 mb-0.5">{p.headline}</div>}
         <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[9px] text-gray-600">
           {p.email && <span>{p.email}</span>}
           {p.phone && <span>| {p.phone}</span>}

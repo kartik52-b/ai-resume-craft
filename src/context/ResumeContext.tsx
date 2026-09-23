@@ -4,6 +4,7 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   type ReactNode,
 } from 'react';
@@ -17,6 +18,7 @@ import {
 } from '@/lib/storage';
 import {
   getActive,
+  addResume,
   createResume,
   duplicateResume,
   deleteResume,
@@ -24,15 +26,22 @@ import {
   setActiveResume,
   updateActiveResume,
 } from '@/lib/resumeStore';
-import { type ResumeData, type TemplateType } from '@/types/resume';
+import { type ResumeData, type TemplateType, createEmptyResume } from '@/types/resume';
+import { type PersonalDetails, buildResumeFromDetails } from '@/lib/onboarding';
 
 const AUTOSAVE_DELAY_MS = 800;
 
 interface ResumeContextType {
-  /** All resumes in the store. */
+  /** All resumes in the store. Empty for a brand-new user who has not created one yet. */
   resumes: ResumeData[];
-  /** The resume currently being edited. */
+  /**
+   * The resume currently being edited. When the store is empty this is a blank
+   * placeholder (never sample data) so consumers can render safely; routes that
+   * need a real resume should check `hasResume` first.
+   */
   resume: ResumeData;
+  /** True once the user has at least one real resume. */
+  hasResume: boolean;
   activeId: string | null;
   saveStatus: SaveStatus;
   loadStatus: LoadStatus;
@@ -46,7 +55,12 @@ interface ResumeContextType {
   setTemplate: (template: TemplateType) => void;
   updateField: <K extends keyof ResumeData>(key: K, value: ResumeData[K]) => void;
   // --- Store actions ---
+  /** Creates a blank resume (no sample content) and makes it active. */
   createResumeAction: () => string;
+  /** Creates the user's real resume from onboarding details + the chosen design. */
+  createResumeFromDetails: (details: PersonalDetails, template: TemplateType) => string;
+  /** Adds an imported draft as a new resume (used when the user has none yet). */
+  importResumeAction: (draft: ResumeData) => string;
   renameResumeAction: (id: string, title: string) => void;
   duplicateResumeAction: (id: string) => string | null;
   deleteResumeAction: (id: string) => 'deleted' | 'last-resume';
@@ -151,6 +165,9 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const active = getActive(store);
+  // Stable blank placeholder for the no-resume state — replaced the moment the
+  // user creates their first resume, and never persisted.
+  const blankResume = useMemo(() => createEmptyResume(), []);
 
   const updateActive = useCallback(
     (updater: (r: ResumeData) => ResumeData) =>
@@ -196,6 +213,18 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
     return result.id;
   }, []);
 
+  const createResumeFromDetails = useCallback((details: PersonalDetails, template: TemplateType) => {
+    const result = addResume(storeRef.current, buildResumeFromDetails(details, template));
+    setStore(result.store);
+    return result.id;
+  }, []);
+
+  const importResumeAction = useCallback((draft: ResumeData) => {
+    const result = addResume(storeRef.current, draft);
+    setStore(result.store);
+    return result.id;
+  }, []);
+
   const renameResumeAction = useCallback((id: string, title: string) => {
     setStore(prev => renameResume(prev, id, title));
   }, []);
@@ -222,7 +251,8 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
     <ResumeContext.Provider
       value={{
         resumes: store.resumes,
-        resume: active ?? store.resumes[0],
+        resume: active ?? blankResume,
+        hasResume: store.resumes.length > 0,
         activeId: store.activeId,
         saveStatus,
         loadStatus,
@@ -235,6 +265,8 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
         setTemplate,
         updateField,
         createResumeAction,
+        createResumeFromDetails,
+        importResumeAction,
         renameResumeAction,
         duplicateResumeAction,
         deleteResumeAction,

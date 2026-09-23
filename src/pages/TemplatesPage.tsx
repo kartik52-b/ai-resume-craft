@@ -10,6 +10,7 @@ import {
   type TemplateCategory,
 } from "@/lib/templateRegistry";
 import { getSampleResume } from "@/lib/sampleResume";
+import ResumeThumbnail from "@/components/ResumeThumbnail";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -46,34 +47,6 @@ function matchesFilter(t: TemplateDefinition, filter: FilterType): boolean {
   return t.category === filter;
 }
 
-/* ── Thumbnail rendered from the real template component ────────────────── */
-
-function TemplateThumbnail({
-  template,
-  sample,
-}: {
-  template: TemplateDefinition;
-  sample: ReturnType<typeof getSampleResume>;
-}) {
-  const previewData = { ...sample, template: template.id };
-  return (
-    <div
-      className="w-full aspect-[210/297] bg-white overflow-hidden pointer-events-none select-none"
-      style={{
-        width: "286%",
-        height: "286%",
-        position: "absolute",
-        top: 0,
-        left: 0,
-        transform: "scale(0.35)",
-        transformOrigin: "top left",
-      }}
-    >
-      <template.Component data={previewData} />
-    </div>
-  );
-}
-
 /* ── Zoom levels for preview ────────────────────────────────────────────── */
 
 const ZOOM_LEVELS = [0.5, 0.65, 0.8, 1.0];
@@ -101,7 +74,7 @@ function LayoutBadge({ layoutType }: { layoutType: string }) {
    ════════════════════════════════════════════════════════════════════════════ */
 
 export default function TemplatesPage() {
-  const { resume, setTemplate } = useResume();
+  const { resume, setTemplate, hasResume } = useResume();
   const navigate = useNavigate();
 
   /* ── State ── */
@@ -137,11 +110,19 @@ export default function TemplatesPage() {
   /* ── Preview template ── */
   const previewTemplate = previewing ? getTemplate(previewing as never) : null;
   const isCurrent = previewTemplate
-    ? resume.template === previewTemplate.id
+    ? hasResume && resume.template === previewTemplate.id
     : false;
 
   /* ── Apply template (preserves all resume data) ── */
   const applyTemplate = (id: string, label: string) => {
+    // Nobody has a resume yet → carry the choice into the create flow.
+    if (!hasResume) {
+      toast.success(`${label} selected`, {
+        description: "Add your details to finish creating your resume.",
+      });
+      navigate(`/create?template=${id}`);
+      return;
+    }
     setTemplate(id as never);
     toast.success(`${label} applied`, {
       description: "Your resume data is unchanged.",
@@ -151,6 +132,11 @@ export default function TemplatesPage() {
 
   /* ── Use Template click handler — shows confirmation when user has data ── */
   const handleUseTemplate = (t: TemplateDefinition) => {
+    if (!hasResume) {
+      applyTemplate(t.id, t.label);
+      return;
+    }
+
     const hasData =
       resume.personal.fullName ||
       resume.experience.length > 0 ||
@@ -344,7 +330,7 @@ export default function TemplatesPage() {
           {filtered.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((t) => {
-                const isCurrent = resume.template === t.id;
+                const isCurrent = hasResume && resume.template === t.id;
                 return (
                   <div
                     key={t.id}
@@ -362,7 +348,7 @@ export default function TemplatesPage() {
                       aria-label={`Preview ${t.label} template`}
                     >
                       <div className="relative w-[118px] h-[167px] shadow-md rounded-sm overflow-hidden border border-border/20 transition-transform duration-200 group-hover:shadow-lg group-hover:scale-[1.03]">
-                        <TemplateThumbnail template={t} sample={sample} />
+                        <ResumeThumbnail data={{ ...sample, template: t.id }} />
                       </div>
                       {isCurrent && (
                         <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full">

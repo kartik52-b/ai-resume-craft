@@ -100,6 +100,13 @@ describe('undo/redo', () => {
   beforeEach(() => {
     clearStoredResume();
     vi.useFakeTimers();
+    // A resume must exist for edits to apply (a brand-new user has none until
+    // they finish the create flow).
+    const seeded = createEmptyResume();
+    localStorage.setItem(
+      'ai-resume-craft:store',
+      JSON.stringify({ version: 2, savedAt: new Date().toISOString(), store: { resumes: [seeded], activeId: seeded.id } }),
+    );
   });
   afterEach(() => {
     vi.useRealTimers();
@@ -121,7 +128,8 @@ describe('undo/redo', () => {
 
   it('undo restores the previous state and redo reapplies it', () => {
     render(<ResumeProvider><UndoProbe /></ResumeProvider>);
-    expect(screen.getByTestId('name').textContent).toBe('Kartik Bhardwaj');
+    // A stored resume with no sample details starts blank.
+    expect(screen.getByTestId('name').textContent).toBe('');
 
     fireEvent.click(screen.getByText('edit'));
     fireEvent.click(screen.getByText('edit-2'));
@@ -131,7 +139,7 @@ describe('undo/redo', () => {
     expect(screen.getByTestId('name').textContent).toBe('Second');
 
     act(() => { fireEvent.click(screen.getByText('undo')); });
-    expect(screen.getByTestId('name').textContent).toBe('Kartik Bhardwaj');
+    expect(screen.getByTestId('name').textContent).toBe('');
 
     act(() => { fireEvent.click(screen.getByText('redo')); });
     expect(screen.getByTestId('name').textContent).toBe('Second');
@@ -152,6 +160,6 @@ describe('undo/redo', () => {
     act(() => { vi.advanceTimersByTime(800); });
 
     const stored = JSON.parse(localStorage.getItem('ai-resume-craft:store')!);
-    expect(stored.store.resumes[0].personal.fullName).toBe('Kartik Bhardwaj');
+    expect(stored.store.resumes[0].personal.fullName).toBe('');
   });
 });

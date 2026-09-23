@@ -22,6 +22,8 @@ export function resumeToSections(resume: ResumeData): ResumeTextSection[] {
 
     switch (id) {
       case 'personal': {
+        // The headline renders in the name block (see resumeToPlainText); the
+        // PDF engine draws it under the contact line.
         const p = resume.personal;
         if (p.summary.trim()) lines.push(p.summary.trim());
         break;
@@ -69,11 +71,12 @@ export function resumeToSections(resume: ResumeData): ResumeTextSection[] {
 
 /** Full plain-text rendering of the resume (without the name header). */
 export function resumeToPlainText(resume: ResumeData): string {
-  const header = resume.personal.fullName.trim();
-  const contact = [resume.personal.email, resume.personal.phone, resume.personal.location]
-    .filter(Boolean).join(' | ');
+  const p = resume.personal;
+  const header = p.fullName.trim();
+  const headline = p.headline.trim();
+  const contact = [p.email, p.phone, p.location].filter(Boolean).join(' | ');
   const body = resumeToSections(resume)
     .map((s) => `${s.title.toUpperCase()}\n${s.lines.join('\n')}`)
     .join('\n\n');
-  return [header, contact, body].filter(Boolean).join('\n\n');
+  return [header, headline, contact, body].filter(Boolean).join('\n\n');
 }

@@ -52,6 +52,7 @@ const InternationalTemplate = ({ data }: { data: ResumeData }) => {
     <div className="font-resume-sans text-[10.5px] leading-[1.5] text-gray-800">
       <div className="mb-4">
         {p.fullName && <h1 className="text-xl font-bold text-gray-900 tracking-tight">{p.fullName}</h1>}
+        {p.headline && <div className="text-[10.5px] font-medium text-slate-600 mt-0.5">{p.headline}</div>}
         <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-[9.5px] text-gray-400">
           {p.email && <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{p.email}</span>}
           {p.phone && <span className="flex items-center gap-1"><Phone className="h-2.5 w-2.5" />{p.phone}</span>}

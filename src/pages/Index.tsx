@@ -1,4 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useResume } from "@/context/ResumeContext";
 import { type SectionId } from "@/types/resume";
 import SectionNav from "@/components/SectionNav";
 import EditorPanel from "@/components/EditorPanel";
@@ -6,10 +8,28 @@ import PreviewPanel from "@/components/PreviewPanel";
 import { cn } from "@/lib/utils";
 import { Pencil, Eye } from "lucide-react";
 
+/**
+ * Resume editor — three zones on desktop (sections | editor | live preview)
+ * and an Edit/Preview switch on mobile.
+ *
+ * A visitor with no resume yet is sent to the create flow instead of being
+ * shown an empty editor.
+ */
 const Index = () => {
-  const [mobileView, setMobileView] = useState<"edit" | "preview">("edit");
+  const { hasResume } = useResume();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const [mobileView, setMobileView] = useState<"edit" | "preview">(
+    searchParams.get("view") === "preview" ? "preview" : "edit",
+  );
   const [activeSection, setActiveSection] = useState<SectionId | null>("personal");
   const [scrollToSection, setScrollToSection] = useState<SectionId | null>(null);
+
+  // No resume yet → send the visitor through onboarding.
+  useEffect(() => {
+    if (!hasResume) navigate("/create", { replace: true });
+  }, [hasResume, navigate]);
 
   const handleSectionClick = useCallback((sectionId: SectionId) => {
     setActiveSection(sectionId);
@@ -18,10 +38,12 @@ const Index = () => {
     window.setTimeout(() => setScrollToSection(null), 200);
   }, []);
 
+  if (!hasResume) return null;
+
   return (
     <div className="h-full flex overflow-hidden bg-workspace">
       {/* Desktop: three-zone layout */}
-      {/* Left: Section Navigation */}
+      {/* Left: Section Navigation — resume sections only */}
       <div className="hidden lg:block w-[200px] shrink-0 h-full">
         <SectionNav
           activeSection={activeSection}

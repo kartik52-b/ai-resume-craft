@@ -5,6 +5,8 @@ export interface PersonalInfo {
   email: string;
   phone: string;
   location: string;
+  /** One-line professional title shown under the name (e.g. "Senior Software Engineer"). */
+  headline: string;
   website: string;
   linkedin: string;
   github: string;
@@ -76,13 +78,15 @@ export interface ResumeData {
 }
 
 /**
- * A completely blank resume. Used as the sanitize fallback, the base for demo
- * data, and inside tests. NOT what a brand-new user resume looks like — see
- * createStarterResume for that.
+ * A completely blank resume — no personal details, no sample content.
+ *
+ * This is the ONLY starting point for a real user's resume: every value in it
+ * belongs to the user (or is empty). Demo/sample content lives exclusively in
+ * src/lib/sampleResume.ts and is never written into user data.
  */
 export const createEmptyResume = (): ResumeData => ({
   id: generateId(),
-  title: 'Untitled Resume',
+  title: 'My Resume',
   template: 'modern',
   sectionOrder: [...DEFAULT_SECTION_ORDER],
   hiddenSections: [],
@@ -91,6 +95,7 @@ export const createEmptyResume = (): ResumeData => ({
     email: '',
     phone: '',
     location: '',
+    headline: '',
     website: '',
     linkedin: '',
     github: '',
@@ -101,31 +106,6 @@ export const createEmptyResume = (): ResumeData => ({
   skills: [],
   projects: [],
   certifications: [],
-});
-
-/**
- * Default starter personal details shown in the editor when a new resume is
- * created. These are editable example values — every field can be replaced by
- * the user. Indian formatting throughout.
- */
-export const DEFAULT_PERSONAL_INFO: PersonalInfo = {
-  fullName: 'Kartik Bhardwaj',
-  email: 'kartik@example.com',
-  phone: '+91 98765 43210',
-  location: 'Agra, Uttar Pradesh, India',
-  website: '',
-  linkedin: 'linkedin.com/in/kartikbhardwaj',
-  github: 'github.com/kartikbhardwaj',
-  summary: '',
-};
-
-/**
- * A new user-facing resume, pre-filled with the default starter details.
- * The user can edit every field; their edits become their real resume data.
- */
-export const createStarterResume = (): ResumeData => ({
-  ...createEmptyResume(),
-  personal: { ...DEFAULT_PERSONAL_INFO },
 });
 
 export const createEmptyExperience = (): Experience => ({

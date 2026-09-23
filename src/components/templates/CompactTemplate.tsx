@@ -69,6 +69,7 @@ const CompactTemplate = ({ data }: { data: ResumeData }) => {
       <div className="flex justify-between items-baseline pb-1.5 mb-2 border-b-2 border-slate-700">
         <div>
           {p.fullName && <h1 className="text-[16px] font-bold text-slate-900 tracking-tight leading-none">{p.fullName}</h1>}
+          {p.headline && <div className="text-[8.5px] font-medium text-slate-600 mt-0.5">{p.headline}</div>}
           <div className="text-[8.5px] text-slate-500 mt-0.5">{[p.email, p.phone].filter(Boolean).join(' · ')}</div>
         </div>
         <div className="text-[8.5px] text-slate-500 text-right leading-tight">

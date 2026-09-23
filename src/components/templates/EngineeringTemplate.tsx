@@ -77,6 +77,7 @@ const EngineeringTemplate = ({ data }: { data: ResumeData }) => {
     <div className="font-mono text-[10.5px] leading-[1.5] text-slate-800">
       <div className="mb-4 pb-3 border-b-2 border-blue-800">
         {p.fullName && <h1 className="text-xl font-bold text-slate-900 tracking-tight">{p.fullName}</h1>}
+        {p.headline && <div className="text-[10px] font-medium text-blue-700 mt-0.5">{p.headline}</div>}
         <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-slate-400">
           {p.email && <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{p.email}</span>}
           {p.phone && <span className="flex items-center gap-1"><Phone className="h-2.5 w-2.5" />{p.phone}</span>}

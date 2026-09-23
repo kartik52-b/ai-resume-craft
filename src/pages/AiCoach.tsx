@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, CheckCircle, FileText, Briefcase, GraduationCap, FolderOpen, AlertCircle, Brain, Target, FileOutput, Lightbulb, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import NoResumeNotice from "@/components/NoResumeNotice";
 
 type CoachAction = { id: string; label: string; description: string; mode: RewriteMode; icon: typeof Brain; category: "improve" | "ats" | "concise" | "impact" };
 const COACH_ACTIONS: CoachAction[] = [
@@ -20,7 +21,7 @@ const COACH_ACTIONS: CoachAction[] = [
 type TextSource = { id: string; label: string; icon: typeof Briefcase; getText: () => string; onAccept: (text: string) => void; };
 
 export default function AiCoach() {
-  const { resume, updateField, updatePersonal } = useResume();
+  const { resume, updateField, updatePersonal, hasResume } = useResume();
   const { run, loading, error, clearError } = useAiAction();
   const [preview, setPreview] = useState<{ original: string; rewritten: string; action: string } | null>(null);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
@@ -36,6 +37,15 @@ export default function AiCoach() {
   const activeSource = sources.find((s) => s.id === selectedSource);
   const inputText = selectedSource === "custom" ? customText : activeSource?.getText() ?? "";
   const runAction = useCallback((action: CoachAction) => { if (!inputText.trim()) return; const original = inputText; run(() => aiRewrite(original, action.mode), (result) => { if (result.text?.trim()) setPreview({ original, rewritten: result.text.trim(), action: action.label }); }); }, [inputText, run]);
+
+  if (!hasResume) {
+    return (
+      <NoResumeNotice
+        title="Create a resume to coach"
+        description="The AI Coach improves text that already exists in your resume. Create your resume first, then polish your summary and bullet points here."
+      />
+    );
+  }
 
   return (
     <div className="min-h-full bg-workspace overflow-y-auto">

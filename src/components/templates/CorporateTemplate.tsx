@@ -84,6 +84,7 @@ const CorporateTemplate = ({ data }: { data: ResumeData }) => {
         <div className="w-1 bg-blue-700 rounded-full shrink-0" />
         <div className="flex-1">
           {p.fullName && <h1 className="text-[21px] font-bold text-blue-950 tracking-tight leading-tight">{p.fullName}</h1>}
+          {p.headline && <div className="text-[10px] font-semibold uppercase tracking-wider text-blue-700 mt-0.5">{p.headline}</div>}
           <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 mt-1 text-[9.5px] text-slate-600">
             {[p.email, p.phone, p.location].filter(Boolean).map((item, i) => <span key={i}>{item}</span>)}
           </div>

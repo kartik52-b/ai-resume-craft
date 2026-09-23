@@ -27,7 +27,35 @@ bun run build         # Production build
 bun run e2e           # E2E tests (Playwright)
 ```
 
-## Features
+## Creating a resume (new-user flow)
+
+```
+Landing (/)  →  Create My Resume (/create)  →  Personal details
+             →  Choose design  →  Resume generated  →  Editor (/editor)
+             →  Live preview  →  Export PDF
+```
+
+1. **`/create` step 1** collects only what is needed to start: full name, email,
+   phone (required) plus location and professional headline (optional), with
+   inline validation.
+2. **Step 2** shows a real, full-page gallery of every design grouped by career
+   (Professional, Modern, Minimal, Creative, Engineering, Finance, Academic,
+   Designer, Marketing, Healthcare, Legal, Executive). Thumbnails can be viewed
+   with clearly-labelled *sample content* or with your own details.
+3. **Step 3** builds the resume from your details + the selected design and opens
+   the editor.
+
+### Data rules (important)
+
+- A brand-new visitor has **no resume at all**. `createEmptyResume()`
+  (`src/types/resume.ts`) is the only starting point for real resumes — it holds
+  no personal or sample content.
+- Demo content lives exclusively in `src/lib/sampleResume.ts` and is used only for
+  template thumbnails/galleries. It is never written into, or merged with, user data.
+- Existing stored resumes are preserved: storage migrations only *add* defaults
+  (e.g. the new `personal.headline` field) and never drop content.
+- There is no separate demo/sample resume hidden in the editor: an empty section
+  shows an empty state until the user fills it in.
 
 ### Resume Editor
 - **25 professional templates**: Modern, Minimal, Professional, ATS Classic, Student, Tech, Executive, Creative, Academic, Developer, Corporate, Elegant, Compact, Two Column, Portfolio, Startup, Engineering, Finance, Consultant, Research, Marketing, Designer, Healthcare, Legal, International
@@ -78,9 +106,11 @@ Without the key, the app works fully for editing, saving, templates, ATS, and jo
 src/
   main.tsx               # App entry point
   App.tsx                # Root layout with sidebar
-  pages/                 # Route pages
+  pages/                 # Route pages (/create = onboarding flow)
   context/               # ResumeContext — state + undo/redo + autosave
-  types/resume.ts        # ResumeData model + factories
+  types/resume.ts        # ResumeData model + blank-resume factories
+  lib/onboarding.ts      # Detail validation + resume construction
+  lib/sampleResume.ts    # Demo data for template previews only
   components/
     EditorPanel.tsx      # Left pane: section editors
     PreviewPanel.tsx     # Right pane: A4 preview + zoom + PDF

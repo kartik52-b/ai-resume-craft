@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useResume } from '@/context/ResumeContext';
 import { TEMPLATE_REGISTRY, type TemplateDefinition, type TemplateCategory } from '@/lib/templateRegistry';
 import { getSampleResume } from '@/lib/sampleResume';
+import ResumeThumbnail from '@/components/ResumeThumbnail';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,15 +26,6 @@ function matchesFilter(t: TemplateDefinition, filter: FilterType): boolean {
   if (filter === 'all') return true;
   if (filter === 'ats') return t.atsSafe;
   return t.category === filter;
-}
-
-function MiniThumbnail({ template, sample }: { template: TemplateDefinition; sample: ReturnType<typeof getSampleResume> }) {
-  return (
-    <div className="w-full aspect-[210/297] bg-white overflow-hidden pointer-events-none select-none"
-      style={{ width: '286%', height: '286%', position: 'absolute', top: 0, left: 0, transform: 'scale(0.35)', transformOrigin: 'top left' }}>
-      <template.Component data={{ ...sample, template: template.id }} />
-    </div>
-  );
 }
 
 interface TemplatePickerDialogProps {
@@ -66,7 +58,8 @@ export default function TemplatePickerDialog({ open, onOpenChange }: TemplatePic
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 gap-0">
         <DialogHeader className="px-5 pt-5 pb-3 border-b border-border/60">
-          <DialogTitle className="text-[15px]">Change Template</DialogTitle>
+          <DialogTitle className="text-[15px]">Change template</DialogTitle>
+          <p className="text-[12px] text-muted-foreground">Your resume content stays exactly the same — only the design changes.</p>
           <div className="relative mt-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
             <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search templates..." className="h-9 pl-9 text-[13px]" />
@@ -91,7 +84,7 @@ export default function TemplatePickerDialog({ open, onOpenChange }: TemplatePic
                   onClick={() => !isCurrent && handleSelect(t.id, t.label)}>
                   <div className="relative h-36 bg-muted/20 overflow-hidden flex items-start justify-center pt-3">
                     <div className="relative w-[90px] h-[127px] shadow-sm rounded-sm overflow-hidden border border-border/20 transition-transform duration-150 group-hover:scale-[1.03]">
-                      <MiniThumbnail template={t} sample={sample} />
+                      <ResumeThumbnail data={{ ...sample, template: t.id }} />
                     </div>
                     {isCurrent && <span className="absolute top-1.5 right-1.5 flex items-center gap-0.5 text-[9px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full"><CheckCircle2 className="h-2.5 w-2.5" /> Active</span>}
                   </div>

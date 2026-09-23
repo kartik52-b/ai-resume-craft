@@ -73,6 +73,7 @@ const MinimalTemplate = ({ data }: { data: ResumeData }) => {
       {/* Header (always first) */}
       <div className="mb-4">
         {p.fullName && <h1 className="text-lg font-bold text-zinc-900">{p.fullName}</h1>}
+        {p.headline && <div className="text-[10px] text-zinc-500 mt-0.5">{p.headline}</div>}
         <div className="text-[10px] text-zinc-400 space-x-2">
           {[p.email, p.phone, p.location, p.website, p.linkedin, p.github].filter(Boolean).map((item, i) => (
             <span key={i}>{item}</span>

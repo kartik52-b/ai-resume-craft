@@ -259,6 +259,14 @@ export function layoutResume(resume: ResumeData): { elements: PdfElement[]; tota
   }
   cursor.y += 2;
 
+  // --- Header: professional headline (one-line title under the contact row) ---
+  if (p.headline && p.headline.trim()) {
+    pushLines(cursor, wrapText(p.headline.trim(), style.bodySize, MAIN_W, style.charRatio), {
+      x: MAIN_X, size: style.bodySize, font: style.font, lh: lh(style.bodySize), italic: true,
+    });
+    cursor.y += 2;
+  }
+
   // --- Summary (intro text, no heading) ---
   if (p.summary.trim()) {
     pushLines(cursor, wrapText(p.summary.trim(), style.bodySize, MAIN_W, style.charRatio), {
