@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     hmr: false,
+    allowedHosts: [
+      "8080-ijofrc5ihyqyba8iiff5h.e2b.app",
+    ],
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:5001',

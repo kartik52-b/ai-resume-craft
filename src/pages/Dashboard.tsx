@@ -11,10 +11,11 @@ import ResumeThumbnail from "@/components/ResumeThumbnail";
 import {
   Plus, FileText, Copy, Trash2, Check, X,
   LayoutTemplate, Upload, Search, ArrowUpDown, ArrowRight,
-  Brain, Sparkles, Target, Clock, FileDown, Eye, PenLine, Palette,
+  Sparkles, Clock, FileDown, Eye, PenLine, Palette, FilePlus2, Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ImportDialog } from "@/components/ImportDialog";
+import Carousel from "@/components/Carousel";
 import { downloadResumePdf } from "@/lib/pdfEngine";
 import { toast } from "sonner";
 
@@ -32,9 +33,16 @@ function AtsHealthBadge({ score }: { score: number }) {
 const ONBOARDING_PREVIEWS = ["modern", "developer", "two-column", "elegant"] as const;
 
 const QUICK_ACCESS = [
-  { href: "/job-match", icon: Target, label: "Job Match", desc: "Match against job posts", color: "text-blue-500" },
-  { href: "/coach", icon: Brain, label: "AI Coach", desc: "Get AI improvement tips", color: "text-purple-500" },
+  { href: "/create", icon: FilePlus2, label: "Create Resume", desc: "Start a fresh resume", color: "text-green-500" },
   { href: "/templates", icon: LayoutTemplate, label: "Templates", desc: "Browse 25+ designs", color: "text-orange-500" },
+  { href: "/settings", icon: Settings, label: "Settings", desc: "Data & preferences", color: "text-blue-500" },
+];
+
+const TIPS = [
+  { title: "Tailor your summary", desc: "Mirror the language of the job posting — the ATS and the recruiter are looking for the same keywords." },
+  { title: "Quantify your impact", desc: "Numbers make experience credible: “cut load time by 40%” beats “improved performance” every time." },
+  { title: "Start bullets with results", desc: "Lead with a strong action verb and the outcome, not the task you performed." },
+  { title: "Keep it to one page", desc: "Early in your career one page is ideal — for senior roles, lead with your last 10–15 years." },
 ];
 
 const Dashboard = () => {
@@ -316,7 +324,7 @@ const Dashboard = () => {
 
         <div>
           <h2 className="text-[15px] font-semibold text-foreground mb-4">Quick Access</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {QUICK_ACCESS.map((item) => (
               <Link key={item.href} to={item.href} className="group flex items-center gap-3 p-4 rounded-xl border border-border/60 bg-card card-hover cursor-pointer">
                 <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center shrink-0 bg-muted/50", item.color)}>
@@ -332,19 +340,25 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-xl border border-accent/20 bg-gradient-to-r from-accent/[0.03] to-purple-500/[0.03] p-6">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-              <Sparkles className="h-6 w-6 text-accent" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-[15px] font-semibold">Let AI improve your resume</h3>
-              <p className="text-[13px] text-muted-foreground mt-0.5">Get intelligent suggestions to make your experience more impactful and ATS-friendly. You review every suggestion before it is applied.</p>
-            </div>
-            <Button variant="outline" size="sm" className="shrink-0 rounded-xl" onClick={() => navigate("/coach")}>
-              <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Try AI Coach
-            </Button>
-          </div>
+        <div>
+          <h2 className="text-[15px] font-semibold text-foreground mb-4">Tips to get hired</h2>
+          <Carousel
+            compact
+            autoplayMs={7000}
+            ariaLabel="Resume writing tips"
+            slideLabels={TIPS.map((t) => t.title)}
+            slides={TIPS.map((tip, i) => (
+              <div key={tip.title} className="flex items-start gap-3 px-4 py-3">
+                <span className="h-6 w-6 rounded-md bg-accent/10 text-accent text-[11px] font-bold flex items-center justify-center shrink-0 tabular-nums">
+                  {i + 1}
+                </span>
+                <div className="min-w-0">
+                  <div className="text-[13px] font-semibold text-foreground">{tip.title}</div>
+                  <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed">{tip.desc}</p>
+                </div>
+              </div>
+            ))}
+          />
         </div>
       </div>
     </div>

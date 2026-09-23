@@ -81,6 +81,3 @@ export const aiSummary = (resumeText: string) =>
 
 export const aiSkills = (input: { role: string; context?: string }) =>
   callAi<{ skills: string[] }>('/api/ai/skills', input);
-
-export const aiJobMatch = (input: { resumeText: string; jobDescription: string }) =>
-  callAi<{ text: string }>('/api/ai/match', input);

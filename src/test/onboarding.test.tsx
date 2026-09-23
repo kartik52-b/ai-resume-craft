@@ -20,6 +20,9 @@ const VALID: PersonalDetails = {
   phone: '+1 555 123 4567',
   location: 'Austin, TX',
   headline: 'Senior Software Engineer',
+  linkedin: '',
+  website: '',
+  summary: '',
 };
 
 describe('onboarding: personal details validation', () => {
@@ -96,6 +99,42 @@ describe('onboarding: resume construction', () => {
   it('derives the resume title from the headline, falling back to a generic name', () => {
     expect(buildResumeFromDetails(VALID, 'modern').title).toBe('Senior Software Engineer Resume');
     expect(buildResumeFromDetails({ ...VALID, headline: '' }, 'modern').title).toBe('My Resume');
+  });
+
+  it('maps the extended personal fields (linkedin, website, summary) from user input only', () => {
+    const resume = buildResumeFromDetails(
+      { ...VALID, linkedin: 'in/jane', website: 'https://jane.dev', summary: 'Builder of things.' },
+      'modern',
+    );
+    expect(resume.personal.linkedin).toBe('in/jane');
+    expect(resume.personal.website).toBe('https://jane.dev');
+    expect(resume.personal.summary).toBe('Builder of things.');
+
+    const blank = buildResumeFromDetails(VALID, 'modern');
+    expect(blank.personal.linkedin).toBe('');
+    expect(blank.personal.website).toBe('');
+    expect(blank.personal.summary).toBe('');
+  });
+
+  it('includes background rows the user filled and drops rows left empty', () => {
+    const resume = buildResumeFromDetails(VALID, 'modern', {
+      education: [
+        { school: 'State University', degree: 'B.S.', field: 'Computer Science', startDate: '09 / 2018', endDate: '06 / 2022' },
+        { school: '', degree: '', field: '', startDate: '', endDate: '' },
+      ],
+      experience: [{ company: 'Acme', position: 'Engineer', startDate: '2022', endDate: 'Present', description: 'Shipped features.' }],
+      skills: ['TypeScript', 'TypeScript', ' React '],
+      projects: [{ name: '', description: '', technologies: '', link: '' }],
+      certifications: [{ name: 'AWS Certified', issuer: 'Amazon', date: '2024', link: '' }],
+    });
+
+    expect(resume.education).toHaveLength(1);
+    expect(resume.education[0].school).toBe('State University');
+    expect(resume.experience).toHaveLength(1);
+    expect(resume.experience[0].bullets).toEqual(['Shipped features.']);
+    expect(resume.skills).toEqual(['TypeScript', 'React']);
+    expect(resume.projects).toEqual([]);
+    expect(resume.certifications).toHaveLength(1);
   });
 
   it('produces renderable empty-section data (no section crashes on blanks)', () => {

@@ -10,11 +10,12 @@ import SkillsSection from './editor/SkillsSection';
 import ProjectsSection from './editor/ProjectsSection';
 import CertificationsSection from './editor/CertificationsSection';
 import { ImportDialog } from './ImportDialog';
+import Carousel from './Carousel';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import {
   ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, User, Briefcase, GraduationCap,
-  Wrench, FolderOpen, Award, CheckCircle2,
+  Wrench, FolderOpen, Award, CheckCircle2, Lightbulb,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +38,14 @@ const SECTION_ICONS: Record<SectionId, typeof User> = {
 };
 
 export const FOCUS_TARGET_ATTR = 'data-editor-focus-target';
+
+/** Compact rotating tips banner shown at the top of the editor — purely informational, never touches the form. */
+const EDITOR_TIPS = [
+  { title: 'Tailor your summary', text: 'Mirror keywords from the job posting.' },
+  { title: 'Quantify results', text: 'Numbers make experience credible.' },
+  { title: 'Use strong action verbs', text: 'Led, built, launched — not “responsible for”.' },
+  { title: 'Stay consistent', text: 'Same date format and tense across sections.' },
+];
 
 interface EditorPanelProps {
   /** External section to scroll to (from SectionNav click) */
@@ -129,6 +138,23 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
   return (
     <div ref={panelRef} className="h-full overflow-y-auto scrollbar-thin bg-card flex flex-col">
       <ImportDialog open={importOpen} onOpenChange={setImportOpen} />
+
+      {/* Compact tips banner — sits above the form without disturbing it */}
+      <div className="px-4 pt-4">
+        <Carousel
+          compact
+          autoplayMs={7000}
+          ariaLabel="Resume writing tips"
+          slideLabels={EDITOR_TIPS.map((t) => t.title)}
+          slides={EDITOR_TIPS.map((tip) => (
+            <div key={tip.title} className="flex items-center gap-2 px-3.5 py-2 min-w-0">
+              <Lightbulb className="h-3.5 w-3.5 text-accent shrink-0" />
+              <span className="text-[11.5px] font-semibold text-foreground shrink-0">{tip.title}</span>
+              <span className="text-[11.5px] text-muted-foreground truncate">{tip.text}</span>
+            </div>
+          ))}
+        />
+      </div>
 
       {/* Onboarding — compact */}
       {showOnboarding && (

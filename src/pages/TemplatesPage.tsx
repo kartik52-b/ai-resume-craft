@@ -6,11 +6,14 @@ import {
   getTemplate,
   ALL_CATEGORIES,
   getCategoryCounts,
+  DESIGN_COLLECTIONS,
+  getCollectionTemplates,
   type TemplateDefinition,
   type TemplateCategory,
 } from "@/lib/templateRegistry";
 import { getSampleResume } from "@/lib/sampleResume";
 import ResumeThumbnail from "@/components/ResumeThumbnail";
+import Carousel from "@/components/Carousel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -73,6 +76,10 @@ function LayoutBadge({ layoutType }: { layoutType: string }) {
    MAIN PAGE
    ════════════════════════════════════════════════════════════════════════════ */
 
+/* ── Spotlight collections for the hero carousel ─────────────────────────── */
+
+const SPOTLIGHT_IDS = ["professional", "modern", "creative", "engineering"] as const;
+
 export default function TemplatesPage() {
   const { resume, setTemplate, hasResume } = useResume();
   const navigate = useNavigate();
@@ -88,6 +95,24 @@ export default function TemplatesPage() {
   );
 
   const sample = useMemo(() => getSampleResume(), []);
+
+  /* ── Spotlight slides (real collections, real thumbnails) ── */
+  const spotlightSlides = useMemo(
+    () =>
+      SPOTLIGHT_IDS.flatMap((cid) => {
+        const collection = DESIGN_COLLECTIONS.find((c) => c.id === cid);
+        if (!collection) return [];
+        return [
+          {
+            id: cid,
+            label: collection.label,
+            blurb: collection.blurb,
+            items: getCollectionTemplates(collection).slice(0, 4),
+          },
+        ];
+      }),
+    [],
+  );
   const categoryCounts = useMemo(() => getCategoryCounts(), []);
 
   /* ── Filtered list ── */
@@ -277,6 +302,39 @@ export default function TemplatesPage() {
               {TEMPLATE_REGISTRY.length} professionally designed templates with
               distinct layouts.
             </p>
+          </div>
+
+          {/* ── Spotlight carousel ── */}
+          <div className="mb-5">
+            <Carousel
+              ariaLabel="Featured design collections"
+              slideLabels={spotlightSlides.map((s) => s.label)}
+              slides={spotlightSlides.map((s) => (
+                <div key={s.id} className="p-4 sm:p-5 grid sm:grid-cols-[1fr_1.5fr] gap-4 items-center">
+                  <div className="min-w-0">
+                    <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-accent/10 text-accent text-[10px] font-semibold uppercase tracking-[0.12em] w-fit mb-2.5">
+                      Spotlight
+                    </div>
+                    <h2 className="text-[16px] font-bold tracking-tight text-foreground">{s.label}</h2>
+                    <p className="text-[12.5px] text-muted-foreground mt-1 leading-relaxed">{s.blurb}</p>
+                    <p className="text-[11px] text-muted-foreground/70 mt-2">Tap a preview to inspect it full-page — sample content only.</p>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {s.items.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setPreviewing(t.id)}
+                        aria-label={`Preview ${t.label}`}
+                        className="group relative aspect-[210/297] bg-white rounded-md overflow-hidden border border-border/60 hover:border-accent hover:shadow-sm transition-all"
+                      >
+                        <ResumeThumbnail data={{ ...sample, template: t.id }} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            />
           </div>
 
           {/* ── Search + Categories ── */}

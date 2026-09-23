@@ -55,6 +55,10 @@ async function completeOnboarding(page: import('@playwright/test').Page, details
   await page.getByLabel(/Full Name/).fill(details.name);
   await page.getByLabel(/Email/).fill(details.email);
   await page.getByLabel(/Phone/).fill(details.phone);
+  await page.getByRole('button', { name: /^Continue/ }).click();
+  await expect(page.getByRole('heading', { name: 'Your professional summary' })).toBeVisible();
+  await page.getByRole('button', { name: /^Continue/ }).click();
+  await expect(page.getByRole('heading', { name: 'Round out your background' })).toBeVisible();
   await page.getByRole('button', { name: /Next: Choose Design/ }).click();
   await expect(page.getByText('Choose a design for your resume')).toBeVisible();
   await page.getByRole('button', { name: /Use This Template/ }).nth(templateIndex).click();
@@ -351,17 +355,7 @@ test('switch resume template via dialog', async ({ page }) => {
   await page.keyboard.press('Escape');
 });
 
-// ─── 20. Job Match ─────────────────────────────────────────────────────────────
-
-test('Job Match page loads with input area', async ({ page }) => {
-  await freshApp(page);
-
-  await page.getByRole('link', { name: 'Job Match' }).first().click();
-  await expect(page.getByText('Paste a Job Description')).toBeVisible({ timeout: 10000 });
-
-  // Textarea should be present
-  await expect(page.getByPlaceholder(/Paste the full job description/)).toBeVisible();
-});
+// ─────────────────────────────────────────────────────────────
 
 // ─── 22. Settings ──────────────────────────────────────────────────────────────
 
@@ -439,8 +433,6 @@ test('sidebar navigation: all routes load', async ({ page }) => {
   const routes = [
     { nav: 'Home', heading: 'Build a resume that gets you noticed.' },
     { nav: 'My Resumes', heading: 'Your Resumes' },
-    { nav: 'Job Match', heading: 'Paste a Job Description' },
-    { nav: 'AI Coach', heading: 'AI Resume Coach' },
     { nav: 'Templates', heading: 'Choose a resume design' },
     { nav: 'Settings', heading: 'Account' },
   ];

@@ -27,7 +27,7 @@ import {
   updateActiveResume,
 } from '@/lib/resumeStore';
 import { type ResumeData, type TemplateType, createEmptyResume } from '@/types/resume';
-import { type PersonalDetails, buildResumeFromDetails } from '@/lib/onboarding';
+import { type PersonalDetails, type BackgroundDetails, buildResumeFromDetails } from '@/lib/onboarding';
 
 const AUTOSAVE_DELAY_MS = 800;
 
@@ -58,7 +58,7 @@ interface ResumeContextType {
   /** Creates a blank resume (no sample content) and makes it active. */
   createResumeAction: () => string;
   /** Creates the user's real resume from onboarding details + the chosen design. */
-  createResumeFromDetails: (details: PersonalDetails, template: TemplateType) => string;
+  createResumeFromDetails: (details: PersonalDetails, template: TemplateType, background?: BackgroundDetails) => string;
   /** Adds an imported draft as a new resume (used when the user has none yet). */
   importResumeAction: (draft: ResumeData) => string;
   renameResumeAction: (id: string, title: string) => void;
@@ -213,8 +213,8 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
     return result.id;
   }, []);
 
-  const createResumeFromDetails = useCallback((details: PersonalDetails, template: TemplateType) => {
-    const result = addResume(storeRef.current, buildResumeFromDetails(details, template));
+  const createResumeFromDetails = useCallback((details: PersonalDetails, template: TemplateType, background?: BackgroundDetails) => {
+    const result = addResume(storeRef.current, buildResumeFromDetails(details, template, background));
     setStore(result.store);
     return result.id;
   }, []);

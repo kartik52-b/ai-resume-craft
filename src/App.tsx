@@ -6,7 +6,7 @@ import { ResumeProvider, useResume } from "@/context/ResumeContext";
 import { ThemeProvider, useTheme } from "next-themes";
 import TemplatePickerDialog from "@/components/TemplatePickerDialog";
 import {
-  LayoutDashboard, Sparkles, Brain, Palette,
+  LayoutDashboard, Palette,
   Settings, PenLine, PanelLeftClose, PanelLeft, Sun, Moon, Monitor,
   ArrowLeft, Undo2, Redo2, Download, Search, ChevronRight, FilePlus2,
 } from "lucide-react";
@@ -20,10 +20,8 @@ const LandingPage = React.lazy(() => import("./pages/LandingPage.tsx"));
 const Onboarding = React.lazy(() => import("./pages/Onboarding.tsx"));
 const Index = React.lazy(() => import("./pages/Index.tsx"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard.tsx"));
-const JobMatchPage = React.lazy(() => import("./pages/JobMatchPage.tsx"));
 const SettingsPage = React.lazy(() => import("./pages/SettingsPage.tsx"));
 const NotFound = React.lazy(() => import("./pages/NotFound.tsx"));
-const AiCoach = React.lazy(() => import("./pages/AiCoach.tsx"));
 const TemplatesPage = React.lazy(() => import("./pages/TemplatesPage.tsx"));
 
 function PageLoader() {
@@ -44,13 +42,6 @@ const NAV_GROUPS = [
       { href: "/editor", icon: PenLine, label: "Resume Editor" },
       { href: "/resumes", icon: LayoutDashboard, label: "My Resumes" },
       { href: "/create", icon: FilePlus2, label: "Create Resume" },
-    ],
-  },
-  {
-    label: "Tools",
-    items: [
-      { href: "/job-match", icon: Sparkles, label: "Job Match" },
-      { href: "/coach", icon: Brain, label: "AI Coach" },
     ],
   },
   {
@@ -194,10 +185,6 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
       parts.push({ label: resume.title, editable: true });
     } else if (location.pathname === "/resumes") {
       parts.push({ label: "My Resumes" });
-    } else if (location.pathname === "/job-match") {
-      parts.push({ label: "Job Match" });
-    } else if (location.pathname === "/coach") {
-      parts.push({ label: "AI Coach" });
     } else if (location.pathname === "/templates") {
       parts.push({ label: "Templates" });
     } else if (location.pathname === "/settings") {
@@ -387,8 +374,6 @@ const App = () => (
             <Route path="/create" element={<Onboarding />} />
             <Route path="/editor" element={<Index />} />
             <Route path="/resumes" element={<Dashboard />} />
-            <Route path="/job-match" element={<JobMatchPage />} />
-            <Route path="/coach" element={<AiCoach />} />
             <Route path="/templates" element={<TemplatesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />

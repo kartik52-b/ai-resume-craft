@@ -4,10 +4,11 @@ import { useResume } from '@/context/ResumeContext';
 import { getTemplate, TEMPLATE_REGISTRY } from '@/lib/templateRegistry';
 import { getSampleResume } from '@/lib/sampleResume';
 import ResumeThumbnail from '@/components/ResumeThumbnail';
+import HeroSlider from '@/components/HeroSlider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  Sparkles, FileText, Shield, Target, LayoutTemplate, ArrowRight, Check,
+  Sparkles, FileText, Shield, LayoutTemplate, ArrowRight, Check,
   PenLine, Download, Eye, Wand2, ListChecks,
 } from 'lucide-react';
 
@@ -31,11 +32,6 @@ const FEATURES = [
     icon: Eye,
     title: 'Live A4 preview',
     desc: 'The page on the right is your resume. Edits appear instantly, and the PDF export matches what you see.',
-  },
-  {
-    icon: Target,
-    title: 'Job Match',
-    desc: 'Paste a job description and see the skills and keywords you already match — and the ones you are missing.',
   },
   {
     icon: ListChecks,
@@ -161,6 +157,13 @@ const LandingPage = () => {
               </Badge>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Hero content slider ───────────────────────────────────── */}
+      <section className="px-4 lg:px-8 pb-14" aria-label="Product highlights">
+        <div className="max-w-6xl mx-auto">
+          <HeroSlider />
         </div>
       </section>
 

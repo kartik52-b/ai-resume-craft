@@ -11,6 +11,9 @@ const GRACE: PersonalDetails = {
   phone: '+1 555 0100',
   location: 'Arlington, VA',
   headline: 'Rear Admiral',
+  linkedin: '',
+  website: '',
+  summary: '',
 };
 
 function Probe() {

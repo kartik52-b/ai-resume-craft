@@ -37,16 +37,24 @@ describe('app smoke: fresh visitor', () => {
     expect(screen.getByText('Build Resume')).toBeInTheDocument();
 
     // Validation blocks progress until the required fields are filled.
-    fireEvent.click(screen.getByRole('button', { name: /Next: Choose Design/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^Continue/ }));
     expect(screen.getByText('Tell us about yourself')).toBeInTheDocument();
     expect(await screen.findByText(/Enter your full name/)).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText(/Full Name/), { target: { value: 'Jane Smith' } });
     fireEvent.change(screen.getByLabelText(/Email/), { target: { value: 'jane@example.com' } });
     fireEvent.change(screen.getByLabelText(/Phone/), { target: { value: '+1 555 123 4567' } });
-    fireEvent.click(screen.getByRole('button', { name: /Next: Choose Design/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^Continue/ }));
 
-    // Step 2 — design gallery
+    // Step 2 — professional summary (optional)
+    expect(await screen.findByRole('heading', { name: 'Your professional summary' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^Continue/ }));
+
+    // Step 3 — background (optional)
+    expect(await screen.findByRole('heading', { name: 'Round out your background' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Next: Choose Design/ }));
+
+    // Step 4 — design gallery
     expect(await screen.findByText('Choose a design for your resume')).toBeInTheDocument();
     const useButtons = screen.getAllByRole('button', { name: /Use This Template/i });
     expect(useButtons.length).toBeGreaterThan(1);
@@ -76,8 +84,6 @@ describe('app smoke: every route renders for a visitor without a resume', () => 
     { path: '/create', marker: /Tell us about yourself/i },
     { path: '/resumes', marker: /Welcome to AI Resume Craft/i },
     { path: '/templates', marker: /Choose a resume design/i },
-    { path: '/job-match', marker: /Create a resume to match against a job/i },
-    { path: '/coach', marker: /Create a resume to coach/i },
     { path: '/settings', marker: /Account/i },
     { path: '/nonexistent', marker: /Page not found/i },
   ];

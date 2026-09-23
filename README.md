@@ -70,19 +70,12 @@ Landing (/)  →  Create My Resume (/create)  →  Personal details
 - Bullet point generation from context
 - Summary generation from resume content
 - Skill suggestions based on role
-- Job match commentary
 
 ### ATS Analysis
 - Transparent 100-point scoring system
 - Category breakdown: contact, summary, experience, education, skills, formatting
 - Actionable recommendations
 - Section-level actionable findings
-
-### Job Matching
-- Deterministic keyword and skill matching against job descriptions
-- Match/missing skill visualization
-- Keyword frequency analysis
-- Optional AI commentary
 
 ### PDF Export
 - Multi-page support with proper A4 page breaks
@@ -98,7 +91,7 @@ AI features run through a server-side proxy (`api/app.py`). The `GOOGLE_API_KEY`
 GOOGLE_API_KEY=... python3 api/app.py   # defaults to localhost:5000
 ```
 
-Without the key, the app works fully for editing, saving, templates, ATS, and job matching. AI buttons show a "not configured" message.
+Without the key, the app works fully for editing, saving, templates, and ATS analysis. AI buttons show a "not configured" message.
 
 ## Project Structure
 

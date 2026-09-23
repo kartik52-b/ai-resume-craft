@@ -74,7 +74,7 @@ export function parseImportedText(raw: string, template: ResumeData['template'] 
 
   // Split into (header, bodyLines) chunks.
   let currentSection: string | null = null;
-  let summaryBuffer: string[] = [];
+  const summaryBuffer: string[] = [];
   const buckets: Record<string, string[]> = { experience: [], education: [], skills: [], projects: [], certifications: [] };
   let headerCount = 0;
 
