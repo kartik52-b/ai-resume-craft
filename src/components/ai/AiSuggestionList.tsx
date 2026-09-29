@@ -16,7 +16,7 @@ export default function AiSuggestionList({ title, items, onAccept, onDismiss, on
         <div key={item} className="flex items-start gap-2 group p-2.5 rounded-lg bg-background/50 border border-border/40 hover:border-border/60 transition-colors">
           <p className="flex-1 text-[12px] text-foreground/85 leading-relaxed">{item}</p>
           <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-            <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px] font-medium text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/5 transition-colors" onClick={() => onAccept(item)}>
+            <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px] font-medium text-success hover:bg-success/10 transition-colors" onClick={() => onAccept(item)}>
               <Check className="h-3 w-3 mr-0.5" /> Accept
             </Button>
             <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" onClick={() => onDismiss(item)} aria-label="Dismiss suggestion">

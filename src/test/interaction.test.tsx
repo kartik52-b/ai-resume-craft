@@ -4,7 +4,7 @@ import Carousel from '@/components/Carousel';
 import Reveal from '@/components/Reveal';
 import ScrollRail from '@/components/ScrollRail';
 import TipStrip from '@/components/TipStrip';
-import { useDragScroll, useInspectableScroll } from '@/hooks/useInteraction';
+import { useMagneticHover, useTilt } from '@/hooks/useInteraction';
 
 /* jsdom has no layout, so the rail never overflows here: these tests cover the
    behavioural contract (what renders, what is reachable, what never moves on
@@ -151,96 +151,150 @@ describe('Carousel interaction', () => {
   });
 });
 
-describe('inspectable scroll (homepage resume preview)', () => {
-  function Probe() {
-    const { ref, dragging, handlers } = useDragScroll<HTMLDivElement>({ axis: 'y' });
-    const { atBottom, hasScrolled } = useInspectableScroll(ref);
-    return (
-      <div ref={ref} {...handlers} data-dragging={dragging} role="region" aria-label="probe">
-        <span data-testid="edge">{atBottom ? 'bottom' : 'top'}</span>
-        <span data-testid="scrolled">{hasScrolled ? 'yes' : 'no'}</span>
-      </div>
-    );
+describe('pointer-follow effects (homepage tilt + magnetic CTAs)', () => {
+  const WIDTH = 200;
+  const HEIGHT = 400;
+  const LEFT = 100;
+  const TOP = 100;
+
+  /** jsdom has no layout, so give the probe a known box. */
+  function stubRect(el: HTMLElement) {
+    el.getBoundingClientRect = () =>
+      ({
+        left: LEFT,
+        top: TOP,
+        right: LEFT + WIDTH,
+        bottom: TOP + HEIGHT,
+        width: WIDTH,
+        height: HEIGHT,
+        x: LEFT,
+        y: TOP,
+        toJSON: () => ({}),
+      }) as DOMRect;
   }
 
-  /** jsdom has no layout, so give the probe a fake scrollable geometry. */
-  function primeScroller(el: HTMLElement, clientHeight: number, scrollHeight: number) {
-    let top = 0;
-    Object.defineProperty(el, 'clientHeight', { get: () => clientHeight, configurable: true });
-    Object.defineProperty(el, 'scrollHeight', { get: () => scrollHeight, configurable: true });
-    Object.defineProperty(el, 'scrollTop', {
-      get: () => top,
-      set: (value: number) => {
-        top = value;
-      },
-      configurable: true,
+  function movePointer(el: HTMLElement, x: number, y: number, pointerType = 'mouse') {
+    const event = new MouseEvent('pointermove', { bubbles: true, cancelable: true, clientX: x, clientY: y });
+    Object.defineProperty(event, 'pointerType', { value: pointerType });
+    act(() => {
+      el.dispatchEvent(event);
     });
-    return {
-      get scrollTop() {
-        return top;
-      },
-      set scrollTop(value: number) {
-        top = value;
-      },
-    };
   }
 
-  const renderProbe = () => {
-    render(<Probe />);
-    const region = screen.getByRole('region', { name: 'probe' });
-    const state = primeScroller(region, 200, 600);
-    return { region, state };
-  };
+  function leavePointer(el: HTMLElement) {
+    act(() => {
+      fireEvent.pointerOut(el, { relatedTarget: document.body });
+    });
+  }
 
-  const wheel = (el: HTMLElement, deltaY: number) => {
-    const event = new WheelEvent('wheel', { deltaY, cancelable: true, bubbles: true });
-    el.dispatchEvent(event);
-    return event;
-  };
+  /** The styles are written on the next animation frame. */
+  async function flushFrame() {
+    await act(async () => {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    });
+  }
 
-  it('holds the page still while the resume itself can scroll', () => {
-    const { region } = renderProbe();
-    const event = wheel(region, 120);
-    // preventDefault is what stops the homepage from scrolling underneath.
-    expect(event.defaultPrevented).toBe(true);
+  /** Pull the tilt values out of a transform string, ignoring the perspective. */
+  const readTilt = (value: string) => ({
+    rotX: Number(value.match(/rotateX\((-?[\d.]+)deg\)/)?.[1] ?? NaN),
+    rotY: Number(value.match(/rotateY\((-?[\d.]+)deg\)/)?.[1] ?? NaN),
+    shiftX: Number(value.match(/translate3d\((-?[\d.]+)px/)?.[1] ?? NaN),
+    shiftY: Number(value.match(/translate3d\(-?[\d.]+px,\s*(-?[\d.]+)px/)?.[1] ?? NaN),
   });
 
-  it('hands the gesture back to the page at the bottom edge', () => {
-    const { region, state } = renderProbe();
-    state.scrollTop = 400; // scrollHeight - clientHeight
-    const event = wheel(region, 120);
-    expect(event.defaultPrevented).toBe(false);
+  function TiltProbe() {
+    const tilt = useTilt<HTMLDivElement>();
+    return <div {...tilt} data-testid="surface" className="tilt-surface" />;
+  }
+
+  function MagnetProbe() {
+    const magnet = useMagneticHover<HTMLDivElement>();
+    return <div {...magnet} data-testid="magnet" className="magnetic" />;
+  }
+
+  it('tilts the surface by a small, bounded amount as the pointer moves', async () => {
+    render(<TiltProbe />);
+    const surface = screen.getByTestId('surface');
+    stubRect(surface);
+
+    // Pointer 40px right of centre, 20px below it.
+    movePointer(surface, LEFT + WIDTH / 2 + 40, TOP + HEIGHT / 2 + 20);
+    await flushFrame();
+
+    expect(surface.dataset.tilting).toBe('true');
+    const { rotX, rotY, shiftX, shiftY } = readTilt(surface.style.transform);
+    expect(rotX).toBeGreaterThan(0); // moving down tilts the near edge forward
+    expect(rotY).toBeLessThan(0); // moving right tilts toward the cursor
+    for (const value of [rotX, rotY]) expect(Math.abs(value)).toBeLessThanOrEqual(3.5);
+    for (const value of [shiftX, shiftY]) expect(Math.abs(value)).toBeLessThanOrEqual(6);
   });
 
-  it('hands the gesture to the page when scrolling up from the top', () => {
-    const { region } = renderProbe();
-    const event = wheel(region, -120);
-    expect(event.defaultPrevented).toBe(false);
+  it('eases back to its resting transform when the pointer leaves', async () => {
+    render(<TiltProbe />);
+    const surface = screen.getByTestId('surface');
+    stubRect(surface);
+
+    movePointer(surface, LEFT + WIDTH - 10, TOP + 10);
+    await flushFrame();
+    expect(surface.style.transform).not.toContain('rotateX(0deg)');
+
+    leavePointer(surface);
+    expect(surface.dataset.tilting).toBe('false');
+    expect(surface.style.transform).toContain('rotateX(0deg)');
+    expect(surface.style.transform).toContain('translate3d(0, 0, 0)');
   });
 
-  it('leaves the gesture alone when there is nothing to scroll', () => {
-    const { region } = renderProbe();
-    Object.defineProperty(region, 'scrollHeight', { get: () => 200, configurable: true });
-    const event = wheel(region, 120);
-    expect(event.defaultPrevented).toBe(false);
+  it('ignores touch pointers so mobile gets a plain, static preview', async () => {
+    render(<TiltProbe />);
+    const surface = screen.getByTestId('surface');
+    stubRect(surface);
+
+    movePointer(surface, LEFT + WIDTH - 10, TOP + 10, 'touch');
+    await flushFrame();
+    expect(surface.dataset.tilting).toBeUndefined();
+    expect(surface.style.transform).toBe('');
   });
 
-  it('never blocks pinch-zoom (ctrl + wheel)', () => {
-    const { region } = renderProbe();
-    const event = new WheelEvent('wheel', { deltaY: 120, ctrlKey: true, cancelable: true, bubbles: true });
-    region.dispatchEvent(event);
-    expect(event.defaultPrevented).toBe(false);
+  it('stays still for reduced-motion visitors', async () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({
+      matches: query.includes('reduced-motion'),
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+
+    render(<TiltProbe />);
+    const surface = screen.getByTestId('surface');
+    stubRect(surface);
+    movePointer(surface, LEFT + WIDTH - 10, TOP + 10);
+    await flushFrame();
+    expect(surface.dataset.tilting).toBeUndefined();
+    expect(surface.style.transform).toBe('');
+
+    window.matchMedia = original;
   });
 
-  it('reports the boundary and first-scroll state for the indicators', () => {
-    const { region, state } = renderProbe();
-    expect(screen.getByTestId('edge')).toHaveTextContent('top');
-    expect(screen.getByTestId('scrolled')).toHaveTextContent('no');
+  it('moves a CTA a few pixels toward the cursor and never further', async () => {
+    render(<MagnetProbe />);
+    const magnet = screen.getByTestId('magnet');
+    stubRect(magnet);
 
-    state.scrollTop = 400;
-    fireEvent.scroll(region);
-    expect(screen.getByTestId('edge')).toHaveTextContent('bottom');
-    expect(screen.getByTestId('scrolled')).toHaveTextContent('yes');
+    // Far from the centre: the shift must still be clamped.
+    movePointer(magnet, LEFT + WIDTH + 400, TOP + HEIGHT / 2);
+    await flushFrame();
+    expect(magnet.dataset.tracking).toBe('true');
+    const { shiftX, shiftY } = readTilt(magnet.style.transform);
+    expect(shiftX).toBe(6);
+    expect(shiftY).toBe(0);
+
+    leavePointer(magnet);
+    expect(magnet.dataset.tracking).toBe('false');
+    expect(magnet.style.transform).toContain('translate3d(0, 0, 0)');
   });
 });
 

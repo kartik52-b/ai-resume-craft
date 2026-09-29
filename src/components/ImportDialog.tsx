@@ -68,13 +68,13 @@ export const ImportDialog = ({ open, onOpenChange }: { open: boolean; onOpenChan
         )}
         {parsed && d && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-[13px]"><CheckCircle2 className="h-4 w-4 text-emerald-500" /><span className="font-medium">Detected content</span><Badge variant="secondary" className="ml-auto text-[11px]">{count(d.experience.length)} roles</Badge><Badge variant="secondary" className="text-[11px]">{count(d.education.length)} education</Badge><Badge variant="secondary" className="text-[11px]">{count(d.skills.length)} skills</Badge></div>
+            <div className="flex items-center gap-2 text-[13px]"><CheckCircle2 className="h-4 w-4 text-success" /><span className="font-medium">Detected content</span><Badge variant="secondary" className="ml-auto text-[11px]">{count(d.experience.length)} roles</Badge><Badge variant="secondary" className="text-[11px]">{count(d.education.length)} education</Badge><Badge variant="secondary" className="text-[11px]">{count(d.skills.length)} skills</Badge></div>
             <div className="rounded-lg border border-border p-3 space-y-2 text-[13px] max-h-64 overflow-y-auto">
               <p><span className="text-muted-foreground">Name:</span> {d.personal.fullName || '—'}</p>
               <p><span className="text-muted-foreground">Email:</span> {d.personal.email || '—'}</p>
               {d.experience.slice(0, 4).map((e) => <p key={e.id} className="text-[12px] text-muted-foreground"><FileText className="h-3 w-3 inline mr-1" />{e.position || '(untitled)'}{e.company && ` — ${e.company}`}</p>)}
             </div>
-            {parsed.warnings.length > 0 && (<div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-1">{parsed.warnings.map((w, i) => <p key={i} className="text-[11px] text-amber-500 flex items-start gap-1.5"><AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />{w}</p>)}</div>)}
+            {parsed.warnings.length > 0 && (<div className="rounded-lg border border-warning/30 bg-warning/10 p-3 space-y-1">{parsed.warnings.map((w, i) => <p key={i} className="text-[11px] text-warning flex items-start gap-1.5"><AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />{w}</p>)}</div>)}
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={reset} className="text-[12px]">Choose a different file</Button>
               <Button onClick={confirm} className="text-[12px] font-medium">

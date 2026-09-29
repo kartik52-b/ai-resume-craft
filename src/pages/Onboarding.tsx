@@ -49,58 +49,74 @@ const STEPS = [
 ] as const;
 
 function ProgressIndicator({ current, onStepClick }: { current: number; onStepClick: (step: number) => void }) {
+  // The bar fills alongside the step change, so "how much is left" is legible
+  // at a glance even before reading a single label.
+  const progress = ((current - 1) / (STEPS.length - 1)) * 100;
+
   return (
-    <ol className="flex items-center gap-1 sm:gap-2 w-full" aria-label="Progress">
-      {STEPS.map((step, i) => {
-        const state = step.id < current ? 'done' : step.id === current ? 'current' : 'upcoming';
-        const canJump = step.id < current;
-        return (
-          <li key={step.id} className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
-            <button
-              type="button"
-              onClick={() => canJump && onStepClick(step.id)}
-              disabled={!canJump}
-              aria-current={state === 'current' ? 'step' : undefined}
-              className={cn(
-                'flex items-center gap-2 min-w-0 w-full rounded-lg px-2 py-1.5 text-left transition-colors',
-                canJump && 'hover:bg-muted/60 cursor-pointer',
-                !canJump && 'cursor-default',
-              )}
-            >
-              <span
+    <div className="space-y-3">
+      <div className="h-1 rounded-full bg-muted overflow-hidden" aria-hidden>
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-accent to-accent-2 transition-[width] duration-500 ease-premium"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <ol className="flex items-center gap-1 sm:gap-2 w-full" aria-label="Progress">
+        {STEPS.map((step, i) => {
+          const state = step.id < current ? 'done' : step.id === current ? 'current' : 'upcoming';
+          const canJump = step.id < current;
+          return (
+            <li key={step.id} className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
+              <button
+                type="button"
+                onClick={() => canJump && onStepClick(step.id)}
+                disabled={!canJump}
+                aria-current={state === 'current' ? 'step' : undefined}
                 className={cn(
-                  'h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 border transition-colors',
-                  state === 'done' && 'bg-emerald-500 border-emerald-500 text-white',
-                  state === 'current' && 'bg-accent border-accent text-accent-foreground',
-                  state === 'upcoming' && 'border-border text-muted-foreground',
+                  'flex items-center gap-2 min-w-0 w-full rounded-lg px-2 py-1.5 text-left transition-colors duration-200',
+                  canJump && 'hover:bg-muted/60 cursor-pointer',
+                  !canJump && 'cursor-default',
                 )}
               >
-                {state === 'done' ? <Check className="h-3 w-3" /> : step.id}
-              </span>
-              <span className="min-w-0 hidden sm:block">
+                {/* Keyed on the step state so the badge pops each time it changes. */}
                 <span
+                  key={state}
                   className={cn(
-                    'block text-[12px] font-medium truncate',
-                    state === 'upcoming' ? 'text-muted-foreground' : 'text-foreground',
+                    'h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 border animate-pop-in',
+                    state === 'done' && 'bg-success border-success text-success-foreground',
+                    state === 'current' && 'bg-gradient-to-br from-accent to-accent-2 border-transparent text-accent-foreground shadow-glow',
+                    state === 'upcoming' && 'border-border text-muted-foreground',
                   )}
                 >
-                  {step.label}
+                  {state === 'done' ? <Check className="h-3 w-3" /> : step.id}
                 </span>
-                <span className="block text-[10px] text-muted-foreground truncate">{step.hint}</span>
-              </span>
-            </button>
-            {i < STEPS.length - 1 && (
-              <span
-                className={cn(
-                  'h-px flex-1 min-w-3 shrink-0 transition-colors',
-                  step.id < current ? 'bg-emerald-500/50' : 'bg-border',
-                )}
-              />
-            )}
-          </li>
-        );
-      })}
-    </ol>
+                <span className="min-w-0 hidden sm:block">
+                  <span
+                    className={cn(
+                      'block text-[12px] font-medium truncate transition-colors duration-200',
+                      state === 'upcoming' ? 'text-muted-foreground' : 'text-foreground',
+                    )}
+                  >
+                    {step.label}
+                  </span>
+                  <span className="block text-[10px] text-muted-foreground truncate">{step.hint}</span>
+                </span>
+              </button>
+              {i < STEPS.length - 1 && (
+                <span
+                  aria-hidden
+                  className={cn(
+                    'h-[2px] flex-1 min-w-3 shrink-0 rounded-full transition-colors duration-500',
+                    step.id < current ? 'bg-gradient-to-r from-accent to-accent-2' : 'bg-border',
+                  )}
+                />
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 
@@ -557,7 +573,7 @@ function DesignCard({
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-[13.5px] font-semibold leading-tight">{template.label}</h3>
           {template.atsSafe && (
-            <Badge variant="outline" className="text-[9px] border-emerald-500/30 text-emerald-500 shrink-0">
+            <Badge variant="outline" className="text-[9px] border-success/30 text-success shrink-0">
               ATS
             </Badge>
           )}
@@ -750,7 +766,7 @@ function BuildStep({ name, design }: { name: string; design: string }) {
             className="flex items-center gap-2 text-[12.5px] text-muted-foreground animate-fade-in"
             style={{ animationDelay: `${i * 140}ms` }}
           >
-            <Check className="h-3.5 w-3.5 text-emerald-500" /> {item}
+            <Check className="h-3.5 w-3.5 text-success" /> {item}
           </li>
         ))}
       </ul>
@@ -767,7 +783,14 @@ export default function Onboarding() {
   const [searchParams] = useSearchParams();
   const { createResumeFromDetails, hasResume } = useResume();
 
-  const [step, setStep] = useState(1);
+  // The step and its travel direction move together so the panel can slide in
+  // from the side the visitor is heading towards.
+  const [nav, setNav] = useState<{ step: number; dir: 'next' | 'prev' }>({ step: 1, dir: 'next' });
+  const step = nav.step;
+  const goTo = useCallback((next: number) => {
+    setNav((cur) => (next === cur.step ? cur : { step: next, dir: next > cur.step ? 'next' : 'prev' }));
+  }, []);
+
   const [details, setDetails] = useState<PersonalDetails>(EMPTY_PERSONAL_DETAILS);
   const [errors, setErrors] = useState<PersonalDetailsErrors>({});
   const [background, setBackground] = useState<BackgroundDetails>(createBackgroundDraft);
@@ -796,33 +819,38 @@ export default function Onboarding() {
       toast.error('Please fix the highlighted fields to continue.');
       return;
     }
-    setStep(2);
-  }, [details]);
+    goTo(2);
+  }, [details, goTo]);
 
   const finish = useCallback(
     (chosen: TemplateType = template) => {
       if (createdRef.current) return;
       createdRef.current = true;
       setTemplate(chosen);
-      setStep(5);
+      goTo(5);
       createResumeFromDetails(details, chosen, background);
       window.setTimeout(() => {
         toast.success('Resume created', { description: 'Add your experience to make it stand out.' });
         navigate('/editor');
-      }, 700);    }, [background, createResumeFromDetails, details, template, navigate],
+      }, 700);    }, [background, createResumeFromDetails, details, template, navigate, goTo],
   );
 
   const designLabel = getTemplate(template).label;
 
   return (
-    <div className="min-h-full bg-workspace overflow-y-auto">
-      <div className="max-w-5xl mx-auto px-4 lg:px-8 py-8 lg:py-10">
+    <div className="relative min-h-full bg-workspace overflow-x-hidden">
+      {/* Layered background — the same aurora language as the landing page. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[380px] overflow-hidden" aria-hidden>
+        <div className="aurora animate-aurora opacity-60" />
+      </div>
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 lg:px-8 py-8 lg:py-10">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6 animate-fade-down">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent mb-1.5">
             {hasResume ? 'New resume' : 'Create your resume'}
           </p>
-          <h1 className="text-[24px] lg:text-[28px] font-bold tracking-tight text-foreground leading-tight">
+          <h1 className="font-display text-[24px] lg:text-[28px] font-bold tracking-tight text-foreground leading-tight">
             {step === 1 && 'Tell us about yourself'}
             {step === 2 && 'Your professional summary'}
             {step === 3 && 'Round out your background'}
@@ -839,12 +867,22 @@ export default function Onboarding() {
         </div>
 
         {/* Progress */}
-        <div className="mb-6 rounded-xl border border-border/60 bg-card px-3 py-2.5">
-          <ProgressIndicator current={step} onStepClick={setStep} />
+        <div className="mb-6 rounded-xl border border-border/60 bg-card/90 backdrop-blur px-3 py-3 shadow-xs animate-fade-up">
+          <ProgressIndicator current={step} onStepClick={goTo} />
         </div>
 
-        {/* Body */}
-        <div className="rounded-2xl border border-border/60 bg-card p-5 lg:p-7 shadow-card">
+        {/*
+          Body — one panel at a time. The panel is keyed on the step so each
+          change remounts it and replays a short horizontal slide in the
+          direction of travel. The page itself keeps its normal vertical
+          scrolling; nothing here scrolls sideways.
+        */}
+        <div
+          key={step}
+          data-step-panel=""
+          data-dir={nav.dir}
+          className="premium-card p-5 lg:p-7"
+        >
           {step === 1 && (
             <DetailsStep details={details} errors={errors} onChange={handleFieldChange} onSubmit={goToSummary} />
           )}
@@ -852,16 +890,16 @@ export default function Onboarding() {
             <SummaryStep
               summary={details.summary}
               onChange={(value) => handleFieldChange('summary', value)}
-              onBack={() => setStep(1)}
-              onNext={() => setStep(3)}
+              onBack={() => goTo(1)}
+              onNext={() => goTo(3)}
             />
           )}
           {step === 3 && (
             <BackgroundStep
               background={background}
               onChange={setBackground}
-              onBack={() => setStep(2)}
-              onNext={() => setStep(4)}
+              onBack={() => goTo(2)}
+              onNext={() => goTo(4)}
             />
           )}
           {step === 4 && (
@@ -870,7 +908,7 @@ export default function Onboarding() {
               selected={template}
               onSelect={setTemplate}
               onUse={(id) => finish(id)}
-              onBack={() => setStep(3)}
+              onBack={() => goTo(3)}
               onBuild={finish}
             />
           )}

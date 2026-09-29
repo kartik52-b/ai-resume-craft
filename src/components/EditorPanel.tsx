@@ -150,7 +150,7 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
       {/* Onboarding — compact */}
       {showOnboarding && (
         <div className="px-4 pt-4 pb-2 shrink-0">
-          <div className="rounded-lg border border-accent/15 bg-accent/[0.03] p-3">
+          <div className="rounded-xl border border-accent/20 bg-gradient-to-br from-accent/[0.07] to-accent-2/[0.04] p-3 shadow-xs">
             <div className="text-[12px] font-semibold text-foreground mb-2">Let's build your resume</div>
             <div className="flex flex-wrap gap-1.5">
               {essentials.map((step, i) => (
@@ -159,7 +159,7 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
                   onClick={() => navigateToField(step.target.section, step.target.field)}
                   disabled={step.done}
                   className={cn('flex items-center gap-1.5 text-[11px] rounded-full px-2.5 py-1 transition-colors',
-                    step.done ? 'bg-emerald-500/10 text-emerald-500' : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground')}
+                    step.done ? 'bg-success/10 text-success' : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground')}
                 >
                   {step.done ? <CheckCircle2 className="h-3 w-3" /> : <span className="text-[9px] font-bold">{i + 1}</span>}
                   {step.label}
@@ -204,9 +204,9 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
                     <Icon className={cn('h-3.5 w-3.5 shrink-0', isOpen ? 'text-accent' : 'text-muted-foreground/60')} />
                     <span className={cn('truncate', hidden && 'line-through text-muted-foreground')}>{meta.title}</span>
                     {errors.length > 0 && !hidden && (
-                      <span className="h-4 w-4 rounded-full bg-red-500/10 text-red-500 text-[9px] font-bold flex items-center justify-center shrink-0">{errors.length}</span>
+                      <span className="h-4 w-4 rounded-full bg-destructive/10 text-destructive text-[9px] font-bold flex items-center justify-center shrink-0">{errors.length}</span>
                     )}
-                    {completeness === 100 && !hidden && <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0 ml-1" />}
+                    {completeness === 100 && !hidden && <CheckCircle2 className="h-3 w-3 text-success shrink-0 ml-1" />}
                   </CollapsibleTrigger>
                   <div className="flex items-center shrink-0">
                     <Button variant="ghost" size="icon" className="hover-reveal h-7 w-7 md:h-6 md:w-6" onClick={() => setResume(prev => nudgeSection(prev, id, -1))} disabled={idx === 0} aria-label={`Move ${meta.title} up`}>

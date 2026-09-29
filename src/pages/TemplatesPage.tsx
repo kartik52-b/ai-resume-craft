@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResume } from "@/context/ResumeContext";
 import {
@@ -16,7 +16,7 @@ import type { ResumeData } from "@/types/resume";
 import ResumeThumbnail from "@/components/ResumeThumbnail";
 import Carousel from "@/components/Carousel";
 import Reveal from "@/components/Reveal";
-import { useDragScroll, usePointerSpotlight } from "@/hooks/useInteraction";
+import { useCardInteraction, useDragScroll } from "@/hooks/useInteraction";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -93,17 +93,18 @@ interface TemplateCardProps {
  * times — nothing important here is hover-only.
  */
 function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: TemplateCardProps) {
-  const spot = usePointerSpotlight<HTMLDivElement>();
+  // A light tilt plus the cursor sheen, in one listener pair. Elevation on hover
+  // is shadow-only (no CSS translate) so the two transforms never fight.
+  const fx = useCardInteraction<HTMLDivElement>({ maxTilt: 1.4, maxShift: 3 });
 
   return (
     <div
-      onPointerMove={spot.onPointerMove}
-      onPointerLeave={spot.onPointerLeave}
+      {...fx}
       className={cn(
-        "group relative h-full rounded-xl border bg-card overflow-hidden transition-all duration-200 card-hover interactive-card flex flex-col",
+        "group relative h-full rounded-xl border bg-card overflow-hidden transition-[box-shadow,border-color] duration-200 interactive-card flex flex-col",
         isCurrent
-          ? "border-accent/50 ring-2 ring-accent/10 shadow-sm"
-          : "border-border/60 hover:border-accent/40",
+          ? "border-accent/50 ring-2 ring-accent/10 shadow-card"
+          : "border-border/60 hover:border-accent/40 hover:shadow-card-hover",
       )}
     >
       {/* Thumbnail */}
@@ -131,7 +132,7 @@ function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: Templa
             {t.atsSafe && (
               <Badge
                 variant="outline"
-                className="text-[9px] border-emerald-500/30 text-emerald-500"
+                className="text-[9px] border-success/30 text-success"
               >
                 ATS
               </Badge>
@@ -395,7 +396,7 @@ export default function TemplatesPage() {
           <Reveal className="mb-5">
             <div className="flex items-center gap-2 mb-0.5">
               <Layers className="h-5 w-5 text-accent" />
-              <h1 className="text-xl font-bold tracking-tight">Templates</h1>
+              <h1 className="font-display text-xl font-bold tracking-tight">Templates</h1>
             </div>
             <p className="text-[13px] text-muted-foreground">
               Choose a resume design that fits your career.
@@ -417,7 +418,7 @@ export default function TemplatesPage() {
                     <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-accent/10 text-accent text-[10px] font-semibold uppercase tracking-[0.12em] w-fit mb-2.5">
                       Spotlight
                     </div>
-                    <h2 className="text-[16px] font-bold tracking-tight text-foreground">{s.label}</h2>
+                    <h2 className="font-display text-[16px] font-bold tracking-tight text-foreground">{s.label}</h2>
                     <p className="text-[12.5px] text-muted-foreground mt-1 leading-relaxed">{s.blurb}</p>
                     <p className="text-[11px] text-muted-foreground/70 mt-2">Tap a preview to inspect it full-page — sample content only.</p>
                   </div>
@@ -478,9 +479,9 @@ export default function TemplatesPage() {
                     key={cat.value}
                     onClick={() => setActiveFilter(cat.value)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-all duration-150",
+                      "px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-all duration-200 ease-premium",
                       activeFilter === cat.value
-                        ? "bg-accent text-accent-foreground shadow-sm"
+                        ? "bg-gradient-to-br from-accent to-accent-2 text-accent-foreground shadow-glow"
                         : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                     )}
                   >
@@ -496,21 +497,36 @@ export default function TemplatesPage() {
 
           {/* ── Template Grid ── */}
           {filtered.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((t, i) => (
-                <Reveal key={t.id} delayMs={Math.min(i, 5) * 45} className="h-full">
-                  <TemplateCard
-                    template={t}
-                    data={sample}
-                    isCurrent={Boolean(hasResume && resume.template === t.id)}
-                    onPreview={() => setPreviewing(t.id)}
-                    onUse={() => handleUseTemplate(t)}
-                  />
-                </Reveal>
-              ))}
-            </div>
+            <Reveal>
+              {/*
+                Re-keyed on the active filter/search so a new result set staggers
+                in instead of swapping instantly, while the controls above it stay
+                perfectly still. The stagger is capped so a long list still lands
+                almost immediately.
+              */}
+              <div
+                key={`${activeFilter}|${searchQuery}`}
+                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+              >
+                {filtered.map((t, i) => (
+                  <div
+                    key={t.id}
+                    className="h-full animate-fade-up stagger"
+                    style={{ '--stagger': `${Math.min(i, 8) * 45}ms` } as CSSProperties}
+                  >
+                    <TemplateCard
+                      template={t}
+                      data={sample}
+                      isCurrent={Boolean(hasResume && resume.template === t.id)}
+                      onPreview={() => setPreviewing(t.id)}
+                      onUse={() => handleUseTemplate(t)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </Reveal>
           ) : (
-            <div className="text-center py-16">
+            <div className="text-center py-16 animate-fade-up">
               <Search className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-[14px] font-medium mb-1">No templates found</p>
               <p className="text-[12px] text-muted-foreground">
@@ -545,14 +561,14 @@ export default function TemplatesPage() {
                 {previewTemplate.atsSafe ? (
                   <Badge
                     variant="outline"
-                    className="text-[9px] border-emerald-500/30 text-emerald-500 shrink-0"
+                    className="text-[9px] border-success/30 text-success shrink-0"
                   >
                     ATS Friendly
                   </Badge>
                 ) : (
                   <Badge
                     variant="outline"
-                    className="text-[9px] border-amber-500/30 text-amber-500 shrink-0"
+                    className="text-[9px] border-warning/30 text-warning shrink-0"
                   >
                     Visual
                   </Badge>
@@ -624,7 +640,7 @@ export default function TemplatesPage() {
                     key={f}
                     className="flex items-center gap-1.5 text-[11.5px] text-foreground"
                   >
-                    <Check className="h-3 w-3 text-emerald-500 shrink-0" />{f}
+                    <Check className="h-3 w-3 text-success shrink-0" />{f}
                   </div>
                 ))}
               </div>
@@ -634,7 +650,7 @@ export default function TemplatesPage() {
           {/* Apply bar */}
           <div className="shrink-0 border-t border-border/60 p-4 bg-card">
             {isCurrent ? (
-              <div className="flex items-center justify-center gap-2 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 text-[13px] font-semibold">
+              <div className="flex items-center justify-center gap-2 h-10 rounded-xl bg-success/10 text-success text-[13px] font-semibold">
                 <CheckCircle2 className="h-4 w-4" /> This is your active
                 template
               </div>

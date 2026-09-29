@@ -1,74 +1,162 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  /* ══════════════════════════════════════════════════════════════════════
+     Design tokens — "deep ink & electric cyan"
+
+     One system for the whole product: a deep ink canvas, a single controlled
+     cyan accent for interaction, a violet highlight used only for gradients,
+     and layered surfaces (background → workspace → card → raised).
+     Contrast (WCAG AA): ink on canvas ≈ 15:1, muted text ≈ 5:1,
+     white on the primary button ≈ 5.5:1, focus ring ≈ 3:1 against surfaces.
+     ══════════════════════════════════════════════════════════════════════ */
   :root {
     /* ── Light Surface System ── */
-    --background: 210 20% 98%;
-    --foreground: 222 25% 8%;
+    --background: 210 32% 98.5%;
+    --foreground: 224 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 25% 8%;
+    --card-foreground: 224 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 25% 8%;
+    --popover-foreground: 224 47% 11%;
 
-    --primary: 239 84% 67%;
+    --primary: 190 92% 30%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 25% 14%;
+    --secondary: 210 30% 95.5%;
+    --secondary-foreground: 224 40% 18%;
 
-    --accent: 239 84% 67%;
+    --accent: 190 92% 31%;
     --accent-foreground: 0 0% 100%;
+    /* Violet highlight — gradients and glows only, never for text on light. */
+    --accent-2: 262 80% 58%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 210 30% 95.5%;
+    --muted-foreground: 218 15% 44%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 239 84% 67%;
+    --border: 214 24% 89%;
+    --input: 214 24% 89%;
+    --ring: 190 92% 38%;
 
-    --radius: 0.625rem;
+    --radius: 0.75rem;
 
-    --workspace: 210 20% 97%;
+    --workspace: 212 30% 96.5%;
     --canvas: 0 0% 100%;
     --surface-raised: 0 0% 100%;
+    --surface-glass: 0 0% 100%;
 
-    --ai-accent: 239 84% 67%;
-    --ai-accent-soft: 239 84% 97%;
-    --ai-glow: 239 84% 85%;
+    /* Deep gradient stays dark in both themes so button text keeps contrast. */
+    --gradient-from: 189 94% 28%;
+    --gradient-to: 262 78% 55%;
+    --gradient-foreground: 0 0% 100%;
 
-    --success: 160 84% 39%;
+    --ai-accent: 190 92% 31%;
+    --ai-accent-soft: 190 92% 96%;
+    --ai-glow: 190 92% 80%;
+
+    --success: 162 84% 32%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    --warning: 32 92% 45%;
     --warning-foreground: 0 0% 100%;
-    --info: 217 91% 60%;
+    --info: 199 89% 44%;
     --info-foreground: 0 0% 100%;
 
-    /* ── Sidebar ── */
-    --sidebar-background: 222 30% 8%;
-    --sidebar-foreground: 215 20% 70%;
-    --sidebar-primary: 239 84% 67%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 224 24% 14%;
+    /* ── Sidebar — always the deep ink rail, in both themes ── */
+    --sidebar-background: 226 47% 6%;
+    --sidebar-foreground: 215 22% 72%;
+    --sidebar-primary: 187 92% 55%;
+    --sidebar-primary-foreground: 226 60% 7%;
+    --sidebar-accent: 224 34% 13%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 224 18% 12%;
-    --sidebar-ring: 239 84% 67%;
+    --sidebar-border: 224 30% 12%;
+    --sidebar-ring: 187 92% 55%;
 
-    --shadow-xs: 0 1px 2px rgba(15,23,42,.04);
-    --shadow-sm: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
-    --shadow-md: 0 4px 6px -1px rgba(15,23,42,.05), 0 2px 4px -2px rgba(15,23,42,.04);
-    --shadow-lg: 0 10px 15px -3px rgba(15,23,42,.05), 0 4px 6px -4px rgba(15,23,42,.04);
-    --shadow-xl: 0 20px 25px -5px rgba(15,23,42,.06), 0 8px 10px -6px rgba(15,23,42,.04);
-    --shadow-glow: 0 0 0 1px rgba(99,102,241,.1), 0 0 20px rgba(99,102,241,.06);
-    --canvas-shadow: 0 1px 3px rgba(15,23,42,.04), 0 4px 12px rgba(15,23,42,.06), 0 16px 40px rgba(15,23,42,.05);
+    --shadow-xs: 0 1px 2px rgba(12,22,40,.04);
+    --shadow-sm: 0 1px 3px rgba(12,22,40,.06), 0 1px 2px rgba(12,22,40,.04);
+    --shadow-md: 0 6px 16px -6px rgba(12,22,40,.12), 0 2px 6px -2px rgba(12,22,40,.06);
+    --shadow-lg: 0 16px 32px -12px rgba(12,22,40,.16), 0 6px 12px -6px rgba(12,22,40,.06);
+    --shadow-xl: 0 28px 56px -20px rgba(12,22,40,.22), 0 12px 20px -12px rgba(12,22,40,.08);
+    --shadow-glow: 0 0 0 1px hsl(var(--accent) / .12), 0 0 24px hsl(var(--accent) / .10);
+    --canvas-shadow: 0 1px 3px rgba(12,22,40,.04), 0 4px 12px rgba(12,22,40,.06), 0 16px 40px rgba(12,22,40,.05);
+  }
+
+  /* ── Dark Mode — the deep ink canvas the light theme is a mirror of ── */
+  .dark {
+    --background: 224 44% 5%;
+    --foreground: 210 40% 96%;
+
+    --card: 224 36% 8.5%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 224 38% 9.5%;
+    --popover-foreground: 210 40% 96%;
+
+    /* Electric cyan — dark text keeps AA contrast on the bright fill. */
+    --primary: 187 92% 55%;
+    --primary-foreground: 226 60% 7%;
+
+    --secondary: 224 30% 13%;
+    --secondary-foreground: 210 25% 88%;
+
+    --accent: 187 92% 55%;
+    --accent-foreground: 226 60% 7%;
+    --accent-2: 262 84% 68%;
+
+    --muted: 224 28% 14%;
+    --muted-foreground: 215 18% 64%;
+
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 224 26% 16%;
+    --input: 224 26% 16%;
+    --ring: 187 92% 55%;
+
+    --workspace: 226 44% 4%;
+    --canvas: 0 0% 100%;
+    --surface-raised: 224 36% 10%;
+    --surface-glass: 224 38% 9%;
+
+    /* Bright gradient in dark so the fill reads, still with white text. */
+    --gradient-from: 187 92% 42%;
+    --gradient-to: 262 80% 60%;
+    --gradient-foreground: 0 0% 100%;
+
+    --ai-accent: 187 92% 55%;
+    --ai-accent-soft: 187 60% 12%;
+    --ai-glow: 187 92% 60%;
+
+    --success: 160 84% 46%;
+    --success-foreground: 226 60% 7%;
+    --warning: 38 92% 58%;
+    --warning-foreground: 226 60% 7%;
+    --info: 199 89% 62%;
+    --info-foreground: 226 60% 7%;
+
+    --sidebar-background: 226 47% 4.5%;
+    --sidebar-foreground: 215 22% 70%;
+    --sidebar-primary: 187 92% 55%;
+    --sidebar-primary-foreground: 226 60% 7%;
+    --sidebar-accent: 224 34% 12%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 224 30% 11%;
+    --sidebar-ring: 187 92% 55%;
+
+    --shadow-xs: 0 1px 2px rgba(0,0,0,.3);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.36), 0 1px 2px rgba(0,0,0,.3);
+    --shadow-md: 0 6px 16px -6px rgba(0,0,0,.5), 0 2px 6px -2px rgba(0,0,0,.36);
+    --shadow-lg: 0 16px 32px -12px rgba(0,0,0,.55), 0 6px 12px -6px rgba(0,0,0,.4);
+    --shadow-xl: 0 28px 56px -20px rgba(0,0,0,.6), 0 12px 20px -12px rgba(0,0,0,.45);
+    --shadow-glow: 0 0 0 1px hsl(var(--accent) / .22), 0 0 28px hsl(var(--accent) / .16);
+    --canvas-shadow: 0 1px 3px rgba(0,0,0,.24), 0 4px 12px rgba(0,0,0,.2), 0 16px 40px rgba(0,0,0,.16);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -88,6 +176,8 @@
     border-radius: var(--radius);
   }
 
+  html { -webkit-text-size-adjust: 100%; }
+
   body {
     @apply antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -96,85 +186,32 @@
     color: hsl(var(--foreground));
     background: hsl(var(--background));
   }
-}
 
-/* ── Dark Mode ── */
-.dark {
-  --background: 222 27% 6%;
-  --foreground: 210 40% 93%;
-
-  --card: 222 25% 9%;
-  --card-foreground: 210 40% 93%;
-
-  --popover: 222 25% 10%;
-  --popover-foreground: 210 40% 93%;
-
-  --primary: 239 84% 67%;
-  --primary-foreground: 0 0% 100%;
-
-  --secondary: 222 20% 13%;
-  --secondary-foreground: 210 20% 80%;
-
-  --accent: 239 84% 67%;
-  --accent-foreground: 0 0% 100%;
-
-  --muted: 222 20% 14%;
-  --muted-foreground: 217 15% 50%;
-
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 100%;
-
-  --border: 222 18% 16%;
-  --input: 222 18% 16%;
-  --ring: 239 84% 67%;
-
-  --workspace: 222 27% 5%;
-  --canvas: 0 0% 100%;
-  --surface-raised: 222 25% 10%;
-
-  --ai-accent: 239 84% 67%;
-  --ai-accent-soft: 239 84% 97%;
-  --ai-glow: 239 84% 85%;
-
-  --success: 160 84% 44%;
-  --success-foreground: 0 0% 100%;
-  --warning: 38 92% 55%;
-  --warning-foreground: 0 0% 100%;
-  --info: 217 91% 65%;
-  --info-foreground: 0 0% 100%;
-
-  --sidebar-background: 222 30% 5%;
-  --sidebar-foreground: 215 20% 60%;
-  --sidebar-primary: 239 84% 67%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 224 24% 10%;
-  --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 222 18% 11%;
-  --sidebar-ring: 239 84% 67%;
-
-  --shadow-xs: 0 1px 2px rgba(0,0,0,.25);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.3), 0 1px 2px rgba(0,0,0,.25);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,.25), 0 2px 4px -2px rgba(0,0,0,.2);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.25), 0 4px 6px -4px rgba(0,0,0,.2);
-  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,.3), 0 8px 10px -6px rgba(0,0,0,.25);
-  --shadow-glow: 0 0 0 1px rgba(99,102,241,.2), 0 0 20px rgba(99,102,241,.08);
-  --canvas-shadow: 0 1px 3px rgba(0,0,0,.2), 0 4px 12px rgba(0,0,0,.15), 0 16px 40px rgba(0,0,0,.12);
+  /* Display type gets the geometric face — used by headings across the app. */
+  h1, h2, h3, .font-display {
+    font-family: 'Sora', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
 }
 
 @layer utilities {
   .font-sans { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  .font-display { font-family: 'Sora', 'Inter', system-ui, sans-serif; }
   .font-mono { font-family: 'JetBrains Mono', monospace; }
   .font-resume-serif { font-family: 'Georgia', serif; }
   .font-resume-sans { font-family: 'Inter', system-ui, sans-serif; }
   .font-resume-mono { font-family: 'JetBrains Mono', monospace; }
 
+  /* ── Elevation ── */
   .shadow-xs { box-shadow: var(--shadow-xs); }
   .shadow-card { box-shadow: var(--shadow-sm); }
   .shadow-card-hover { box-shadow: var(--shadow-md); }
+  .shadow-elevated { box-shadow: var(--shadow-lg); }
   .shadow-modal { box-shadow: var(--shadow-xl); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .canvas-shadow { box-shadow: var(--canvas-shadow); }
 
+  /* ── Layered surfaces ── */
   .surface-base { background: hsl(var(--background)); }
   .surface-raised { background: hsl(var(--card)); }
   .surface-sunken { background: hsl(var(--workspace)); }
@@ -182,72 +219,21 @@
   /* ── Scrollbar ── */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: hsl(220 13% 86%) transparent;
+    scrollbar-color: hsl(var(--border)) transparent;
   }
   .scrollbar-thin::-webkit-scrollbar { width: 5px; }
   .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(220 13% 86%); border-radius: 10px; }
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: hsl(220 9% 70%); }
-  .dark .scrollbar-thin { scrollbar-color: hsl(222 18% 18%) transparent; }
-  .dark .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(222 18% 18%); }
-  .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: hsl(222 18% 24%); }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 10px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
 
   /* ── AI Glow ── */
-  .ai-glow {
-    box-shadow: 0 0 0 1px rgba(99,102,241,.12), 0 0 16px rgba(99,102,241,.06);
-  }
+  .ai-glow { box-shadow: var(--shadow-glow); }
   .ai-glow-strong {
-    box-shadow: 0 0 0 1px rgba(99,102,241,.2), 0 0 24px rgba(99,102,241,.1);
-  }
-
-  /* ── Animations ── */
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes slide-in-right {
-    from { opacity: 0; transform: translateX(8px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes scale-in {
-    from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: .4; }
-  }
-  @keyframes save-success {
-    0% { transform: scale(0.8); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  @keyframes progress-fill {
-    from { stroke-dashoffset: 100; }
-  }
-
-  .animate-fade-in { animation: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-  .animate-slide-in { animation: slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-  .animate-scale-in { animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-  .animate-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
-  .animate-save-success { animation: save-success 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-
-  .skeleton-shimmer {
-    background: linear-gradient(90deg, hsl(220 14% 94%) 25%, hsl(220 14% 97%) 37%, hsl(220 14% 94%) 63%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s ease-in-out infinite;
-  }
-  .dark .skeleton-shimmer {
-    background: linear-gradient(90deg, hsl(222 20% 12%) 25%, hsl(222 20% 16%) 37%, hsl(222 20% 12%) 63%);
-    background-size: 200% 100%;
+    box-shadow: 0 0 0 1px hsl(var(--accent) / 0.22), 0 0 26px hsl(var(--accent) / 0.16);
   }
 
   ::selection {
-    background-color: hsl(239 84% 67% / 0.15);
+    background-color: hsl(var(--accent) / 0.18);
   }
 
   .hover-lift {
@@ -262,12 +248,9 @@
     transition: border-color 0.15s ease, box-shadow 0.2s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .card-hover:hover {
-    border-color: hsl(220 13% 82%);
+    border-color: hsl(var(--accent) / 0.34);
     box-shadow: var(--shadow-md);
     transform: translateY(-1px);
-  }
-  .dark .card-hover:hover {
-    border-color: hsl(222 18% 22%);
   }
 
   .section-number {
@@ -281,13 +264,15 @@
 
   /* ── Premium gradient button ── */
   .btn-gradient {
-    background: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(262 83% 58%) 100%);
-    color: white;
-    transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    background-image: linear-gradient(110deg, hsl(var(--gradient-from)) 0%, hsl(var(--accent-2)) 50%, hsl(var(--gradient-from)) 100%);
+    background-size: 200% 100%;
+    background-position: 0% 50%;
+    color: hsl(var(--gradient-foreground));
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, background-position 0.6s ease;
   }
   .btn-gradient:hover {
-    opacity: 0.9;
-    box-shadow: 0 4px 12px rgba(99,102,241,.25);
+    background-position: 100% 50%;
+    box-shadow: 0 10px 26px -10px hsl(var(--accent) / 0.65), 0 2px 8px -3px hsl(var(--accent-2) / 0.4);
   }
   .btn-gradient:active {
     transform: scale(0.98);
@@ -301,6 +286,250 @@
     text-transform: uppercase;
     color: hsl(0 0% 100% / 0.22);
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Component layer — the shared surface language
+
+   These live in `@layer components` (not `utilities`) on purpose: Tailwind
+   emits `utilities` last, so a call site can still override any of this with a
+   utility — `premium-card border-accent/40` keeps the accent border, and
+   `aurora opacity-70` really is 70%. Declared outside a layer instead, these
+   rules would silently win against every Tailwind utility they set.
+   ══════════════════════════════════════════════════════════════════════════ */
+@layer components {
+  /* Glass panels: translucent fill + blur + an elegant hairline. */
+  .glass-panel {
+    background: hsl(var(--surface-glass) / 0.72);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid hsl(var(--border) / 0.7);
+  }
+
+  /* A raised card: soft border, a light-catching top edge, and a small lift. */
+  .premium-card {
+    position: relative;
+    border-radius: 1rem;
+    border: 1px solid hsl(var(--border) / 0.75);
+    background: hsl(var(--card));
+    transition:
+      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.24s ease;
+  }
+  .premium-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.09), transparent);
+    pointer-events: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .premium-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      border-color: hsl(var(--accent) / 0.32);
+    }
+  }
+
+  /* Icon chip — the consistent treatment for every feature/step icon. */
+  .icon-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    background: linear-gradient(150deg, hsl(var(--accent) / 0.16), hsl(var(--accent-2) / 0.12));
+    border: 1px solid hsl(var(--accent) / 0.22);
+    color: hsl(var(--accent));
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  }
+  .group:hover .icon-chip {
+    transform: translateY(-1px) scale(1.06);
+    box-shadow: 0 6px 18px -8px hsl(var(--accent) / 0.6);
+  }
+
+  /* Gradient text for eyebrow labels and headline highlights. */
+  .text-gradient {
+    background: linear-gradient(100deg, hsl(var(--gradient-from)), hsl(var(--gradient-to)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* If a browser cannot clip text to a background, keep the words readable. */
+  @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+    .text-gradient {
+      background: none;
+      color: hsl(var(--accent));
+    }
+  }
+
+  /* The aurora: three soft colour blooms that drift almost imperceptibly.
+     One element, transform-only animation, so it composites on the GPU. */
+  .aurora {
+    position: absolute;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(48px);
+    opacity: 0.55;
+    background:
+      radial-gradient(38% 42% at 22% 28%, hsl(var(--accent) / 0.42) 0%, transparent 70%),
+      radial-gradient(34% 38% at 78% 22%, hsl(var(--accent-2) / 0.34) 0%, transparent 70%),
+      radial-gradient(40% 44% at 58% 82%, hsl(var(--accent) / 0.28) 0%, transparent 72%);
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .aurora { animation: none; will-change: auto; }
+  }
+
+  /* Faint grid behind hero/CTA sections for a technical, layered feel. */
+  .grid-veil {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(to right, hsl(var(--foreground) / 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--foreground) / 0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(70% 60% at 50% 40%, #000 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(70% 60% at 50% 40%, #000 0%, transparent 100%);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Animation layer
+
+   Declared outside `@layer utilities` so the whole keyframe library always
+   ships — these are the product's motion language, not one-off helpers.
+
+   Hierarchy, from slowest to fastest:
+     sections  → .animate-fade-up / .animate-fade-down   (0.5–0.6s)
+     cards     → .animate-fade-up + .stagger             (staggered ~60ms)
+     panels    → [data-step-panel]                       (0.42s slide)
+     buttons   → .btn-gradient / .magnetic micro-fx     (< 250ms)
+     background→ .animate-aurora                         (22s drift)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-down {
+  from { opacity: 0; transform: translate3d(0, -14px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.94) translateY(6px); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .4; }
+}
+@keyframes save-success {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes progress-fill {
+  from { stroke-dashoffset: 100; }
+}
+/* Continuous, very slow background drift for the hero aurora. */
+@keyframes aurora-drift {
+  0%   { transform: translate3d(-4%, -3%, 0) scale(1.05); }
+  50%  { transform: translate3d(4%, 3%, 0) scale(1.14); }
+  100% { transform: translate3d(-4%, -3%, 0) scale(1.05); }
+}
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+/* Animated gradient sweep for primary CTAs. */
+@keyframes gradient-pan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+/* Route transition — a gentle rise, fast enough never to feel like a delay. */
+@keyframes page-enter {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: none; }
+}
+/* Onboarding step transitions. */
+@keyframes step-in-right {
+  from { opacity: 0; transform: translate3d(28px, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes step-in-left {
+  from { opacity: 0; transform: translate3d(-28px, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ring-pulse {
+  0% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.4); }
+  100% { box-shadow: 0 0 0 12px hsl(var(--accent) / 0); }
+}
+/* Mobile navigation drawer. */
+@keyframes drawer-in {
+  from { opacity: 0.4; transform: translate3d(-100%, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+/* Editor panels swap sides on mobile (form ←, preview →). */
+@keyframes panel-in-left {
+  from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes panel-in-right {
+  from { opacity: 0; transform: translate3d(18px, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+.animate-fade-in { animation: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-fade-up { animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-down { animation: fade-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-slide-in { animation: slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-slide-in-left { animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-scale-in { animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-pop-in { animation: pop-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+.animate-save-success { animation: save-success 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-float { animation: float-soft 5s ease-in-out infinite; }
+.animate-ring-pulse { animation: ring-pulse 1.6s ease-out infinite; }
+.animate-aurora { animation: aurora-drift 22s ease-in-out infinite; }
+.animate-page-enter { animation: page-enter 0.34s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-drawer-in { animation: drawer-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-panel-left { animation: panel-in-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-panel-right { animation: panel-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Cards arrive in sequence, never all at once: set --stagger inline. */
+.stagger { animation-delay: var(--stagger, 0ms); }
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--background)) 37%, hsl(var(--muted)) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -323,20 +552,37 @@
   display: none;
 }
 
-/* Slim, always-present indicator for content that scrolls inside a small frame
-   (the homepage resume preview) — thin enough to stay out of the way. */
-.scrollbar-slim {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+/* Pointer-follow effects: the homepage resume tilt and the magnetic CTAs.
+   The transform values are written from the hooks; these rules own the easing
+   and the "tracking" state that removes the transition while the pointer moves,
+   so following feels direct and leaving eases home. */
+.tilt-surface {
+  transform: perspective(1100px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0);
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  will-change: transform;
 }
-.scrollbar-slim::-webkit-scrollbar { width: 4px; }
-.scrollbar-slim::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-slim::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: 999px;
+.tilt-surface[data-tilting="true"] {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
-.scrollbar-slim::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.55);
+
+.magnetic {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.magnetic[data-tracking="true"] {
+  transition: none;
+  will-change: transform;
+}
+
+/* Belt and braces: a reduced-motion visitor never sees residual offset, even if
+   the preference flips mid-session while a transform is already inline. */
+@media (prefers-reduced-motion: reduce) {
+  .tilt-surface,
+  .magnetic {
+    transform: none !important;
+  }
 }
 
 /* Grab cursors only where a real pointer exists, so touch devices are untouched. */
@@ -350,10 +596,10 @@
    from layout, so a failed observer can only ever be a cosmetic problem. */
 [data-reveal] {
   opacity: 0;
-  transform: translate3d(0, 14px, 0);
+  transform: translate3d(0, 16px, 0);
   transition:
-    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
 }
 [data-reveal="shown"] {
@@ -390,7 +636,7 @@
   transition: opacity 0.3s ease;
   background: radial-gradient(
     260px circle at var(--spot-x, 50%) var(--spot-y, 0%),
-    hsl(var(--accent) / 0.09),
+    hsl(var(--accent) / 0.10),
     transparent 68%
   );
 }
@@ -398,7 +644,31 @@
   .interactive-card:hover::after { opacity: 1; }
 }
 
+/* Onboarding step transitions — a directional slide, driven by `data-dir`. */
+[data-step-panel] {
+  animation-duration: 0.42s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+[data-step-panel][data-dir="next"] { animation-name: step-in-right; }
+[data-step-panel][data-dir="prev"] { animation-name: step-in-left; }
+
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1; transform: none; transition: none; }
   .interactive-card::after { display: none; }
+  [data-step-panel] { animation: none; }
+  .animate-fade-up,
+  .animate-fade-down,
+  .animate-slide-in-left,
+  .animate-pop-in,
+  .animate-page-enter,
+  .animate-drawer-in,
+  .animate-panel-left,
+  .animate-panel-right,
+  .animate-float,
+  .animate-ring-pulse,
+  .animate-aurora { animation: none; }
+  .magnetic[data-tracking="true"],
+  .hover-lift:hover,
+  .premium-card:hover { transform: none; }
 }

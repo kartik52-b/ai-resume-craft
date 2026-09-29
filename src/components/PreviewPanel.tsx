@@ -112,10 +112,7 @@ const PreviewPanel = () => {
           className="relative mx-auto"
           style={{ width: pageSize.width * zoom, height: pageSize.height * zoom }}
         >
-          <div
-            className="absolute inset-0 rounded-sm pointer-events-none"
-            style={{ boxShadow: "0 2px 8px rgba(0,0,0,.08), 0 12px 40px rgba(0,0,0,.06), 0 24px 64px rgba(0,0,0,.04)" }}
-          />
+          <div className="absolute inset-0 rounded-sm pointer-events-none canvas-shadow" />
           <div
             ref={pageRef}
             className="bg-canvas rounded-sm transition-transform duration-200 relative origin-top-left"
@@ -124,9 +121,9 @@ const PreviewPanel = () => {
             <Template data={resume} />
             {isEmpty && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center px-8 pointer-events-none">
-                <Eye className="h-6 w-6 text-zinc-300" />
-                <p className="text-[13px] font-medium text-zinc-400">Your resume preview appears here</p>
-                <p className="text-[11px] text-zinc-400">Fill in the sections on the left and this page updates as you type.</p>
+                <Eye className="h-6 w-6 text-muted-foreground/40" />
+                <p className="text-[13px] font-medium text-muted-foreground">Your resume preview appears here</p>
+                <p className="text-[11px] text-muted-foreground/80">Fill in the sections on the left and this page updates as you type.</p>
               </div>
             )}
           </div>

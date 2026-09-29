@@ -23,8 +23,8 @@ import { downloadResumePdf } from "@/lib/pdfEngine";
 import { toast } from "sonner";
 
 function AtsHealthBadge({ score }: { score: number }) {
-  const color = score >= 80 ? "text-emerald-500" : score >= 60 ? "text-amber-500" : "text-red-500";
-  const bg = score >= 80 ? "bg-emerald-500/10" : score >= 60 ? "bg-amber-500/10" : "bg-red-500/10";
+  const color = score >= 80 ? "text-success" : score >= 60 ? "text-warning" : "text-destructive";
+  const bg = score >= 80 ? "bg-success/10" : score >= 60 ? "bg-warning/10" : "bg-destructive/10";
   const label = score >= 80 ? "Strong" : score >= 60 ? "Good" : score >= 40 ? "Fair" : "Weak";
   return (
     <span className={cn("inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full", bg, color)}>
@@ -36,9 +36,9 @@ function AtsHealthBadge({ score }: { score: number }) {
 const ONBOARDING_PREVIEWS = ["modern", "developer", "two-column", "elegant"] as const;
 
 const QUICK_ACCESS = [
-  { href: "/create", icon: FilePlus2, label: "Create Resume", desc: "Start a fresh resume", color: "text-green-500" },
-  { href: "/templates", icon: LayoutTemplate, label: "Templates", desc: "Browse 25+ designs", color: "text-orange-500" },
-  { href: "/settings", icon: Settings, label: "Settings", desc: "Data & preferences", color: "text-blue-500" },
+  { href: "/create", icon: FilePlus2, label: "Create Resume", desc: "Start a fresh resume", chip: "from-accent/20 to-accent/5 text-accent border-accent/25" },
+  { href: "/templates", icon: LayoutTemplate, label: "Templates", desc: "Browse 25+ designs", chip: "from-accent-2/20 to-accent-2/5 text-accent-2 border-accent-2/25" },
+  { href: "/settings", icon: Settings, label: "Settings", desc: "Data & preferences", chip: "from-info/20 to-info/5 text-info border-info/25" },
 ];
 
 const TIPS = [
@@ -108,15 +108,20 @@ const Dashboard = () => {
   /* ── Brand-new user: no fake resumes, just a clear way in ── */
   if (!hasResume) {
     return (
-      <div className="min-h-full bg-workspace overflow-y-auto overflow-x-hidden scroll-smooth">
-        <div className="max-w-3xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+      <div className="relative min-h-full bg-workspace overflow-x-hidden">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] overflow-hidden" aria-hidden>
+          <div className="aurora animate-aurora opacity-60" />
+          <div className="grid-veil" />
+        </div>
+
+        <div className="relative z-10 max-w-3xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
           <ImportDialog open={importOpen} onOpenChange={setImportOpen} />
 
           <Reveal className="text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 text-accent text-[12px] font-medium mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel text-accent text-[12px] font-medium mb-5 animate-fade-down">
               <Sparkles className="h-3.5 w-3.5" /> Welcome
             </div>
-            <h1 className="text-[26px] lg:text-[32px] font-bold tracking-tight text-foreground leading-tight">
+            <h1 className="font-display text-[26px] lg:text-[32px] font-bold tracking-tight text-foreground leading-tight animate-fade-up">
               Welcome to AI Resume Craft
             </h1>
             <p className="text-[15px] text-muted-foreground mt-3 leading-relaxed">
@@ -153,10 +158,10 @@ const Dashboard = () => {
               { icon: Palette, title: "25 designs", desc: "Switch designs any time without losing content." },
               { icon: FileDown, title: "One-click PDF", desc: "Export an ATS-friendly PDF when you're ready." },
             ].map(({ icon: Icon, title, desc }, i) => (
-              <Reveal key={title} delayMs={i * 60} className="h-full">
-                <div className="h-full rounded-xl border border-border/60 bg-card p-4 card-hover">
-                  <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center mb-2.5">
-                    <Icon className="h-4 w-4 text-accent" />
+              <Reveal key={title} delayMs={i * 70} className="h-full">
+                <div className="premium-card group h-full p-4">
+                  <div className="icon-chip h-9 w-9 mb-2.5">
+                    <Icon className="h-4 w-4" />
                   </div>
                   <h3 className="text-[13px] font-semibold mb-0.5">{title}</h3>
                   <p className="text-[12px] text-muted-foreground leading-relaxed">{desc}</p>
@@ -195,8 +200,8 @@ const Dashboard = () => {
       <div
         key={r.id}
         className={cn(
-          "group relative h-full rounded-xl border bg-card card-hover interactive-card flex flex-col",
-          isActive ? "border-accent/40 ring-1 ring-accent/10 shadow-sm" : "border-border/60",
+          "premium-card group relative h-full interactive-card flex flex-col hover:shadow-elevated",
+          isActive ? "border-accent/40 ring-1 ring-accent/10" : "border-border/75",
         )}
       >
         {/* Thumbnail — the user's real resume */}
@@ -274,7 +279,7 @@ const Dashboard = () => {
         <Reveal className="flex items-start justify-between gap-8">
           <div className="flex-1">
             <p className="text-[13px] text-muted-foreground mb-1">{greeting}</p>
-            <h1 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
+            <h1 className="font-display text-[28px] font-bold tracking-tight text-foreground leading-tight">
               My Resumes
             </h1>
             <p className="text-[14px] text-muted-foreground mt-2 max-w-lg leading-relaxed">
@@ -290,7 +295,7 @@ const Dashboard = () => {
               </Button>
             </div>
           </div>
-          <div className="hidden xl:flex items-center justify-center w-64 h-44 rounded-2xl bg-gradient-to-br from-accent/5 to-purple-500/5 border border-accent/10 shrink-0">
+          <div className="hidden xl:flex items-center justify-center w-64 h-44 rounded-2xl bg-gradient-to-br from-accent/10 to-accent-2/10 border border-accent/15 shrink-0">
             <div className="text-center space-y-2">
               <FileText className="h-10 w-10 text-accent/30 mx-auto" />
               <p className="text-[11px] text-muted-foreground/50 font-medium">AI-Powered</p>
@@ -351,8 +356,8 @@ const Dashboard = () => {
           <h2 className="text-[15px] font-semibold text-foreground mb-4">Quick Access</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {QUICK_ACCESS.map((item) => (
-              <Link key={item.href} to={item.href} className="group flex items-center gap-3 p-4 rounded-xl border border-border/60 bg-card card-hover cursor-pointer">
-                <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center shrink-0 bg-muted/50", item.color)}>
+              <Link key={item.href} to={item.href} className="premium-card group flex items-center gap-3 p-4 cursor-pointer">
+                <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center shrink-0 bg-gradient-to-br border transition-transform duration-200 group-hover:scale-105", item.chip)}>
                   <item.icon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0 flex-1">

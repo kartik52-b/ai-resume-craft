@@ -91,7 +91,7 @@ export default function TemplatePickerDialog({ open, onOpenChange }: TemplatePic
                   <div className="p-3">
                     <div className="flex items-center justify-between mb-0.5">
                       <h3 className="text-[12px] font-semibold truncate">{t.label}</h3>
-                      {t.atsSafe ? <Badge variant="outline" className="text-[8px] border-emerald-500/30 text-emerald-500 shrink-0">ATS</Badge> : <Badge variant="outline" className="text-[8px] border-amber-500/30 text-amber-500 shrink-0">Visual</Badge>}
+                      {t.atsSafe ? <Badge variant="outline" className="text-[8px] border-success/30 text-success shrink-0">ATS</Badge> : <Badge variant="outline" className="text-[8px] border-warning/30 text-warning shrink-0">Visual</Badge>}
                     </div>
                     <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">{t.description}</p>
                   </div>

@@ -8,7 +8,7 @@ const SaveStatusIndicator = () => {
   const config = {
     idle: { icon: CloudUpload, label: 'Not saved', className: 'text-muted-foreground' },
     saving: { icon: Loader2, label: 'Saving...', className: 'text-muted-foreground' },
-    saved: { icon: Check, label: 'Saved', className: 'text-emerald-500' },
+    saved: { icon: Check, label: 'Saved', className: 'text-success' },
     error: { icon: CloudOff, label: 'Error', className: 'text-destructive' },
   }[saveStatus];
 

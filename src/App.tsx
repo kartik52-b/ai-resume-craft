@@ -34,6 +34,22 @@ function PageLoader() {
   );
 }
 
+/**
+ * Route transition.
+ *
+ * Keyed on the pathname so each navigation replays a short rise-and-fade.
+ * Deliberately CSS-only and very short (340ms) — it must never make navigation
+ * feel slow, and reduced-motion visitors get an instant swap.
+ */
+function PageTransition({ children }: { children: React.ReactNode }) {
+  const { pathname } = useLocation();
+  return (
+    <div key={pathname} className="h-full animate-page-enter">
+      {children}
+    </div>
+  );
+}
+
 const NAV_GROUPS = [
   {
     label: "Workspace",
@@ -65,7 +81,7 @@ function Sidebar({ onNav, collapsed, onToggle }: { onNav?: () => void; collapsed
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className={cn("flex items-center gap-2.5 shrink-0 border-b border-white/[0.06]", collapsed ? "px-3 py-4 justify-center" : "px-5 py-4")}>
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center shrink-0 shadow-sm">
+        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center shrink-0 shadow-sm shadow-accent/30">
           <span className="text-white text-[11px] font-bold tracking-tight">AI</span>
         </div>
         {!collapsed && (
@@ -94,21 +110,33 @@ function Sidebar({ onNav, collapsed, onToggle }: { onNav?: () => void; collapsed
                     title={collapsed ? label : undefined}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      "flex items-center gap-2.5 rounded-lg transition-all duration-150",
+                      "relative flex items-center gap-2.5 rounded-lg transition-all duration-200 ease-premium",
                       collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2",
                       active
-                        ? "bg-accent/15 text-white shadow-sm shadow-accent/5"
-                        : "text-white/50 hover:text-white/85 hover:bg-white/[0.04]",
+                        ? "bg-accent/[0.14] text-white shadow-sm shadow-accent/10"
+                        : "text-white/50 hover:text-white/85 hover:bg-white/[0.05] hover:translate-x-0.5",
                     )}
                   >
-                    <Icon className={cn("shrink-0", active ? "h-[18px] w-[18px] text-accent" : "h-4 w-4")} />
+                    {/* Active route indicator — grows in on every navigation. */}
+                    {active && (
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-gradient-to-b from-accent to-accent-2 animate-scale-in"
+                      />
+                    )}
+                    <Icon
+                      className={cn(
+                        "shrink-0 transition-transform duration-200",
+                        active ? "h-[18px] w-[18px] text-accent" : "h-4 w-4",
+                      )}
+                    />
                     {!collapsed && (
                       <span className={cn("text-[13px] truncate", active ? "font-medium" : "font-normal")}>
                         {label}
                       </span>
                     )}
                     {active && !collapsed && (
-                      <div className="ml-auto h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
+                      <div className="ml-auto h-1.5 w-1.5 rounded-full bg-accent shrink-0 animate-pulse-dot" />
                     )}
                   </Link>
                 );
@@ -203,7 +231,7 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
   const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
 
   return (
-    <div className="h-12 shrink-0 border-b border-border/60 bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 gap-4">
+    <div className="relative z-20 h-12 shrink-0 border-b border-border/60 bg-card/75 backdrop-blur-xl flex items-center justify-between px-4 gap-4">
       {/* Left: Breadcrumbs + mobile trigger */}
       <div className="flex items-center gap-3 min-w-0">
         <button
@@ -320,21 +348,28 @@ function ShellLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar — a subtle cyan rim marks the active route column. */}
       <aside
         className={cn(
-          "hidden lg:flex shrink-0 bg-sidebar border-r border-white/[0.06] flex-col transition-all duration-200 ease-out",
+          "hidden lg:flex shrink-0 bg-sidebar border-r border-white/[0.06] flex-col transition-[width] duration-300 ease-premium relative",
           sidebarCollapsed ? "w-[60px]" : "w-[240px]",
         )}
       >
         <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(v => !v)} />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-accent/25 to-transparent"
+        />
       </aside>
 
       {/* Mobile sidebar overlay */}
       {mobileOpen && (
         <>
-          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden animate-fade-in" onClick={() => setMobileOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 z-50 w-[260px] bg-sidebar lg:hidden animate-slide-in shadow-2xl">
+          <div
+            className="fixed inset-0 z-40 bg-black/55 backdrop-blur-sm lg:hidden animate-fade-in"
+            onClick={() => setMobileOpen(false)}
+          />
+          <aside className="fixed inset-y-0 left-0 z-50 w-[260px] bg-sidebar lg:hidden animate-drawer-in shadow-modal">
             <Sidebar collapsed={false} onToggle={() => setMobileOpen(false)} onNav={() => setMobileOpen(false)} />
           </aside>
         </>
@@ -346,8 +381,14 @@ function ShellLayout({ children }: { children: React.ReactNode }) {
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:bg-primary focus:text-primary-foreground focus:px-3 focus:py-1.5 focus:rounded-md focus:text-sm">
           Skip to content
         </a>
-        <main id="main-content" tabIndex={-1} className="flex-1 min-h-0 overflow-hidden outline-none">
-          <Suspense fallback={<PageLoader />}>{children}</Suspense>
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-thin outline-none"
+        >
+          <Suspense fallback={<PageLoader />}>
+            <PageTransition>{children}</PageTransition>
+          </Suspense>
         </main>
       </div>
     </div>

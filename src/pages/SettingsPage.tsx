@@ -51,11 +51,15 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-full bg-workspace overflow-y-auto">
-      <div className="max-w-3xl mx-auto px-4 lg:px-8 py-8 space-y-6">
+    <div className="relative min-h-full bg-workspace overflow-x-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[320px] overflow-hidden" aria-hidden>
+        <div className="aurora animate-aurora opacity-40" />
+      </div>
+
+      <div className="relative z-10 max-w-3xl mx-auto px-4 lg:px-8 py-8 space-y-6">
         {/* Account */}
-        <section className="rounded-xl border border-border/60 bg-card p-5 space-y-3 shadow-card">
-          <div className="flex items-center gap-2.5"><div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center"><User className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Account</h2></div>
+        <section className="premium-card p-5 space-y-3 animate-fade-up">
+          <div className="flex items-center gap-2.5"><div className="icon-chip h-9 w-9"><User className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Account</h2></div>
           <p className="text-[13px] text-muted-foreground leading-relaxed">These are the contact details of your active resume. New resumes always start blank and are filled in through the create flow.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div className="space-y-1.5">
@@ -80,8 +84,8 @@ export default function SettingsPage() {
         </section>
 
         {/* Appearance */}
-        <section className="rounded-xl border border-border/60 bg-card p-5 space-y-3 shadow-card">
-          <div className="flex items-center gap-2.5"><div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center"><Sun className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Appearance</h2></div>
+        <section className="premium-card p-5 space-y-3 animate-fade-up">
+          <div className="flex items-center gap-2.5"><div className="icon-chip h-9 w-9"><Sun className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Appearance</h2></div>
           <p className="text-[13px] text-muted-foreground">Choose your preferred theme. System follows your operating system setting.</p>
           <div className="flex gap-2 pt-1">
             {([
@@ -99,8 +103,8 @@ export default function SettingsPage() {
         </section>
 
         {/* Data & Privacy */}
-        <section className="rounded-xl border border-border/60 bg-card p-5 space-y-3 shadow-card">
-          <div className="flex items-center gap-2.5"><div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center"><Database className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Data & Privacy</h2></div>
+        <section className="premium-card p-5 space-y-3 animate-fade-up">
+          <div className="flex items-center gap-2.5"><div className="icon-chip h-9 w-9"><Database className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Data & Privacy</h2></div>
           <p className="text-[13px] text-muted-foreground leading-relaxed">Your resumes are saved automatically to this browser's local storage. Data never leaves your device except when you explicitly request an AI action.</p>
           <ul className="text-[12px] text-muted-foreground space-y-1 list-disc list-inside">
             <li>{resumes.length} resume(s) stored</li>
@@ -127,8 +131,8 @@ export default function SettingsPage() {
         </section>
 
         {/* AI */}
-        <section className="rounded-xl border border-border/60 bg-card p-5 space-y-3 shadow-card">
-          <div className="flex items-center gap-2.5"><div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center"><Sparkles className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">AI Features</h2></div>
+        <section className="premium-card p-5 space-y-3 animate-fade-up">
+          <div className="flex items-center gap-2.5"><div className="icon-chip h-9 w-9"><Sparkles className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">AI Features</h2></div>
           <p className="text-[13px] text-muted-foreground leading-relaxed">AI runs through a server-side proxy. The <code className="px-1.5 py-0.5 rounded bg-muted text-[11px] font-mono">GOOGLE_API_KEY</code> is set on the server only.</p>
           <p className="text-[12px] text-muted-foreground">If AI actions return "not configured", the key is missing. The rest of the app works fully without it.</p>
           <a href="https://ai.google.dev/pricing" target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1.5 text-[13px] text-primary hover:underline">Google AI Studio <ExternalLink className="h-3.5 w-3.5" /></a>
