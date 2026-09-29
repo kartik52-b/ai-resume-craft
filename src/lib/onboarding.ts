@@ -7,6 +7,7 @@ import {
   createEmptyProject,
   createEmptyCertification,
 } from '@/types/resume';
+import { generateId } from '@/lib/id';
 
 /**
  * New-user onboarding: the details collected before the editor opens, plus the
@@ -46,9 +47,24 @@ export const EMPTY_PERSONAL_DETAILS: PersonalDetails = {
  * Optional background collected in onboarding step 3, adapted to the project's
  * existing resume data model. Rows left completely empty are dropped by the
  * builder, and every value still originates from the user.
+ *
+ * Education rule: the section is optional, but every ADDED education row must
+ * carry an institution (school). Enforced by validateBackground and again by
+ * buildResumeFromDetails, which drops invalid rows as a final safety net.
  */
+export interface EducationDraft {
+  /** Stable key for list rendering; not persisted to the resume. */
+  id: string;
+  school: string;
+  degree: string;
+  field: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+}
+
 export interface BackgroundDetails {
-  education: { school: string; degree: string; field: string; startDate: string; endDate: string }[];
+  education: EducationDraft[];
   experience: { company: string; position: string; startDate: string; endDate: string; description: string }[];
   skills: string[];
   projects: { name: string; description: string; technologies: string; link: string }[];
@@ -63,10 +79,42 @@ export const EMPTY_BACKGROUND: BackgroundDetails = {
   certifications: [],
 };
 
+export const createEmptyEducationDraft = (): EducationDraft => ({
+  id: generateId(),
+  school: '',
+  degree: '',
+  field: '',
+  startDate: '',
+  endDate: '',
+  description: '',
+});
+
 /** Deliberately permissive — catches obvious typos without rejecting valid addresses. */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 /** Digits plus the usual separators, at least 7 digits total. */
 const PHONE_DIGITS_RE = /\d/g;
+
+/** Inline message shown under an education entry missing its institution. */
+export const EDUCATION_INSTITUTION_REQUIRED_MESSAGE = 'Please enter your institution.';
+
+/**
+ * Every ADDED education row must name its institution. The section itself
+ * stays optional: with no rows added, this returns no errors. The builder
+ * additionally drops any row without a school as a final safety net.
+ */
+export function validateBackground(bg: BackgroundDetails): Record<string, string> {
+  const errors: Record<string, string> = {};
+  bg.education.forEach((row, i) => {
+    if (!row.school.trim()) {
+      errors[row.id ?? `${i}`] = EDUCATION_INSTITUTION_REQUIRED_MESSAGE;
+    }
+  });
+  return errors;
+}
+
+export function isValidBackground(bg: BackgroundDetails): boolean {
+  return Object.keys(validateBackground(bg)).length === 0;
+}
 
 export function validatePersonalDetails(details: PersonalDetails): PersonalDetailsErrors {
   const errors: PersonalDetailsErrors = {};
@@ -116,8 +164,18 @@ const hasText = (values: string[]) => values.some((v) => v.trim().length > 0);
 function buildBackground(bg: BackgroundDetails): Pick<ResumeData, 'education' | 'experience' | 'skills' | 'projects' | 'certifications'> {
   return {
     education: bg.education
-      .filter((e) => hasText([e.school, e.degree, e.field, e.startDate, e.endDate]))
-      .map((e) => ({ ...createEmptyEducation(), school: e.school.trim(), degree: e.degree.trim(), field: e.field.trim(), startDate: e.startDate.trim(), endDate: e.endDate.trim() })),
+      // An education entry only reaches the resume when the required
+      // institution is present; empty or invalid rows are dropped.
+      .filter((e) => e.school.trim())
+      .map((e) => ({
+        ...createEmptyEducation(),
+        school: e.school.trim(),
+        degree: e.degree.trim(),
+        field: e.field.trim(),
+        startDate: e.startDate.trim(),
+        endDate: e.endDate.trim(),
+        description: e.description.trim(),
+      })),
     experience: bg.experience
       .filter((e) => hasText([e.company, e.position, e.startDate, e.endDate, e.description]))
       .map((e) => ({

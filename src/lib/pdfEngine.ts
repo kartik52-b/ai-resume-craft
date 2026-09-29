@@ -41,12 +41,24 @@ interface StyleProfile {
   bullet: string;
   /** Average glyph width as a fraction of font size (for pure text wrapping). */
   charRatio: number;
-  /** Column layout mode: 'single' = full-width, 'sidebar' = skills/certs in left sidebar */
-  columnLayout?: 'single' | 'sidebar';
-  /** Sidebar background color (RGB) for 'sidebar' layout */
+  /** Sidebar background color (RGB) for 'sidebar' layouts */
   sidebarBg?: [number, number, number];
   /** Sidebar text color (RGB) */
   sidebarText?: [number, number, number];
+}
+
+/**
+ * Structural profile: page geometry that must survive into the PDF.
+ * Kept separate from the typographic profile so a template can change one
+ * without disturbing the other, and so every template has an explicit entry.
+ */
+export interface LayoutProfile {
+  headerAlign: 'left' | 'center';
+  columns: 'single' | 'sidebar-left' | 'sidebar-right';
+  /** Sidebar width as a fraction of the content width. */
+  sidebarRatio: number;
+  /** Draw a hairline rule beneath the name/contact block. */
+  nameRule: boolean;
 }
 
 const STYLE_PROFILES: Record<string, StyleProfile> = {
@@ -105,12 +117,12 @@ const STYLE_PROFILES: Record<string, StyleProfile> = {
   'two-column': {
     font: 'helvetica', nameSize: 17, contactSize: 8.5, titleSize: 10, bodySize: 9.5,
     lineHeightFactor: 1.4, sectionUppercase: true, sectionRule: true, bullet: '▸', charRatio: 0.5,
-    columnLayout: 'sidebar', sidebarBg: [15, 40, 50], sidebarText: [220, 240, 240],
+    sidebarBg: [15, 40, 50], sidebarText: [220, 240, 240],
   },
   portfolio: {
     font: 'helvetica', nameSize: 23, contactSize: 9, titleSize: 9.5, bodySize: 9.5,
     lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '▸', charRatio: 0.5,
-    columnLayout: 'sidebar', sidebarBg: [88, 28, 135], sidebarText: [240, 240, 250],
+    sidebarBg: [24, 24, 27], sidebarText: [240, 240, 250],
   },
   startup: {
     font: 'helvetica', nameSize: 22, contactSize: 9, titleSize: 10, bodySize: 9.5,
@@ -139,7 +151,7 @@ const STYLE_PROFILES: Record<string, StyleProfile> = {
   designer: {
     font: 'helvetica', nameSize: 23, contactSize: 9, titleSize: 10, bodySize: 9.5,
     lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '·', charRatio: 0.5,
-    columnLayout: 'sidebar', sidebarBg: [253, 164, 175], sidebarText: [127, 29, 29],
+    sidebarBg: [253, 242, 248], sidebarText: [131, 24, 67],
   },
   healthcare: {
     font: 'helvetica', nameSize: 21, contactSize: 9, titleSize: 10, bodySize: 9.5,
@@ -157,6 +169,44 @@ const STYLE_PROFILES: Record<string, StyleProfile> = {
 
 export function getStyleProfile(template: ResumeData['template']): StyleProfile {
   return STYLE_PROFILES[template] ?? STYLE_PROFILES.modern;
+}
+
+const DEFAULT_LAYOUT: LayoutProfile = { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: false };
+
+/**
+ * Page geometry per template — mirroring the on-screen layouts so the exported
+ * PDF keeps each design's columns, header alignment and rail side.
+ */
+const LAYOUT_PROFILES: Record<string, LayoutProfile> = {
+  modern: { headerAlign: 'center', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  minimal: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: false },
+  professional: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  'ats-classic': { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  student: { headerAlign: 'center', columns: 'sidebar-left', sidebarRatio: 0.36, nameRule: true },
+  tech: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.32, nameRule: true },
+  executive: { headerAlign: 'center', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  creative: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.3, nameRule: true },
+  academic: { headerAlign: 'center', columns: 'sidebar-right', sidebarRatio: 0.28, nameRule: true },
+  developer: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.27, nameRule: false },
+  corporate: { headerAlign: 'left', columns: 'sidebar-right', sidebarRatio: 0.28, nameRule: true },
+  elegant: { headerAlign: 'center', columns: 'single', sidebarRatio: 0.34, nameRule: false },
+  compact: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  'two-column': { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.34, nameRule: false },
+  portfolio: { headerAlign: 'left', columns: 'sidebar-right', sidebarRatio: 0.27, nameRule: false },
+  startup: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.34, nameRule: true },
+  engineering: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  finance: { headerAlign: 'center', columns: 'sidebar-left', sidebarRatio: 0.28, nameRule: true },
+  consultant: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  research: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: false },
+  marketing: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.32, nameRule: true },
+  designer: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.38, nameRule: false },
+  healthcare: { headerAlign: 'left', columns: 'sidebar-right', sidebarRatio: 0.28, nameRule: true },
+  legal: { headerAlign: 'center', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  international: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.27, nameRule: false },
+};
+
+export function getLayoutProfile(template: ResumeData['template']): LayoutProfile {
+  return LAYOUT_PROFILES[template] ?? DEFAULT_LAYOUT;
 }
 
 export interface PdfElement {
@@ -238,33 +288,56 @@ export function layoutResume(resume: ResumeData): { elements: PdfElement[]; tota
   const PT_TO_MM = 0.352778;
   const lh = (size: number) => size * PT_TO_MM * style.lineHeightFactor;
 
-  const isSidebar = style.columnLayout === 'sidebar';
-  const SIDEBAR_W = isSidebar ? 58 : 0; // mm
-  const MAIN_X = isSidebar ? MARGIN_X + SIDEBAR_W + 4 : MARGIN_X;
-  const MAIN_W = isSidebar ? CONTENT_W - SIDEBAR_W - 4 : CONTENT_W;
+  // --- Page geometry from the template's structural profile ---
+  const layout = getLayoutProfile(resume.template);
+  const isLeftSide = layout.columns === 'sidebar-left';
+  const isRightSide = layout.columns === 'sidebar-right';
+  const isSidebar = isLeftSide || isRightSide;
+  const SIDEBAR_W = isSidebar ? Math.round(CONTENT_W * layout.sidebarRatio) : 0;
+  const GAP = isSidebar ? 4 : 0;
+  const MAIN_X = isLeftSide ? MARGIN_X + SIDEBAR_W + GAP : MARGIN_X;
+  const MAIN_W = isSidebar ? CONTENT_W - SIDEBAR_W - GAP : CONTENT_W;
+  const SIDEBAR_X = isRightSide ? MARGIN_X + MAIN_W + GAP : MARGIN_X;
+  const headerCenter = layout.headerAlign === 'center';
   const sideCursor: LayoutCursor = { page: 1, y: MARGIN_TOP, elements: [] };
+
+  const textW = (text: string, size: number) => text.length * size * PT_TO_MM * style.charRatio;
+  const headerX = (text: string, size: number) =>
+    headerCenter ? MAIN_X + Math.max(0, (MAIN_W - textW(text, size)) / 2) : MAIN_X;
 
   // --- Header: name ---
   const name = p.fullName.trim() || 'Your Name';
   ensureSpace(cursor, lh(style.nameSize));
-  cursor.elements.push({ page: cursor.page, x: MAIN_X, y: cursor.y, text: name, size: style.nameSize, font: style.font, bold: true });
+  cursor.elements.push({ page: cursor.page, x: headerX(name, style.nameSize), y: cursor.y, text: name, size: style.nameSize, font: style.font, bold: true });
   cursor.y += lh(style.nameSize);
 
   // --- Header: contact ---
   const contactItems = [p.email, p.phone, p.location, p.website, p.linkedin, p.github].filter(Boolean) as string[];
   if (contactItems.length > 0) {
-    pushLines(cursor, wrapText(contactItems.join('  |  '), style.contactSize, MAIN_W, style.charRatio), {
-      x: MAIN_X, size: style.contactSize, font: style.font, lh: lh(style.contactSize), gray: true,
-    });
+    for (const line of wrapText(contactItems.join('  |  '), style.contactSize, MAIN_W, style.charRatio)) {
+      ensureSpace(cursor, lh(style.contactSize));
+      cursor.elements.push({ page: cursor.page, x: headerX(line, style.contactSize), y: cursor.y, text: line, size: style.contactSize, font: style.font, gray: true });
+      cursor.y += lh(style.contactSize);
+    }
   }
   cursor.y += 2;
 
   // --- Header: professional headline (one-line title under the contact row) ---
   if (p.headline && p.headline.trim()) {
-    pushLines(cursor, wrapText(p.headline.trim(), style.bodySize, MAIN_W, style.charRatio), {
-      x: MAIN_X, size: style.bodySize, font: style.font, lh: lh(style.bodySize), italic: true,
-    });
+    for (const line of wrapText(p.headline.trim(), style.bodySize, MAIN_W, style.charRatio)) {
+      ensureSpace(cursor, lh(style.bodySize));
+      cursor.elements.push({ page: cursor.page, x: headerX(line, style.bodySize), y: cursor.y, text: line, size: style.bodySize, font: style.font, italic: true });
+      cursor.y += lh(style.bodySize);
+    }
     cursor.y += 2;
+  }
+
+  // --- Header: rule under the identity block (designs that separate the masthead) ---
+  if (layout.nameRule) {
+    ensureSpace(cursor, 2.2);
+    const ruleChars = Math.max(10, Math.floor(MAIN_W / (4 * PT_TO_MM * style.charRatio)));
+    cursor.elements.push({ page: cursor.page, x: MAIN_X, y: cursor.y, text: '_'.repeat(ruleChars), size: 4, font: style.font, gray: true });
+    cursor.y += 2.2;
   }
 
   // --- Summary (intro text, no heading) ---
@@ -282,13 +355,13 @@ export function layoutResume(resume: ResumeData): { elements: PdfElement[]; tota
       const title = style.sectionUppercase ? section.title.toUpperCase() : section.title;
       const titleLines = wrapText(title, style.titleSize - 0.5, SIDEBAR_W, style.charRatio);
       for (const tLine of titleLines) {
-        sideCursor.elements.push({ page: sideCursor.page, x: MARGIN_X, y: sideCursor.y, text: tLine, size: style.titleSize - 0.5, font: style.font, bold: true });
+        sideCursor.elements.push({ page: sideCursor.page, x: SIDEBAR_X, y: sideCursor.y, text: tLine, size: style.titleSize - 0.5, font: style.font, bold: true });
         sideCursor.y += lh(style.titleSize - 0.5);
       }
       sideCursor.y += 0.5;
       for (const line of section.lines) {
         const wrapped = wrapText(line, style.bodySize - 0.5, SIDEBAR_W, style.charRatio);
-        pushLines(sideCursor, wrapped, { x: MARGIN_X, size: style.bodySize - 0.5, font: style.font, lh: lh(style.bodySize - 0.5) });
+        pushLines(sideCursor, wrapped, { x: SIDEBAR_X, size: style.bodySize - 0.5, font: style.font, lh: lh(style.bodySize - 0.5) });
         sideCursor.y += 0.3;
       }
       sideCursor.y += 2.5;
@@ -337,18 +410,20 @@ export function layoutResume(resume: ResumeData): { elements: PdfElement[]; tota
     cursor.y += 3;
   }
 
-  // --- Draw sidebar background for 'sidebar' layout ---
+  // --- Full-height sidebar rail across every page ('sidebar-*' layouts) ---
   if (isSidebar && sideCursor.elements.length > 0) {
-    const maxSideY = Math.max(...sideCursor.elements.map(e => e.y + e.size * 0.352778));
-    const bgH = maxSideY - MARGIN_TOP + 4;
+    const railW = SIDEBAR_W + 4;
+    const railH = PAGE_H - MARGIN_TOP - MARGIN_BOTTOM + 8;
+    const railX = isRightSide ? SIDEBAR_X - 2 : MARGIN_X - 4;
+    const rgb = style.sidebarBg?.join(',') ?? '15,40,50';
+    const rail = `__SIDEBAR_BG__${railW}__${railH}__${rgb}`;
+    // One marker per page so the rail survives page breaks.
     for (let pg = 1; pg <= cursor.page; pg++) {
-      cursor.elements.push({ page: pg, x: MARGIN_X - 1, y: MARGIN_TOP - 2, text: '', size: 0, font: style.font });
+      cursor.elements.push({ page: pg, x: railX, y: MARGIN_TOP - 4, text: rail, size: 0, font: style.font });
     }
-    // Add sidebar bg rect as a special element (will be drawn in buildResumePdf)
-    cursor.elements.push({ page: 1, x: MARGIN_X - 1, y: MARGIN_TOP - 2, text: `__SIDEBAR_BG__${SIDEBAR_W + 2}__${bgH}__${style.sidebarBg?.join(',') ?? '15,40,50'}`, size: 0, font: style.font });
-    // Merge sidebar elements
+    // Merge the sidebar text on top of the rail.
     for (const el of sideCursor.elements) {
-      cursor.elements.push({ ...el, x: el.x });
+      cursor.elements.push(el);
     }
   }
 
@@ -409,8 +484,12 @@ export function buildResumePdf(resume: ResumeData): jsPDF {
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
   const totalPages = Math.max(...elements.map((e) => e.page));
 
+  // Draw in page order so multi-page rails, sidebars and footers land on the
+  // right page (background markers sort first via their leading y).
+  const ordered = [...elements].sort((a, b) => (a.page - b.page) || (a.y - b.y));
+
   let currentPage = 1;
-  for (const el of elements) {
+  for (const el of ordered) {
     while (el.page > currentPage) {
       doc.addPage();
       currentPage += 1;

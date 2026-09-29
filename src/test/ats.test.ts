@@ -27,7 +27,7 @@ const base = () => {
       ],
     },
   ];
-  r.education = [{ id: 'ed1', school: 'TU Berlin', degree: 'BSc', field: 'Computer Science', startDate: '2015', endDate: '2019', gpa: '' }];
+  r.education = [{ id: 'ed1', school: 'TU Berlin', degree: 'BSc', field: 'Computer Science', startDate: '2015', endDate: '2019', gpa: '', description: '' }];
   r.skills = ['TypeScript', 'React', 'Node.js', 'SQL', 'Docker', 'Git'];
   return r;
 };

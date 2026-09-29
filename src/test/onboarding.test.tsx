@@ -4,10 +4,14 @@ import { ResumeProvider, useResume } from '@/context/ResumeContext';
 import { clearStoredResume, STORAGE_KEY } from '@/lib/storage';
 import {
   EMPTY_PERSONAL_DETAILS,
+  EDUCATION_INSTITUTION_REQUIRED_MESSAGE,
   buildResumeFromDetails,
+  createEmptyEducationDraft,
   isValidPersonalDetails,
   normalizeDetails,
+  validateBackground,
   validatePersonalDetails,
+  type BackgroundDetails,
   type PersonalDetails,
 } from '@/lib/onboarding';
 import { DESIGN_COLLECTIONS, TEMPLATE_REGISTRY, getCollectionTemplates } from '@/lib/templateRegistry';
@@ -53,6 +57,61 @@ describe('onboarding: personal details validation', () => {
 
   it('normalizes surrounding whitespace', () => {
     expect(normalizeDetails({ ...VALID, fullName: '  Jane Smith  ' }).fullName).toBe('Jane Smith');
+  });
+});
+
+describe('onboarding: background education validation', () => {
+  const emptyBackground = (): BackgroundDetails => ({
+    education: [],
+    experience: [],
+    skills: [],
+    projects: [],
+    certifications: [],
+  });
+
+  it('treats a skipped education section as valid', () => {
+    expect(validateBackground(emptyBackground())).toEqual({});
+  });
+
+  it('requires the institution once an education entry is added', () => {
+    const bg = emptyBackground();
+    bg.education = [createEmptyEducationDraft()];
+    const errors = validateBackground(bg);
+    expect(Object.values(errors)).toContain(EDUCATION_INSTITUTION_REQUIRED_MESSAGE);
+  });
+
+  it('keys errors by entry id so every added entry is checked', () => {
+    const bg = emptyBackground();
+    const first = createEmptyEducationDraft();
+    const second = createEmptyEducationDraft();
+    bg.education = [first, { ...second, school: 'Tech Institute' }];
+    const errors = validateBackground(bg);
+    expect(Object.keys(errors)).toEqual([first.id]);
+    expect(errors[first.id]).toBe(EDUCATION_INSTITUTION_REQUIRED_MESSAGE);
+  });
+
+  it('accepts entries whose institution is filled regardless of other fields', () => {
+    const bg = emptyBackground();
+    bg.education = [{ ...createEmptyEducationDraft(), school: '  State University  ' }];
+    expect(validateBackground(bg)).toEqual({});
+  });
+
+  it('buildResumeFromDetails drops education rows without an institution', () => {
+    const bg = emptyBackground();
+    bg.education = [
+      { ...createEmptyEducationDraft(), school: 'State University', degree: 'B.S.' },
+      { ...createEmptyEducationDraft(), degree: 'M.S.' }, // no institution — invalid
+    ];
+    const resume = buildResumeFromDetails(VALID, 'modern', bg);
+    expect(resume.education).toHaveLength(1);
+    expect(resume.education[0].school).toBe('State University');
+  });
+
+  it('buildResumeFromDetails keeps the education description the user typed', () => {
+    const bg = emptyBackground();
+    bg.education = [{ ...createEmptyEducationDraft(), school: 'State U', description: '  Summa cum laude.  ' }];
+    const resume = buildResumeFromDetails(VALID, 'modern', bg);
+    expect(resume.education[0].description).toBe('Summa cum laude.');
   });
 });
 
@@ -119,8 +178,8 @@ describe('onboarding: resume construction', () => {
   it('includes background rows the user filled and drops rows left empty', () => {
     const resume = buildResumeFromDetails(VALID, 'modern', {
       education: [
-        { school: 'State University', degree: 'B.S.', field: 'Computer Science', startDate: '09 / 2018', endDate: '06 / 2022' },
-        { school: '', degree: '', field: '', startDate: '', endDate: '' },
+        { id: 'edu-1', school: 'State University', degree: 'B.S.', field: 'Computer Science', startDate: '09 / 2018', endDate: '06 / 2022', description: 'Graduated with honors.' },
+        { id: 'edu-empty', school: '', degree: '', field: '', startDate: '', endDate: '', description: '' },
       ],
       experience: [{ company: 'Acme', position: 'Engineer', startDate: '2022', endDate: 'Present', description: 'Shipped features.' }],
       skills: ['TypeScript', 'TypeScript', ' React '],
@@ -130,6 +189,7 @@ describe('onboarding: resume construction', () => {
 
     expect(resume.education).toHaveLength(1);
     expect(resume.education[0].school).toBe('State University');
+    expect(resume.education[0].description).toBe('Graduated with honors.');
     expect(resume.experience).toHaveLength(1);
     expect(resume.experience[0].bullets).toEqual(['Shipped features.']);
     expect(resume.skills).toEqual(['TypeScript', 'React']);

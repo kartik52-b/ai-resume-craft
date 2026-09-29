@@ -63,6 +63,25 @@ function asObjectArray(value: unknown): Record<string, unknown>[] {
 }
 
 /**
+ * Education rows are normalized one by one: missing fields fall back to
+ * defaults (never fabricated values), and rows without an institution are
+ * dropped — an education entry without a school is never valid data.
+ */
+function asEducationArray(value: unknown): ResumeData['education'] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(isRecord).map((raw) => ({
+    id: asString(raw.id) || generateId(),
+    school: asString(raw.school).trim(),
+    degree: asString(raw.degree),
+    field: asString(raw.field),
+    startDate: asString(raw.startDate),
+    endDate: asString(raw.endDate),
+    gpa: asString(raw.gpa),
+    description: asString(raw.description),
+  })).filter((e) => e.school.length > 0);
+}
+
+/**
  * Rebuilds a complete ResumeData from arbitrary input, falling back to
  * defaults for every missing/invalid field. Never throws.
  */
@@ -106,7 +125,7 @@ export function sanitizeResume(raw: unknown): ResumeData {
       summary: asString(personal.summary),
     },
     experience: asObjectArray(raw.experience) as unknown as ResumeData['experience'],
-    education: asObjectArray(raw.education) as unknown as ResumeData['education'],
+    education: asEducationArray(raw.education),
     skills: Array.isArray(raw.skills) ? raw.skills.filter((s): s is string => typeof s === 'string') : [],
     projects: asObjectArray(raw.projects) as unknown as ResumeData['projects'],
     certifications: asObjectArray(raw.certifications) as unknown as ResumeData['certifications'],

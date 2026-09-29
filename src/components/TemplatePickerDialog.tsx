@@ -11,20 +11,20 @@ import { Search, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-type FilterType = 'all' | 'ats' | TemplateCategory;
+type FilterType = 'all' | TemplateCategory;
 const FILTERS: { value: FilterType; label: string }[] = [
   { value: 'all', label: 'All' },
-  { value: 'ats', label: 'ATS Friendly' },
   { value: 'professional', label: 'Professional' },
-  { value: 'tech', label: 'Tech' },
+  { value: 'modern', label: 'Modern' },
   { value: 'creative', label: 'Creative' },
+  { value: 'developer', label: 'Developer' },
   { value: 'academic', label: 'Academic' },
+  { value: 'executive', label: 'Executive' },
   { value: 'student', label: 'Student' },
 ];
 
 function matchesFilter(t: TemplateDefinition, filter: FilterType): boolean {
   if (filter === 'all') return true;
-  if (filter === 'ats') return t.atsSafe;
   return t.category === filter;
 }
 
@@ -91,7 +91,7 @@ export default function TemplatePickerDialog({ open, onOpenChange }: TemplatePic
                   <div className="p-3">
                     <div className="flex items-center justify-between mb-0.5">
                       <h3 className="text-[12px] font-semibold truncate">{t.label}</h3>
-                      {t.atsSafe ? <Badge variant="outline" className="text-[8px] border-success/30 text-success shrink-0">ATS</Badge> : <Badge variant="outline" className="text-[8px] border-warning/30 text-warning shrink-0">Visual</Badge>}
+                      <Badge variant="outline" className="text-[8px] border-border/60 text-muted-foreground shrink-0 capitalize">{t.category}</Badge>
                     </div>
                     <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">{t.description}</p>
                   </div>

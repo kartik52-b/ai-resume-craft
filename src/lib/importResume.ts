@@ -248,7 +248,7 @@ function parseEducation(lines: string[]): ResumeData['education'] {
       continue;
     }
     if (!current) {
-      current = { id: generateId(), school: line.slice(0, 120), degree: '', field: '', startDate: '', endDate: '', gpa: '' };
+      current = { id: generateId(), school: line.slice(0, 120), degree: '', field: '', startDate: '', endDate: '', gpa: '', description: '' };
       entries.push(current);
       continue;
     }
@@ -260,7 +260,7 @@ function parseEducation(lines: string[]): ResumeData['education'] {
       current.gpa = (line.match(/gpa[:\s]*([\d.]+)/i)?.[1] ?? '').slice(0, 10);
     } else {
       // Treat as a new school block if it looks like an institution name.
-      current = { id: generateId(), school: line.slice(0, 120), degree: '', field: '', startDate: '', endDate: '', gpa: '' };
+      current = { id: generateId(), school: line.slice(0, 120), degree: '', field: '', startDate: '', endDate: '', gpa: '', description: '' };
       entries.push(current);
     }
   }

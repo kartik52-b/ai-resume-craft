@@ -70,12 +70,13 @@ export function validateResume(resume: ResumeData): ValidationIssue[] {
     }
   });
 
-  resume.education.forEach((edu, i) => {
-    if (!edu.school.trim() || !(edu.degree.trim() || edu.field.trim())) {
+  resume.education.forEach((edu) => {
+    // Institution is required whenever an education entry exists.
+    if (!edu.school.trim()) {
       issues.push({
         section: 'education',
         field: edu.id,
-        message: `Education entry ${i + 1}: add a school and a degree or field.`,
+        message: 'Please enter your institution.',
         severity: 'error',
       });
     }

@@ -45,11 +45,10 @@ import {
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
-type FilterType = "all" | "ats" | TemplateCategory;
+type FilterType = "all" | TemplateCategory;
 
-function matchesFilter(t: TemplateDefinition, filter: FilterType): boolean {
+export function matchesFilter(t: TemplateDefinition, filter: FilterType): boolean {
   if (filter === "all") return true;
-  if (filter === "ats") return t.atsSafe;
   return t.category === filter;
 }
 
@@ -129,14 +128,6 @@ function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: Templa
         <div className="flex items-center justify-between mb-1 gap-2">
           <h3 className="text-[13.5px] font-semibold truncate">{t.label}</h3>
           <div className="flex items-center gap-1 shrink-0">
-            {t.atsSafe && (
-              <Badge
-                variant="outline"
-                className="text-[9px] border-success/30 text-success"
-              >
-                ATS
-              </Badge>
-            )}
             <LayoutBadge layoutType={t.layoutType} />
           </div>
         </div>
@@ -558,21 +549,7 @@ export default function TemplatesPage() {
                 <h2 className="text-[15px] font-bold truncate">
                   {previewTemplate.label}
                 </h2>
-                {previewTemplate.atsSafe ? (
-                  <Badge
-                    variant="outline"
-                    className="text-[9px] border-success/30 text-success shrink-0"
-                  >
-                    ATS Friendly
-                  </Badge>
-                ) : (
-                  <Badge
-                    variant="outline"
-                    className="text-[9px] border-warning/30 text-warning shrink-0"
-                  >
-                    Visual
-                  </Badge>
-                )}
+                <LayoutBadge layoutType={previewTemplate.layoutType} />
               </div>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 {previewTemplate.layoutDescription}

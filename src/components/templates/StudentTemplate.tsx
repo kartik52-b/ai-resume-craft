@@ -1,49 +1,54 @@
 import { type ResumeData } from '@/types/resume';
-import { resolveSectionOrder, isSectionHidden, sectionMeta } from '@/lib/sections';
-import { resumeToSections } from '@/lib/resumeText';
+import {
+  ACCENTS, Block, SectionBlocks, Contact, Summary, hidden, EducationList, ProjectList,
+} from './shared';
+import { SplitBody, Page } from './layouts';
 
+const accent = ACCENTS.blue;
+
+/** Centered header, then education + projects promoted into the left column. */
 const StudentTemplate = ({ data }: { data: ResumeData }) => {
-  const { personal: p } = data;
-  const sections = resumeToSections(data);
+  const p = data.personal;
+  const showEdu = data.education.length > 0 && !hidden(data, 'education');
+  const showProjects = data.projects.length > 0 && !hidden(data, 'projects');
 
   return (
-    <div className="font-sans text-[10px] leading-[1.5] text-gray-800">
-      {/* Header */}
-      <div className="text-center mb-4">
-        {p.fullName && <h1 className="text-xl font-bold text-slate-900 mb-1">{p.fullName}</h1>}
-        {p.headline && <div className="text-[10.5px] font-medium text-slate-600 mb-1">{p.headline}</div>}
-        <div className="flex flex-wrap justify-center gap-x-2 text-[9px] text-slate-500">
-          {p.email && <span>{p.email}</span>}
-          {p.phone && <span>•</span>}
-          {p.phone && <span>{p.phone}</span>}
-          {p.location && <span>•</span>}
-          {p.location && <span>{p.location}</span>}
-          {p.linkedin && <span>•</span>}
-          {p.linkedin && <span>{p.linkedin}</span>}
-          {p.github && <span>•</span>}
-          {p.github && <span>{p.github}</span>}
-        </div>
-      </div>
+    <Page className="font-resume-sans text-[10.5px] leading-[1.5] text-zinc-800">
+      <header className="text-center mb-4 pb-3 border-b border-blue-200">
+        {p.fullName && <h1 className="text-[23px] font-bold tracking-tight text-blue-950">{p.fullName}</h1>}
+        {p.headline && <div className="text-[11px] font-medium text-blue-700 mt-0.5">{p.headline}</div>}
+        <Contact p={p} variant="dot" className="justify-center text-[9.5px] text-zinc-500 mt-1.5" />
+      </header>
+      {p.summary && <Summary text={p.summary} className="text-[10.5px] text-zinc-600 mb-3.5" />}
 
-      {/* Summary */}
-      {p.summary && (
-        <div className="mb-3 p-2 bg-slate-50 rounded">
-          <p className="text-[9.5px] leading-relaxed text-slate-700">{p.summary}</p>
-        </div>
-      )}
-
-      {/* Sections */}
-      {sections.filter(s => s.id !== 'personal').map(section => (
-        <div key={section.id} className="mb-3">
-          <h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-0.5 mb-1.5">
-            {section.title}
-          </h2>
-          {section.lines.map((line, i) => (
-            <p key={i} className="text-[9.5px] leading-relaxed text-slate-700">{line}</p>
-          ))}
-        </div>
-      ))}
-    </div>
+      <SplitBody
+        asideFirst
+        ratio="wide"
+        asideClassName="border-r border-blue-100 pr-3.5"
+        aside={
+          <div className="space-y-4">
+            {showEdu && (
+              <Block title="Education" heading="bar" accent={accent}>
+                <EducationList items={data.education} variant="stacked" accent={accent} />
+              </Block>
+            )}
+            {showProjects && (
+              <Block title="Projects" heading="bar" accent={accent}>
+                <ProjectList items={data.projects} variant="list" accent={accent} />
+              </Block>
+            )}
+          </div>
+        }
+        main={
+          <SectionBlocks
+            data={data}
+            accent={accent}
+            omit={['education', 'projects']}
+            config={{ heading: 'bar', experience: 'standard', skills: 'chips', certifications: 'list', gap: 'mb-4' }}
+          />
+        }
+      />
+    </Page>
   );
 };
 

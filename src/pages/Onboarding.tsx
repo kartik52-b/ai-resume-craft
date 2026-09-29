@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useResume } from '@/context/ResumeContext';
@@ -11,12 +11,19 @@ import {
 import { getSampleResume } from '@/lib/sampleResume';
 import {
   EMPTY_PERSONAL_DETAILS,
-  type BackgroundDetails,
+  createEmptyEducationDraft,
   validatePersonalDetails,
+  validateBackground,
+  type BackgroundDetails,
   type PersonalDetails,
   type PersonalDetailsErrors,
   type PersonalDetailsField,
 } from '@/lib/onboarding';
+import {
+  loadOnboardingDraft,
+  syncOnboardingDraft,
+  clearOnboardingDraft,
+} from '@/lib/onboardingDraft';
 import { type TemplateType, type ResumeData, createEmptyResume, ALL_TEMPLATE_TYPES } from '@/types/resume';
 import ResumeThumbnail from '@/components/ResumeThumbnail';
 import { Button } from '@/components/ui/button';
@@ -335,14 +342,96 @@ function SummaryStep({
 
 /* ── Step 3 — background (education / experience / skills …) ────────── */
 
-/** One blank row per section so the form is ready to type into; empty rows are dropped by the builder. */
+/**
+ * One blank row per section so the form is ready to type into. Education
+ * starts EMPTY on purpose — it is optional, and an entry only exists once the
+ * user adds one (at which point its institution becomes required).
+ */
 const createBackgroundDraft = (): BackgroundDetails => ({
-  education: [{ school: '', degree: '', field: '', startDate: '', endDate: '' }],
+  education: [],
   experience: [{ company: '', position: '', startDate: '', endDate: '', description: '' }],
   skills: [],
   projects: [{ name: '', description: '', technologies: '', link: '' }],
   certifications: [{ name: '', issuer: '', date: '', link: '' }],
 });
+
+function EducationEntryFields({
+  index,
+  entry,
+  error,
+  onChange,
+  onRemove,
+}: {
+  index: number;
+  entry: BackgroundDetails['education'][number];
+  error?: string;
+  onChange: (patch: Partial<BackgroundDetails['education'][number]>) => void;
+  onRemove: () => void;
+}) {
+  const inputId = (field: string) => `edu-${index}-${field}`;
+
+  return (
+    <div
+      data-entry-id={entry.id}
+      className="rounded-lg border border-border/40 bg-background/30 p-3 space-y-3"
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-semibold text-muted-foreground">Education {index + 1}</span>
+        <button
+          type="button"
+          aria-label={`Remove education ${index + 1}`}
+          onClick={onRemove}
+          className="h-6 w-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {/* Institution — the only required field once an entry exists. */}
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label htmlFor={inputId('school')} className="text-[12px] font-medium flex items-center gap-1.5">
+            Institution <span className="text-destructive" aria-hidden>*</span>
+          </Label>
+          <Input
+            id={inputId('school')}
+            value={entry.school}
+            onChange={(e) => onChange({ school: e.target.value })}
+            placeholder="State University"
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? `${inputId('school')}-error` : undefined}
+            className={cn(
+              'h-11 text-[14px] bg-background/60 transition-colors',
+              error ? 'border-destructive/60 focus-visible:ring-destructive/30' : 'border-border/60 focus:border-accent/50',
+            )}
+          />
+          {error && (
+            <p id={`${inputId('school')}-error`} className="flex items-start gap-1.5 text-[11.5px] text-destructive animate-fade-in" role="alert">
+              <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
+              {error}
+            </p>
+          )}
+        </div>
+        <Field id={inputId('degree')} label="Degree" value={entry.degree} onChange={(v) => onChange({ degree: v })} placeholder="B.S." />
+        <Field id={inputId('field')} label="Field of Study" value={entry.field} onChange={(v) => onChange({ field: v })} placeholder="Computer Science" />
+        <Field id={inputId('start')} label="Start Date" value={entry.startDate} onChange={(v) => onChange({ startDate: v })} placeholder="09 / 2018" />
+        <Field id={inputId('end')} label="End Date" value={entry.endDate} onChange={(v) => onChange({ endDate: v })} placeholder="06 / 2022" />
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label htmlFor={inputId('description')} className="text-[12px] font-medium">
+            Description <span className="text-[10px] font-normal text-muted-foreground">Optional</span>
+          </Label>
+          <Textarea
+            id={inputId('description')}
+            rows={2}
+            value={entry.description}
+            onChange={(e) => onChange({ description: e.target.value })}
+            placeholder="Honors, relevant coursework, activities — anything worth highlighting."
+            className="text-[14px] bg-background/60 border-border/60 focus:border-accent/50 resize-y"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function BackgroundStep({
   background,
@@ -356,17 +445,12 @@ function BackgroundStep({
   onNext: () => void;
 }) {
   const [skillDraft, setSkillDraft] = useState('');
+  const [eduErrors, setEduErrors] = useState<Record<string, string>>({});
 
-  const edu = background.education[0] ?? { school: '', degree: '', field: '', startDate: '', endDate: '' };
   const exp = background.experience[0] ?? { company: '', position: '', startDate: '', endDate: '', description: '' };
   const project = background.projects[0] ?? { name: '', description: '', technologies: '', link: '' };
   const cert = background.certifications[0] ?? { name: '', issuer: '', date: '', link: '' };
 
-  const setEdu = (patch: Partial<typeof edu>) =>
-    onChange((prev) => {
-      const row = prev.education[0] ?? edu;
-      return { ...prev, education: [{ ...row, ...patch }] };
-    });
   const setExp = (patch: Partial<typeof exp>) =>
     onChange((prev) => {
       const row = prev.experience[0] ?? exp;
@@ -383,6 +467,33 @@ function BackgroundStep({
       return { ...prev, certifications: [{ ...row, ...patch }] };
     });
 
+  // --- Education: add / remove / edit -------------------------------
+  const addEducation = () =>
+    onChange((prev) => ({ ...prev, education: [...prev.education, createEmptyEducationDraft()] }));
+  const removeEducation = (id: string) => {
+    onChange((prev) => ({ ...prev, education: prev.education.filter((e) => e.id !== id) }));
+    setEduErrors((prev) => {
+      if (!(id in prev)) return prev;
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
+  const setEdu = (id: string, patch: Partial<BackgroundDetails['education'][number]>) => {
+    onChange((prev) => ({
+      ...prev,
+      education: prev.education.map((e) => (e.id === id ? { ...e, ...patch } : e)),
+    }));
+    // The error clears the moment the institution becomes non-empty.
+    if (patch.school !== undefined && patch.school.trim()) {
+      setEduErrors((prev) => {
+        if (!(id in prev)) return prev;
+        const { [id]: _cleared, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
   const addSkill = () => {
     const value = skillDraft.trim();
     if (!value) return;
@@ -394,25 +505,59 @@ function BackgroundStep({
   const removeSkill = (skill: string) =>
     onChange((prev) => ({ ...prev, skills: prev.skills.filter((s) => s !== skill) }));
 
+  /**
+   * Next-step gate: education is optional, but every ADDED entry must name
+   * its institution. Invalid entries never leave the form.
+   */
+  const handleNext = () => {
+    const nextErrors = validateBackground(background);
+    setEduErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      toast.error('Add the missing institution before continuing.');
+      return;
+    }
+    onNext();
+  };
+
   return (
     <form
       className="space-y-5"
       onSubmit={(e) => {
         e.preventDefault();
-        onNext();
+        handleNext();
       }}
       noValidate
     >
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Education */}
+        {/* Education — optional section; entries carry a required institution. */}
         <BackgroundCard icon={GraduationCap} title="Education">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field id="edu-school" label="Institution" value={edu.school} onChange={(v) => setEdu({ school: v })} placeholder="State University" className="sm:col-span-2" />
-            <Field id="edu-degree" label="Degree" value={edu.degree} onChange={(v) => setEdu({ degree: v })} placeholder="B.S." />
-            <Field id="edu-field" label="Field of Study" value={edu.field} onChange={(v) => setEdu({ field: v })} placeholder="Computer Science" />
-            <Field id="edu-start" label="Start Date" value={edu.startDate} onChange={(v) => setEdu({ startDate: v })} placeholder="09 / 2018" />
-            <Field id="edu-end" label="End Date" value={edu.endDate} onChange={(v) => setEdu({ endDate: v })} placeholder="06 / 2022" />
+          {background.education.length === 0 && (
+            <p className="text-[11.5px] text-muted-foreground leading-relaxed">
+              No education added yet — that is perfectly fine. Add one only if it strengthens your resume.
+            </p>
+          )}
+          <div className="space-y-3">
+            {background.education.map((entry, i) => (
+              <EducationEntryFields
+                key={entry.id}
+                index={i}
+                entry={entry}
+                error={eduErrors[entry.id]}
+                onChange={(patch) => setEdu(entry.id, patch)}
+                onRemove={() => removeEducation(entry.id)}
+              />
+            ))}
           </div>
+          <button
+            type="button"
+            onClick={addEducation}
+            className="w-full py-2.5 border-2 border-dashed border-border/60 rounded-xl text-[12.5px] text-muted-foreground hover:border-accent/30 hover:text-accent/80 hover:bg-accent/[0.02] transition-all duration-150"
+          >
+            + Add Education
+          </button>
+          {background.education.length > 0 && (
+            <p className="text-[11px] text-muted-foreground">Institution is required for each added entry.</p>
+          )}
         </BackgroundCard>
 
         {/* Experience */}
@@ -572,11 +717,9 @@ function DesignCard({
       <div className="p-3.5 flex-1 flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-[13.5px] font-semibold leading-tight">{template.label}</h3>
-          {template.atsSafe && (
-            <Badge variant="outline" className="text-[9px] border-success/30 text-success shrink-0">
-              ATS
-            </Badge>
-          )}
+          <Badge variant="outline" className="text-[9px] border-border/60 text-muted-foreground shrink-0 capitalize">
+            {template.category}
+          </Badge>
         </div>
         <p className="text-[11.5px] text-muted-foreground leading-relaxed flex-1">{template.description}</p>
         <p className="text-[11px] text-muted-foreground/70">Best for: {template.bestFor}</p>
@@ -791,15 +934,68 @@ export default function Onboarding() {
     setNav((cur) => (next === cur.step ? cur : { step: next, dir: next > cur.step ? 'next' : 'prev' }));
   }, []);
 
-  const [details, setDetails] = useState<PersonalDetails>(EMPTY_PERSONAL_DETAILS);
+  /*
+   * Persistent draft cache — the user's in-progress onboarding survives a
+   * refresh or an accidental navigation away. The cached entry is tagged with
+   * a draft id, so values never leak between different resumes/drafts: a
+   * mismatched id restores nothing and starts from the empty defaults.
+   */
+  const draftId = 'onboarding-current';
+
+  // Read the cache ONCE at mount, synchronously, and seed the initial state
+  // from it (no render-phase setState).
+  const cached = useMemo(() => loadOnboardingDraft(draftId), [draftId]);
+  const [details, setDetails] = useState<PersonalDetails>(cached.draft.details);
   const [errors, setErrors] = useState<PersonalDetailsErrors>({});
-  const [background, setBackground] = useState<BackgroundDetails>(createBackgroundDraft);
-  // A design carried over from the Templates page ("Use This Template").
+  const [background, setBackground] = useState<BackgroundDetails>(() => {
+    const seed = createBackgroundDraft();
+    if (!cached.restored) return seed;
+    return {
+      ...seed,
+      ...cached.draft.background,
+      // Keep the editable seed rows for sections the user never touched.
+      experience: cached.draft.background.experience.length > 0 ? cached.draft.background.experience : seed.experience,
+      projects: cached.draft.background.projects.length > 0 ? cached.draft.background.projects : seed.projects,
+      certifications: cached.draft.background.certifications.length > 0 ? cached.draft.background.certifications : seed.certifications,
+    };
+  });
+  // A design carried over from the Templates page ("Use This Template") beats
+  // the cached template choice only when it is explicitly present.
   const [template, setTemplate] = useState<TemplateType>(() => {
     const requested = searchParams.get('template');
-    return ALL_TEMPLATE_TYPES.includes(requested as TemplateType) ? (requested as TemplateType) : 'modern';
+    if (requested && ALL_TEMPLATE_TYPES.includes(requested as TemplateType)) {
+      return requested as TemplateType;
+    }
+    return cached.draft.template;
   });
   const createdRef = useRef(false);
+
+  // Resume the flow where the visitor left off (never past the design step —
+  // the build step itself is transient).
+  useEffect(() => {
+    if (cached.restored && cached.draft.step > 1 && cached.draft.step < 5) {
+      goTo(cached.draft.step);
+    }
+    // Runs once after mount on purpose.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Autosave: every change (typing, step moves, design choice) lands in
+  // localStorage immediately so nothing is ever lost to a crash or refresh.
+  // Once the resume has been created, the draft is cleared for good — the
+  // effect must not re-persist a stale step-5 draft afterwards.
+  useEffect(() => {
+    if (createdRef.current) return;
+    syncOnboardingDraft({
+      version: 1,
+      savedAt: Date.now(),
+      activeDraftId: draftId,
+      step,
+      details,
+      background,
+      template,
+    });
+  }, [step, details, background, template, draftId]);
 
   const handleFieldChange = useCallback((field: PersonalDetailsField, value: string) => {
     setDetails((prev) => {
@@ -829,10 +1025,13 @@ export default function Onboarding() {
       setTemplate(chosen);
       goTo(5);
       createResumeFromDetails(details, chosen, background);
+      clearOnboardingDraft();
       window.setTimeout(() => {
         toast.success('Resume created', { description: 'Add your experience to make it stand out.' });
         navigate('/editor');
-      }, 700);    }, [background, createResumeFromDetails, details, template, navigate, goTo],
+      }, 700);
+    },
+    [background, createResumeFromDetails, details, template, navigate, goTo],
   );
 
   const designLabel = getTemplate(template).label;

@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
-  layoutResume, wrapText, getStyleProfile, buildResumePdf,
+  layoutResume, wrapText, getStyleProfile, getLayoutProfile, buildResumePdf,
   PAGE_W, PAGE_H, MARGIN_X, MARGIN_TOP, MARGIN_BOTTOM, CONTENT_W,
 } from '@/lib/pdfEngine';
-import { createEmptyResume } from '@/types/resume';
+import { createEmptyResume, ALL_TEMPLATE_TYPES } from '@/types/resume';
 
 const fillResume = (bullets: string[] = ['Reduced load time by 40%']) => {
   const r = createEmptyResume();
@@ -16,7 +16,7 @@ const fillResume = (bullets: string[] = ['Reduced load time by 40%']) => {
     { id: 'e1', position: 'Senior Engineer', company: 'Acme', location: 'Berlin', startDate: '2020', endDate: '', current: true, bullets },
     { id: 'e2', position: 'Engineer', company: 'Globex', location: 'Remote', startDate: '2017', endDate: '2020', current: false, bullets: ['Built features'] },
   ];
-  r.education = [{ id: 'ed1', school: 'TU Berlin', degree: 'BSc', field: 'CS', startDate: '2013', endDate: '2017', gpa: '' }];
+  r.education = [{ id: 'ed1', school: 'TU Berlin', degree: 'BSc', field: 'CS', startDate: '2013', endDate: '2017', gpa: '', description: '' }];
   r.skills = ['TypeScript', 'React', 'Node.js', 'SQL', 'Docker', 'Git'];
   return r;
 };
@@ -117,6 +117,43 @@ describe('layoutResume', () => {
     const text = elements.map((e) => e.text).join('\n');
     expect(text).toContain('SKILLS');
     expect(text).not.toContain('EDUCATION');
+  });
+});
+
+describe('layoutResume across every template', () => {
+  it('keeps every template inside the page margins', () => {
+    const r = fillResume(Array.from({ length: 8 }, (_, i) => `Delivered initiative ${i} with measurable impact across several teams`));
+    r.education = [...r.education, { id: 'ed2', school: 'City College', degree: 'BSc', field: 'Maths', startDate: '2011', endDate: '2013', gpa: '', description: '' }];
+    r.projects = [{ id: 'p1', name: 'CLI Tool', link: '', description: 'Developer tool.', technologies: 'Rust' }];
+    r.certifications = [{ id: 'c1', name: 'AWS SA', issuer: 'Amazon', date: '2023', link: '' }];
+
+    for (const type of ALL_TEMPLATE_TYPES) {
+      r.template = type;
+      const { elements, totalPages } = layoutResume(r);
+      expect(totalPages, `${type} should have at least one page`).toBeGreaterThanOrEqual(1);
+      for (const el of elements) {
+        // The rail background marker intentionally sits outside the text margins.
+        if (el.text.startsWith('__SIDEBAR_BG__')) continue;
+        expect(el.x, `${type} x`).toBeGreaterThanOrEqual(MARGIN_X - 0.01);
+        expect(el.x, `${type} x`).toBeLessThanOrEqual(PAGE_W - MARGIN_X + 0.01);
+        expect(el.y, `${type} y`).toBeGreaterThanOrEqual(MARGIN_TOP - 0.01);
+        expect(el.y, `${type} y`).toBeLessThanOrEqual(PAGE_H - MARGIN_BOTTOM + 8.1);
+      }
+    }
+  });
+
+  it('defines valid structure metadata for every template', () => {
+    for (const type of ALL_TEMPLATE_TYPES) {
+      const lp = getLayoutProfile(type);
+      expect(['left', 'center'], `${type} headerAlign`).toContain(lp.headerAlign);
+      expect(['single', 'sidebar-left', 'sidebar-right'], `${type} columns`).toContain(lp.columns);
+      expect(lp.sidebarRatio).toBeGreaterThan(0.2);
+      expect(lp.sidebarRatio).toBeLessThan(0.5);
+    }
+    // The collection is not one flat layout: both rails and headers vary.
+    const layouts = ALL_TEMPLATE_TYPES.map((t) => getLayoutProfile(t));
+    expect(new Set(layouts.map((l) => l.columns)).size).toBeGreaterThan(1);
+    expect(new Set(layouts.map((l) => l.headerAlign)).size).toBe(2);
   });
 });
 

@@ -64,6 +64,7 @@ export function getSampleResume(): ResumeData {
       startDate: '2015',
       endDate: '2019',
       gpa: '3.8',
+      description: '',
     },
   ];
   resume.skills = [

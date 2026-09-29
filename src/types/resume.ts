@@ -26,12 +26,15 @@ export interface Experience {
 
 export interface Education {
   id: string;
+  /** Institution — required whenever an education entry exists. */
   school: string;
   degree: string;
   field: string;
   startDate: string;
   endDate: string;
   gpa: string;
+  /** Optional description (highlights, coursework, honors). */
+  description: string;
 }
 
 export interface Project {
@@ -127,6 +130,7 @@ export const createEmptyEducation = (): Education => ({
   startDate: '',
   endDate: '',
   gpa: '',
+  description: '',
 });
 
 export const createEmptyProject = (): Project => ({

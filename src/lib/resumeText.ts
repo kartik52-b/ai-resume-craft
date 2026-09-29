@@ -44,6 +44,7 @@ export function resumeToSections(resume: ResumeData): ResumeTextSection[] {
           if (line) lines.push(line);
           const dates = [e.startDate, e.endDate].filter(Boolean).join(' – ');
           if (dates) lines.push(dates);
+          if (e.description?.trim()) lines.push(e.description.trim());
         }
         break;
       case 'skills':
