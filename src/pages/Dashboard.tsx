@@ -3,8 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { useResume } from "@/context/ResumeContext";
 import { analyzeResume } from "@/lib/ats";
-import { getTemplate } from "@/lib/templateRegistry";
 import { getSampleResume } from "@/lib/sampleResume";
+import type { ResumeData } from "@/types/resume";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ResumeThumbnail from "@/components/ResumeThumbnail";
@@ -15,7 +15,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ImportDialog } from "@/components/ImportDialog";
-import Carousel from "@/components/Carousel";
+import ScrollRail from "@/components/ScrollRail";
+import Reveal from "@/components/Reveal";
+import TipStrip from "@/components/TipStrip";
+import TemplateTile from "@/components/TemplateTile";
 import { downloadResumePdf } from "@/lib/pdfEngine";
 import { toast } from "sonner";
 
@@ -39,11 +42,19 @@ const QUICK_ACCESS = [
 ];
 
 const TIPS = [
-  { title: "Tailor your summary", desc: "Mirror the language of the job posting — the ATS and the recruiter are looking for the same keywords." },
-  { title: "Quantify your impact", desc: "Numbers make experience credible: “cut load time by 40%” beats “improved performance” every time." },
-  { title: "Start bullets with results", desc: "Lead with a strong action verb and the outcome, not the task you performed." },
-  { title: "Keep it to one page", desc: "Early in your career one page is ideal — for senior roles, lead with your last 10–15 years." },
+  { title: "Tailor your summary", text: "Mirror the language of the job posting — the ATS and the recruiter are looking for the same keywords." },
+  { title: "Quantify your impact", text: "Numbers make experience credible: “cut load time by 40%” beats “improved performance” every time." },
+  { title: "Start bullets with results", text: "Lead with a strong action verb and the outcome, not the task you performed." },
+  { title: "Keep it to one page", text: "Early in your career one page is ideal — for senior roles, lead with your last 10–15 years." },
 ];
+
+/**
+ * Above this many resumes a horizontal rail beats a grid: the cards stay a
+ * comfortable size instead of squeezing into a fourth column, and the row is
+ * only ever one drag or arrow-key away. Below it, a plain responsive grid is
+ * simply better — scrolling four cards horizontally would be pointless.
+ */
+const RAIL_THRESHOLD = 5;
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -97,11 +108,11 @@ const Dashboard = () => {
   /* ── Brand-new user: no fake resumes, just a clear way in ── */
   if (!hasResume) {
     return (
-      <div className="min-h-full bg-workspace overflow-y-auto">
+      <div className="min-h-full bg-workspace overflow-y-auto overflow-x-hidden scroll-smooth">
         <div className="max-w-3xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
           <ImportDialog open={importOpen} onOpenChange={setImportOpen} />
 
-          <div className="text-center">
+          <Reveal className="text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 text-accent text-[12px] font-medium mb-5">
               <Sparkles className="h-3.5 w-3.5" /> Welcome
             </div>
@@ -133,7 +144,7 @@ const Dashboard = () => {
             <p className="text-[12px] text-muted-foreground mt-4">
               Saved locally in this browser — nothing is uploaded.
             </p>
-          </div>
+          </Reveal>
 
           {/* What you get */}
           <div className="mt-12 grid gap-3 sm:grid-cols-3">
@@ -141,19 +152,21 @@ const Dashboard = () => {
               { icon: PenLine, title: "Guided setup", desc: "Three quick steps: details, design, done." },
               { icon: Palette, title: "25 designs", desc: "Switch designs any time without losing content." },
               { icon: FileDown, title: "One-click PDF", desc: "Export an ATS-friendly PDF when you're ready." },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="rounded-xl border border-border/60 bg-card p-4">
-                <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center mb-2.5">
-                  <Icon className="h-4 w-4 text-accent" />
+            ].map(({ icon: Icon, title, desc }, i) => (
+              <Reveal key={title} delayMs={i * 60} className="h-full">
+                <div className="h-full rounded-xl border border-border/60 bg-card p-4 card-hover">
+                  <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center mb-2.5">
+                    <Icon className="h-4 w-4 text-accent" />
+                  </div>
+                  <h3 className="text-[13px] font-semibold mb-0.5">{title}</h3>
+                  <p className="text-[12px] text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
-                <h3 className="text-[13px] font-semibold mb-0.5">{title}</h3>
-                <p className="text-[12px] text-muted-foreground leading-relaxed">{desc}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
 
           {/* Design teasers — clearly labelled as design previews */}
-          <div className="mt-10">
+          <Reveal className="mt-10">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-[13px] font-semibold text-foreground">A few designs to start from</h2>
               <Link to="/templates" className="text-[12px] text-accent hover:underline inline-flex items-center gap-1">
@@ -161,39 +174,104 @@ const Dashboard = () => {
               </Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {ONBOARDING_PREVIEWS.map((id) => {
-                const t = getTemplate(id);
-                return (
-                  <button
-                    key={id}
-                    onClick={() => navigate(`/create?template=${id}`)}
-                    className="group text-left rounded-xl border border-border/60 bg-card overflow-hidden card-hover"
-                  >
-                    <div className="relative aspect-[210/297] bg-white overflow-hidden">
-                      <ResumeThumbnail data={{ ...sampleResume, template: id }} />
-                    </div>
-                    <div className="px-2.5 py-2">
-                      <div className="text-[12px] font-medium truncate">{t.label}</div>
-                      <div className="text-[10.5px] text-muted-foreground truncate">{t.category}</div>
-                    </div>
-                  </button>
-                );
-              })}
+              {ONBOARDING_PREVIEWS.map((id) => (
+                <TemplateTile key={id} id={id} data={sampleResume} to={`/create?template=${id}`} className="h-full" />
+              ))}
             </div>
             <p className="text-[11px] text-muted-foreground mt-2">
               Design previews above use sample content. Your resume uses only what you enter.
             </p>
-          </div>
+          </Reveal>
         </div>
       </div>
     );
   }
 
+  /* ── One card, rendered into either a grid or a rail ── */
+  const renderResumeCard = (r: ResumeData) => {
+    const isActive = r.id === activeId;
+    const ats = analyzeResume(r);
+    return (
+      <div
+        key={r.id}
+        className={cn(
+          "group relative h-full rounded-xl border bg-card card-hover interactive-card flex flex-col",
+          isActive ? "border-accent/40 ring-1 ring-accent/10 shadow-sm" : "border-border/60",
+        )}
+      >
+        {/* Thumbnail — the user's real resume */}
+        <button
+          type="button"
+          onClick={() => editResume(r.id)}
+          aria-label={`Open ${r.title}`}
+          className="relative h-32 bg-white rounded-t-xl overflow-hidden border-b border-border/30"
+        >
+          <ResumeThumbnail data={r} />
+        </button>
+
+        <div className="p-4 flex-1 flex flex-col">
+          <div className="min-w-0 flex-1">
+            {renamingId === r.id ? (
+              <div className="flex items-center gap-1">
+                <Input autoFocus value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") commitRename(); if (e.key === "Escape") setRenamingId(null); }} className="h-7 text-[12px]" />
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={commitRename} aria-label="Save name"><Check className="h-3 w-3" /></Button>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setRenamingId(null)} aria-label="Cancel rename"><X className="h-3 w-3" /></Button>
+              </div>
+            ) : (
+              <div className="flex items-start gap-1">
+                <h3 className="text-[14px] font-semibold truncate leading-tight flex-1">{r.title}</h3>
+                <button
+                  onClick={() => { setRenamingId(r.id); setRenameValue(r.title); }}
+                  className="hover-reveal text-[10px] text-muted-foreground hover:text-foreground shrink-0 transition-colors focus-visible:opacity-100"
+                >
+                  Rename
+                </button>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 mt-1 text-[11px] text-muted-foreground">
+              <LayoutTemplate className="h-3 w-3" />
+              <span className="capitalize">{r.template.replace('-', ' ')}</span>
+              <span className="opacity-30">·</span>
+              <Clock className="h-3 w-3" />
+              <span>{r.updatedAt ? formatDistanceToNow(new Date(r.updatedAt), { addSuffix: true }) : "new"}</span>
+            </div>
+          </div>
+          <div className="mt-3 mb-1"><AtsHealthBadge score={ats.score} /></div>
+          <div className="flex items-center gap-1 pt-3 mt-auto border-t border-border/50">
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground transition-colors" onClick={() => editResume(r.id)}>
+              <PenLine className="h-3 w-3" /> Edit
+            </Button>
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground transition-colors" onClick={() => previewResume(r.id)}>
+              <Eye className="h-3 w-3" /> Preview
+            </Button>
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground transition-colors" onClick={() => duplicateResumeAction(r.id)}>
+              <Copy className="h-3 w-3" /> Duplicate
+            </Button>
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground transition-colors" onClick={() => { try { downloadResumePdf(r); toast.success("PDF exported"); } catch { toast.error("Export failed"); } }} aria-label="Download PDF">
+              <FileDown className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("h-7 w-7 text-muted-foreground hover:text-foreground transition-colors ml-auto", confirmDeleteId === r.id && "text-destructive bg-destructive/5")}
+              onClick={() => { if (confirmDeleteId === r.id) { deleteResumeAction(r.id); setConfirmDeleteId(null); } else { setConfirmDeleteId(r.id); setTimeout(() => setConfirmDeleteId((c) => c === r.id ? null : c), 3000); } }}
+              aria-label={confirmDeleteId === r.id ? `Confirm delete ${r.title}` : `Delete ${r.title}`}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const railLayout = filteredResumes.length >= RAIL_THRESHOLD;
+
   /* ── Returning user: their real resumes ── */
   return (
-    <div className="min-h-full bg-workspace overflow-y-auto">
+    <div className="min-h-full bg-workspace overflow-y-auto overflow-x-hidden scroll-smooth">
       <div className="max-w-6xl mx-auto px-4 lg:px-8 py-8 space-y-8">
-        <div className="flex items-start justify-between gap-8">
+        <Reveal className="flex items-start justify-between gap-8">
           <div className="flex-1">
             <p className="text-[13px] text-muted-foreground mb-1">{greeting}</p>
             <h1 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
@@ -218,16 +296,23 @@ const Dashboard = () => {
               <p className="text-[11px] text-muted-foreground/50 font-medium">AI-Powered</p>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         <ImportDialog open={importOpen} onOpenChange={setImportOpen} />
 
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[15px] font-semibold text-foreground">
-              Your Resumes
-              <span className="text-muted-foreground font-normal ml-2 text-[13px]">{resumes.length}</span>
-            </h2>
+        <Reveal>
+          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+            <div className="min-w-0">
+              <h2 className="text-[15px] font-semibold text-foreground">
+                Your Resumes
+                <span className="text-muted-foreground font-normal ml-2 text-[13px]">{resumes.length}</span>
+              </h2>
+              {railLayout && (
+                <p className="text-[11.5px] text-muted-foreground mt-0.5">
+                  Browse with the arrows, drag the row, or use ← → while it is focused.
+                </p>
+              )}
+            </div>
             <div className="flex items-center gap-1.5">
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40" />
@@ -236,6 +321,7 @@ const Dashboard = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search..."
                   className="h-8 pl-8 text-[12px] w-40 bg-background border-border/60"
+                  aria-label="Search your resumes"
                 />
               </div>
               <Button variant="ghost" size="sm" className="h-8 text-[12px] gap-1 text-muted-foreground hover:text-foreground" onClick={() => setSortBy(sortBy === "date" ? "name" : sortBy === "name" ? "template" : "date")}>
@@ -244,85 +330,24 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredResumes.map((r) => {
-              const isActive = r.id === activeId;
-              const ats = analyzeResume(r);
-              return (
-                <div key={r.id} className={cn("group relative rounded-xl border bg-card card-hover flex flex-col", isActive ? "border-accent/40 ring-1 ring-accent/10 shadow-sm" : "border-border/60")}>
-                  {/* Thumbnail — the user's real resume */}
-                  <button
-                    type="button"
-                    onClick={() => editResume(r.id)}
-                    aria-label={`Open ${r.title}`}
-                    className="relative h-32 bg-white rounded-t-xl overflow-hidden border-b border-border/30"
-                  >
-                    <ResumeThumbnail data={r} />
-                  </button>
-
-                  <div className="p-4 flex-1 flex flex-col">
-                    <div className="min-w-0 flex-1">
-                      {renamingId === r.id ? (
-                        <div className="flex items-center gap-1">
-                          <Input autoFocus value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") commitRename(); if (e.key === "Escape") setRenamingId(null); }} className="h-7 text-[12px]" />
-                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={commitRename} aria-label="Save name"><Check className="h-3 w-3" /></Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setRenamingId(null)} aria-label="Cancel rename"><X className="h-3 w-3" /></Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-start gap-1">
-                          <h3 className="text-[14px] font-semibold truncate leading-tight flex-1">{r.title}</h3>
-                          <button
-                            onClick={() => { setRenamingId(r.id); setRenameValue(r.title); }}
-                            className="text-[10px] text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                          >
-                            Rename
-                          </button>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1.5 mt-1 text-[11px] text-muted-foreground">
-                        <LayoutTemplate className="h-3 w-3" />
-                        <span className="capitalize">{r.template.replace('-', ' ')}</span>
-                        <span className="opacity-30">·</span>
-                        <Clock className="h-3 w-3" />
-                        <span>{r.updatedAt ? formatDistanceToNow(new Date(r.updatedAt), { addSuffix: true }) : "new"}</span>
-                      </div>
-                    </div>
-                    <div className="mt-3 mb-1"><AtsHealthBadge score={ats.score} /></div>
-                    <div className="flex items-center gap-1 pt-3 mt-auto border-t border-border/50">
-                      <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground transition-colors" onClick={() => editResume(r.id)}>
-                        <PenLine className="h-3 w-3" /> Edit
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground transition-colors" onClick={() => previewResume(r.id)}>
-                        <Eye className="h-3 w-3" /> Preview
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground transition-colors" onClick={() => duplicateResumeAction(r.id)}>
-                        <Copy className="h-3 w-3" /> Duplicate
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground transition-colors" onClick={() => { try { downloadResumePdf(r); toast.success("PDF exported"); } catch { toast.error("Export failed"); } }} aria-label="Download PDF">
-                        <FileDown className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={cn("h-7 w-7 text-muted-foreground hover:text-foreground transition-colors ml-auto", confirmDeleteId === r.id && "text-destructive bg-destructive/5")}
-                        onClick={() => { if (confirmDeleteId === r.id) { deleteResumeAction(r.id); setConfirmDeleteId(null); } else { setConfirmDeleteId(r.id); setTimeout(() => setConfirmDeleteId((c) => c === r.id ? null : c), 3000); } }}
-                        aria-label={confirmDeleteId === r.id ? `Confirm delete ${r.title}` : `Delete ${r.title}`}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          {railLayout ? (
+            <ScrollRail
+              ariaLabel="Your resumes"
+              itemClassName="w-[280px] sm:w-[320px]"
+              items={filteredResumes.map(renderResumeCard)}
+            />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredResumes.map(renderResumeCard)}
+            </div>
+          )}
 
           {filteredResumes.length === 0 && (
             <p className="text-[13px] text-muted-foreground text-center py-10">No resumes match “{searchQuery}”.</p>
           )}
-        </div>
+        </Reveal>
 
-        <div>
+        <Reveal>
           <h2 className="text-[15px] font-semibold text-foreground mb-4">Quick Access</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {QUICK_ACCESS.map((item) => (
@@ -338,28 +363,12 @@ const Dashboard = () => {
               </Link>
             ))}
           </div>
-        </div>
+        </Reveal>
 
-        <div>
+        <Reveal>
           <h2 className="text-[15px] font-semibold text-foreground mb-4">Tips to get hired</h2>
-          <Carousel
-            compact
-            autoplayMs={7000}
-            ariaLabel="Resume writing tips"
-            slideLabels={TIPS.map((t) => t.title)}
-            slides={TIPS.map((tip, i) => (
-              <div key={tip.title} className="flex items-start gap-3 px-4 py-3">
-                <span className="h-6 w-6 rounded-md bg-accent/10 text-accent text-[11px] font-bold flex items-center justify-center shrink-0 tabular-nums">
-                  {i + 1}
-                </span>
-                <div className="min-w-0">
-                  <div className="text-[13px] font-semibold text-foreground">{tip.title}</div>
-                  <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed">{tip.desc}</p>
-                </div>
-              </div>
-            ))}
-          />
-        </div>
+          <TipStrip tips={TIPS} ariaLabel="Resume writing tips" />
+        </Reveal>
       </div>
     </div>
   );

@@ -1,15 +1,31 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  type TouchEvent as ReactTouchEvent,
+  type WheelEvent as ReactWheelEvent,
+} from 'react';
 import { ArrowLeft, ArrowRight, Pause, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usePrefersReducedMotion } from '@/hooks/useInteraction';
 
 /**
  * Reusable horizontal carousel used across the main pages.
  *
  * - Smooth translateX sliding with prev/next arrows and dot indicators
+ * - Mouse click-and-drag (grab / grabbing cursors) — a drag past the threshold
+ *   never "clicks" the slide it started on
+ * - Horizontal trackpad gesture advances a slide; vertical wheel/touch keeps
+ *   scrolling the page normally
+ * - Touch swipe on mobile, arrow keys on any focused control
  * - Autoplay that pauses on hover, keyboard focus, touch, hidden tabs and via
  *   the pause button; any manual interaction restarts the autoplay timer
- * - Touch/swipe gestures on mobile
- * - Honors `prefers-reduced-motion` (never auto-advances)
+ * - Honors `prefers-reduced-motion` (no autoplay, no sliding animation)
  * - Fully controlled by the consumer: one child per slide
  */
 
@@ -29,6 +45,8 @@ export interface CarouselProps {
 
 const DEFAULT_AUTOPLAY_MS = 6000;
 const SWIPE_THRESHOLD_PX = 40;
+const DRAG_THRESHOLD_PX = 8;
+const WHEEL_COOLDOWN_MS = 420;
 
 export default function Carousel({
   slides,
@@ -45,18 +63,17 @@ export default function Carousel({
   const [touchPaused, setTouchPaused] = useState(false);
   const [hiddenTab, setHiddenTab] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const touchStartX = useRef<number | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
-  // Reduced-motion preference.
-  useEffect(() => {
-    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    if (!mq) return;
-    const update = () => setReducedMotion(mq.matches);
-    update();
-    mq.addEventListener?.('change', update);
-    return () => mq.removeEventListener?.('change', update);
-  }, []);
+  // Mouse drag state (transform offset is mirrored into state for rendering).
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef<number | null>(null);
+  const dragDx = useRef(0);
+  const dragMoved = useRef(false);
+  const dragFrame = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const wheelLock = useRef(0);
 
   // Hidden tab pauses autoplay.
   useEffect(() => {
@@ -65,10 +82,18 @@ export default function Carousel({
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
 
-  const goTo = useCallback((next: number) => {
-    if (count === 0) return;
-    setIndex(((next % count) + count) % count);
-  }, [count]);
+  // Any pending drag frame is dropped on unmount.
+  useEffect(() => () => {
+    if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
+  }, []);
+
+  const goTo = useCallback(
+    (next: number) => {
+      if (count === 0) return;
+      setIndex(((next % count) + count) % count);
+    },
+    [count],
+  );
 
   const autoplayActive =
     autoplayMs > 0 && count > 1 && !hoverPaused && !focusPaused && !touchPaused && !hiddenTab && !userPaused && !reducedMotion;
@@ -81,22 +106,100 @@ export default function Carousel({
     return () => window.clearInterval(id);
   }, [autoplayActive, autoplayMs, index, count]);
 
-  if (count === 0) return null;
+  /* ── Mouse drag ─────────────────────────────────────────────────────────── */
 
-  const onTouchStart = (e: React.TouchEvent) => {
+  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (count < 2 || e.pointerType === 'touch' || e.button !== 0) return;
+    dragStart.current = e.clientX;
+    dragDx.current = 0;
+    dragMoved.current = false;
+    setDragging(true);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* capture is a nicety, not a requirement */
+    }
+  };
+
+  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragStart.current === null) return;
+    const dx = e.clientX - dragStart.current;
+    if (Math.abs(dx) > DRAG_THRESHOLD_PX) dragMoved.current = true;
+    dragDx.current = dx;
+    if (dragFrame.current !== null) return;
+    dragFrame.current = requestAnimationFrame(() => {
+      dragFrame.current = null;
+      setDragX(dragDx.current);
+    });
+  };
+
+  const endDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragStart.current === null) return;
+    const dx = dragDx.current;
+    if (dragFrame.current !== null) {
+      cancelAnimationFrame(dragFrame.current);
+      dragFrame.current = null;
+    }
+    if (e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+    }
+    dragStart.current = null;
+    dragDx.current = 0;
+    setDragging(false);
+    setDragX(0);
+    if (Math.abs(dx) >= SWIPE_THRESHOLD_PX) goTo(index + (dx < 0 ? 1 : -1));
+  };
+
+  /** A drag must never trigger a button/link on the slide it started on. */
+  const onClickCapture = (e: ReactMouseEvent) => {
+    if (!dragMoved.current) return;
+    dragMoved.current = false;
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  /* ── Touch, wheel and keyboard ──────────────────────────────────────────── */
+
+  const onTouchStart = (e: ReactTouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     setTouchPaused(true);
   };
-  const onTouchEnd = (e: React.TouchEvent) => {
+
+  const onTouchEnd = (e: ReactTouchEvent) => {
     const start = touchStartX.current;
     touchStartX.current = null;
     setTouchPaused(false);
     if (start === null) return;
     const delta = e.changedTouches[0].clientX - start;
-    if (Math.abs(delta) >= SWIPE_THRESHOLD_PX) {
-      goTo(index + (delta < 0 ? 1 : -1));
+    if (Math.abs(delta) >= SWIPE_THRESHOLD_PX) goTo(index + (delta < 0 ? 1 : -1));
+  };
+
+  /** Horizontal trackpad gestures only — vertical wheel keeps scrolling the page. */
+  const onWheel = (e: ReactWheelEvent<HTMLElement>) => {
+    if (count < 2) return;
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) || Math.abs(e.deltaX) < 8) return;
+    const now = Date.now();
+    if (now - wheelLock.current < WHEEL_COOLDOWN_MS) return;
+    wheelLock.current = now;
+    goTo(index + (e.deltaX > 0 ? 1 : -1));
+  };
+
+  const onKeyDown = (e: ReactKeyboardEvent<HTMLElement>) => {
+    if (count < 2) return;
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      goTo(index + 1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      goTo(index - 1);
     }
   };
+
+  if (count === 0) return null;
 
   const btnClass = cn(
     compact ? 'h-6 w-6 rounded-md' : 'h-8 w-8 rounded-lg',
@@ -106,7 +209,11 @@ export default function Carousel({
     cn(
       'rounded-full transition-all duration-300',
       compact ? 'h-1.5' : 'h-2',
-      active ? (compact ? 'w-4 bg-accent' : 'w-6 bg-accent') : cn(compact ? 'w-1.5' : 'w-2', 'bg-muted-foreground/30 hover:bg-muted-foreground/50'),
+      active
+        ? compact
+          ? 'w-4 bg-accent'
+          : 'w-6 bg-accent'
+        : cn(compact ? 'w-1.5' : 'w-2', 'bg-muted-foreground/30 hover:bg-muted-foreground/50'),
     );
 
   return (
@@ -116,9 +223,7 @@ export default function Carousel({
       aria-label={ariaLabel}
       className={cn(
         'overflow-hidden',
-        compact
-          ? 'rounded-lg border border-border/60 bg-muted/30'
-          : 'rounded-2xl border border-border/60 bg-card shadow-card',
+        compact ? 'rounded-lg border border-border/60 bg-muted/30' : 'rounded-2xl border border-border/60 bg-card shadow-card',
         className,
       )}
       onPointerEnter={(e) => e.pointerType !== 'touch' && setHoverPaused(true)}
@@ -129,12 +234,25 @@ export default function Carousel({
       }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
+      onWheel={onWheel}
+      onKeyDown={onKeyDown}
+      onClickCapture={onClickCapture}
     >
       {/* Slides */}
-      <div className="relative overflow-hidden">
+      <div
+        className={cn('relative overflow-hidden', count > 1 && 'draggable-area')}
+        data-dragging={dragging}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+      >
         <div
-          className="flex transition-transform duration-500 ease-out will-change-transform"
-          style={{ transform: `translateX(-${index * 100}%)` }}
+          className={cn('flex will-change-transform', dragging && 'select-none')}
+          style={{
+            transform: `translate3d(calc(${-index * 100}% + ${dragX}px), 0, 0)`,
+            transition: dragging || reducedMotion ? 'none' : 'transform 500ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
         >
           {slides.map((slide, i) => (
             <div

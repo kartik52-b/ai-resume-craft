@@ -10,12 +10,12 @@ import SkillsSection from './editor/SkillsSection';
 import ProjectsSection from './editor/ProjectsSection';
 import CertificationsSection from './editor/CertificationsSection';
 import { ImportDialog } from './ImportDialog';
-import Carousel from './Carousel';
+import TipStrip from './TipStrip';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import {
   ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, User, Briefcase, GraduationCap,
-  Wrench, FolderOpen, Award, CheckCircle2, Lightbulb,
+  Wrench, FolderOpen, Award, CheckCircle2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -136,29 +136,20 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
   const showOnboarding = remainingEssentials.length > 0;
 
   return (
-    <div ref={panelRef} className="h-full overflow-y-auto scrollbar-thin bg-card flex flex-col">
+    // Only one scroll container lives in the editor pane (the section list
+    // below). Nothing else scrolls, so there is never a nested scrollbar and the
+    // preview keeps its own independent scroll.
+    <div ref={panelRef} className="h-full overflow-hidden bg-card flex flex-col">
       <ImportDialog open={importOpen} onOpenChange={setImportOpen} />
 
-      {/* Compact tips banner — sits above the form without disturbing it */}
-      <div className="px-4 pt-4">
-        <Carousel
-          compact
-          autoplayMs={7000}
-          ariaLabel="Resume writing tips"
-          slideLabels={EDITOR_TIPS.map((t) => t.title)}
-          slides={EDITOR_TIPS.map((tip) => (
-            <div key={tip.title} className="flex items-center gap-2 px-3.5 py-2 min-w-0">
-              <Lightbulb className="h-3.5 w-3.5 text-accent shrink-0" />
-              <span className="text-[11.5px] font-semibold text-foreground shrink-0">{tip.title}</span>
-              <span className="text-[11.5px] text-muted-foreground truncate">{tip.text}</span>
-            </div>
-          ))}
-        />
+      {/* Compact tip — sits above the form without disturbing it */}
+      <div className="px-4 pt-4 shrink-0">
+        <TipStrip tips={EDITOR_TIPS} compact ariaLabel="Resume writing tips" />
       </div>
 
       {/* Onboarding — compact */}
       {showOnboarding && (
-        <div className="px-4 pt-4 pb-2">
+        <div className="px-4 pt-4 pb-2 shrink-0">
           <div className="rounded-lg border border-accent/15 bg-accent/[0.03] p-3">
             <div className="text-[12px] font-semibold text-foreground mb-2">Let's build your resume</div>
             <div className="flex flex-wrap gap-1.5">
@@ -180,7 +171,7 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
       )}
 
       {/* Sections — accordion (only one open at a time) */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin px-4 py-3 space-y-0.5">
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-4 py-3 pb-24 md:pb-4 space-y-0.5">
         {order.map((id, idx) => {
           const meta = sectionMeta(id);
           const Icon = SECTION_ICONS[id];
@@ -200,7 +191,7 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
               onDragLeave={() => setDragOver((cur) => (cur === id ? null : cur))}
               onDrop={() => handleDrop(id)}
               onDragEnd={() => { setDragFrom(null); setDragOver(null); }}
-              className={cn('rounded-lg transition-all duration-150',
+              className={cn('group rounded-lg transition-all duration-150',
                 dragOver === id && dragFrom !== id && 'ring-2 ring-accent/30',
                 dragFrom === id && 'opacity-40')}
             >
@@ -218,13 +209,13 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
                     {completeness === 100 && !hidden && <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0 ml-1" />}
                   </CollapsibleTrigger>
                   <div className="flex items-center shrink-0">
-                    <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100 focus-within:opacity-100" onClick={() => setResume(prev => nudgeSection(prev, id, -1))} disabled={idx === 0} aria-label={`Move ${meta.title} up`}>
+                    <Button variant="ghost" size="icon" className="hover-reveal h-7 w-7 md:h-6 md:w-6" onClick={() => setResume(prev => nudgeSection(prev, id, -1))} disabled={idx === 0} aria-label={`Move ${meta.title} up`}>
                       <ChevronUp className="h-3 w-3" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100 focus-within:opacity-100" onClick={() => setResume(prev => nudgeSection(prev, id, 1))} disabled={idx === order.length - 1} aria-label={`Move ${meta.title} down`}>
+                    <Button variant="ghost" size="icon" className="hover-reveal h-7 w-7 md:h-6 md:w-6" onClick={() => setResume(prev => nudgeSection(prev, id, 1))} disabled={idx === order.length - 1} aria-label={`Move ${meta.title} down`}>
                       <ChevronDown className="h-3 w-3" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100 focus-within:opacity-100" onClick={() => setResume(prev => toggleSectionHidden(prev, id))} aria-label={hidden ? `Show ${meta.title}` : `Hide ${meta.title}`}>
+                    <Button variant="ghost" size="icon" className="hover-reveal h-7 w-7 md:h-6 md:w-6" onClick={() => setResume(prev => toggleSectionHidden(prev, id))} aria-label={hidden ? `Show ${meta.title}` : `Hide ${meta.title}`}>
                       {hidden ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                     </Button>
                   </div>

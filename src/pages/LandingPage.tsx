@@ -1,10 +1,15 @@
 import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useResume } from '@/context/ResumeContext';
-import { getTemplate, TEMPLATE_REGISTRY } from '@/lib/templateRegistry';
+import { TEMPLATE_REGISTRY } from '@/lib/templateRegistry';
 import { getSampleResume } from '@/lib/sampleResume';
-import ResumeThumbnail from '@/components/ResumeThumbnail';
+import type { ResumeData } from '@/types/resume';
+import InspectablePreview from '@/components/InspectablePreview';
 import HeroSlider from '@/components/HeroSlider';
+import ScrollRail from '@/components/ScrollRail';
+import Reveal from '@/components/Reveal';
+import TemplateTile from '@/components/TemplateTile';
+import { usePointerSpotlight } from '@/hooks/useInteraction';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -74,18 +79,35 @@ const FACT_STRIP = [
   { value: '1-click', label: 'A4 PDF export' },
 ];
 
-const SHOWCASE = ['modern', 'developer', 'two-column', 'elegant', 'creative', 'finance'] as const;
+/**
+ * Featured designs for the rail — twelve cards plus a "see all" card. Enough
+ * items that horizontal browsing genuinely helps; the full 25 live on
+ * /templates behind search and category filters.
+ */
+const RAIL_TEMPLATE_IDS: ResumeData['template'][] = [
+  'modern', 'professional', 'minimal', 'creative', 'executive', 'developer',
+  'elegant', 'two-column', 'startup', 'engineering', 'finance', 'designer',
+];
+
+/** In-page navigation anchors for the sticky section bar. */
+const PAGE_SECTIONS = [
+  { id: 'highlights', label: 'Highlights' },
+  { id: 'how-it-works', label: 'How it works' },
+  { id: 'features', label: 'Features' },
+  { id: 'designs', label: 'Designs' },
+];
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const { hasResume } = useResume();
   const sample = useMemo(() => getSampleResume(), []);
   const totalTemplates = TEMPLATE_REGISTRY.length;
+  const heroSpot = usePointerSpotlight<HTMLDivElement>();
 
   return (
-    <div className="min-h-full bg-workspace overflow-y-auto">
+    <div className="min-h-full bg-workspace overflow-y-auto overflow-x-hidden scroll-smooth">
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative px-4 lg:px-8 pt-14 lg:pt-20 pb-14 overflow-hidden">
+      <section className="relative px-4 lg:px-8 pt-14 lg:pt-20 pb-12 overflow-hidden">
         <div
           className="pointer-events-none absolute -top-40 -right-24 h-[420px] w-[420px] rounded-full opacity-40 blur-3xl"
           style={{ background: 'radial-gradient(circle, hsl(var(--accent) / 0.28) 0%, transparent 70%)' }}
@@ -136,16 +158,22 @@ const LandingPage = () => {
             )}
           </div>
 
-          {/* Live-looking preview of a real template */}
+          {/* Live preview of a real template — hover it and scroll to inspect */}
           <div className="relative flex justify-center lg:justify-end">
-            <div className="relative w-[250px] sm:w-[290px]">
-              <div className="absolute -inset-4 rounded-3xl bg-accent/[0.06] border border-accent/10" aria-hidden />
-              <div className="relative rounded-xl overflow-hidden border border-border/60 shadow-modal bg-white">
-                <div className="relative aspect-[210/297]">
-                  <ResumeThumbnail data={sample} />
-                </div>
-              </div>
-              <div className="absolute -left-4 bottom-8 rounded-xl border border-border/60 bg-card px-3.5 py-2.5 shadow-card">
+            <div
+              className="relative w-[262px] sm:w-[300px] lg:w-[320px]"
+              onPointerMove={heroSpot.onPointerMove}
+              onPointerLeave={heroSpot.onPointerLeave}
+            >
+              <div
+                className="absolute -inset-4 rounded-3xl bg-accent/[0.06] border border-accent/10 interactive-card"
+                aria-hidden
+              />
+              <InspectablePreview
+                data={sample}
+                ariaLabel="Resume preview — scroll or drag inside to inspect the full page"
+              />
+              <div className="absolute -left-4 bottom-10 rounded-xl border border-border/60 bg-card px-3.5 py-2.5 shadow-card">
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   <span className="text-[11px] font-semibold">Resume health</span>
@@ -160,46 +188,77 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* ── Hero content slider ───────────────────────────────────── */}
-      <section className="px-4 lg:px-8 pb-14" aria-label="Product highlights">
+      {/* ── Sticky in-page navigation ────────────────────────────────────── */}
+      <nav
+        aria-label="Page sections"
+        className="sticky top-0 z-20 border-y border-border/60 bg-workspace/85 backdrop-blur-xl"
+      >
+        <div className="max-w-6xl mx-auto px-4 lg:px-8 flex items-center gap-1 py-2 overflow-x-auto scrollbar-none">
+          {PAGE_SECTIONS.map((section) => (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              className="shrink-0 px-3 py-1.5 rounded-full text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+            >
+              {section.label}
+            </a>
+          ))}
+          <Button
+            size="sm"
+            className="ml-auto shrink-0 hidden sm:inline-flex h-8 rounded-full text-[12px] font-medium gap-1.5"
+            onClick={() => navigate('/create')}
+          >
+            Get started <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </nav>
+
+      {/* ── Hero content slider ─────────────────────────────────────────── */}
+      <section id="highlights" className="px-4 lg:px-8 pt-10 pb-14 scroll-mt-20" aria-label="Product highlights">
         <div className="max-w-6xl mx-auto">
-          <HeroSlider />
+          <Reveal>
+            <HeroSlider />
+          </Reveal>
         </div>
       </section>
 
       {/* ── Fact strip ───────────────────────────────────────────────────── */}
-      <section className="px-4 lg:px-8 pb-14">
+      <Reveal className="px-4 lg:px-8 pb-14">
         <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3">
           {FACT_STRIP.map((f) => (
-            <div key={f.label} className="rounded-xl border border-border/60 bg-card px-4 py-3.5 text-center">
+            <div key={f.label} className="rounded-xl border border-border/60 bg-card px-4 py-3.5 text-center card-hover">
               <div className="text-[20px] font-bold tracking-tight text-foreground leading-none">{f.value}</div>
               <div className="text-[11.5px] text-muted-foreground mt-1">{f.label}</div>
             </div>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
-      <section className="px-4 lg:px-8 pb-16">
+      <section id="how-it-works" className="px-4 lg:px-8 pb-16 scroll-mt-20">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-9">
+          <Reveal className="text-center mb-9">
             <h2 className="text-[22px] lg:text-[26px] font-bold tracking-tight">Four steps to a finished resume</h2>
             <p className="text-[14px] text-muted-foreground mt-2 max-w-xl mx-auto">
               No blank-page paralysis. A short guided setup puts your details into the design, then
               you build the rest section by section.
             </p>
-          </div>
+          </Reveal>
           <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map(({ num, icon: Icon, title, desc }) => (
-              <li key={num} className="relative rounded-xl border border-border/60 bg-card p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="h-9 w-9 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <Icon className="h-4 w-4 text-accent" />
+            {STEPS.map(({ num, icon: Icon, title, desc }, i) => (
+              <li key={num} className="list-none">
+                <Reveal delayMs={i * 70} className="h-full">
+                  <div className="group h-full rounded-xl border border-border/60 bg-card p-5 card-hover">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="h-9 w-9 rounded-lg bg-accent/10 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
+                        <Icon className="h-4 w-4 text-accent" />
+                      </div>
+                      <span className="text-[11px] font-bold text-muted-foreground/50 tabular-nums">{num}</span>
+                    </div>
+                    <h3 className="text-[14px] font-semibold mb-1">{title}</h3>
+                    <p className="text-[12.5px] text-muted-foreground leading-relaxed">{desc}</p>
                   </div>
-                  <span className="text-[11px] font-bold text-muted-foreground/50 tabular-nums">{num}</span>
-                </div>
-                <h3 className="text-[14px] font-semibold mb-1">{title}</h3>
-                <p className="text-[12.5px] text-muted-foreground leading-relaxed">{desc}</p>
+                </Reveal>
               </li>
             ))}
           </ol>
@@ -207,33 +266,35 @@ const LandingPage = () => {
       </section>
 
       {/* ── Features ─────────────────────────────────────────────────────── */}
-      <section className="px-4 lg:px-8 pb-16">
+      <section id="features" className="px-4 lg:px-8 pb-16 scroll-mt-20">
         <div className="max-w-5xl mx-auto">
-          <div className="mb-8">
+          <Reveal className="mb-8">
             <h2 className="text-[22px] lg:text-[26px] font-bold tracking-tight">Everything a modern resume needs</h2>
             <p className="text-[14px] text-muted-foreground mt-2 max-w-2xl">
               Writing assistance, structure and formatting handled in one place — with you approving
               every change.
             </p>
-          </div>
+          </Reveal>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="rounded-xl border border-border/60 bg-card p-5 card-hover">
-                <div className="h-9 w-9 rounded-lg bg-accent/10 flex items-center justify-center mb-3">
-                  <Icon className="h-4 w-4 text-accent" />
+            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+              <Reveal key={title} delayMs={i * 60} className="h-full">
+                <div className="group h-full rounded-xl border border-border/60 bg-card p-5 card-hover">
+                  <div className="h-9 w-9 rounded-lg bg-accent/10 flex items-center justify-center mb-3 transition-transform duration-200 group-hover:scale-105">
+                    <Icon className="h-4 w-4 text-accent" />
+                  </div>
+                  <h3 className="text-[14px] font-semibold mb-1">{title}</h3>
+                  <p className="text-[12.5px] text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
-                <h3 className="text-[14px] font-semibold mb-1">{title}</h3>
-                <p className="text-[12.5px] text-muted-foreground leading-relaxed">{desc}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* ── Design showcase ──────────────────────────────────────────────── */}
-      <section className="px-4 lg:px-8 pb-16">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
+      <section id="designs" className="px-4 lg:px-8 pb-16 scroll-mt-20">
+        <div className="max-w-6xl mx-auto">
+          <Reveal className="flex flex-wrap items-end justify-between gap-3 mb-2">
             <div>
               <h2 className="text-[22px] lg:text-[26px] font-bold tracking-tight">
                 {totalTemplates} designs, one set of content
@@ -246,60 +307,73 @@ const LandingPage = () => {
             <Button variant="outline" className="rounded-xl gap-2" onClick={() => navigate('/templates')}>
               Explore Templates <ArrowRight className="h-4 w-4" />
             </Button>
-          </div>
+          </Reveal>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {SHOWCASE.map((id) => {
-              const t = getTemplate(id);
-              return (
+          <Reveal>
+            <ScrollRail
+              ariaLabel="Featured resume designs"
+              itemClassName="w-[168px] sm:w-[186px]"
+              items={[
+                ...RAIL_TEMPLATE_IDS.map((id) => (
+                  <TemplateTile
+                    key={id}
+                    id={id}
+                    data={sample}
+                    to="/templates"
+                    className="h-full"
+                  />
+                )),
                 <Link
-                  key={id}
+                  key="__all"
                   to="/templates"
-                  className="group rounded-xl border border-border/60 bg-card overflow-hidden card-hover"
+                  className="group flex h-full min-h-[220px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/60 p-4 text-center transition-colors hover:border-accent/40 hover:bg-accent/[0.04]"
                 >
-                  <div className="relative aspect-[210/297] bg-white overflow-hidden">
-                    <ResumeThumbnail data={{ ...sample, template: id }} />
-                  </div>
-                  <div className="px-2.5 py-2">
-                    <div className="text-[12px] font-medium truncate">{t.label}</div>
-                    <div className="text-[10.5px] text-muted-foreground truncate capitalize">{t.category}</div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-          <p className="text-[11.5px] text-muted-foreground mt-3">
-            Design previews use sample content. Your resume only ever contains what you enter.
-          </p>
+                  <span className="h-10 w-10 rounded-full bg-accent/10 text-accent flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                  <span className="text-[12.5px] font-semibold">All {totalTemplates} designs</span>
+                  <span className="text-[11px] text-muted-foreground">Search and filter the full gallery</span>
+                </Link>,
+              ]}
+            />
+          </Reveal>
+
+          <Reveal className="mt-3">
+            <p className="text-[11.5px] text-muted-foreground">
+              Design previews use sample content. Your resume only ever contains what you enter.
+            </p>
+          </Reveal>
         </div>
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────────────────── */}
-      <section className="px-4 lg:px-8 pb-16">
-        <div className="max-w-4xl mx-auto rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/[0.05] via-card to-card p-8 lg:p-10 text-center">
-          <h2 className="text-[24px] lg:text-[28px] font-bold tracking-tight">Ready to build your resume?</h2>
-          <p className="text-[14.5px] text-muted-foreground mt-3 max-w-xl mx-auto leading-relaxed">
-            Start with your contact details, pick a design, and be editing a real resume in under a
-            minute.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
-            <Button
-              size="lg"
-              className="btn-gradient h-12 px-8 text-[15px] font-semibold rounded-xl gap-2 w-full sm:w-auto"
-              onClick={() => navigate('/create')}
-            >
-              Create My Resume <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-12 px-8 text-[15px] rounded-xl w-full sm:w-auto"
-              onClick={() => navigate('/resumes')}
-            >
-              My Resumes
-            </Button>
+      <section id="start" className="px-4 lg:px-8 pb-16 scroll-mt-20">
+        <Reveal className="max-w-4xl mx-auto">
+          <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/[0.05] via-card to-card p-8 lg:p-10 text-center">
+            <h2 className="text-[24px] lg:text-[28px] font-bold tracking-tight">Ready to build your resume?</h2>
+            <p className="text-[14.5px] text-muted-foreground mt-3 max-w-xl mx-auto leading-relaxed">
+              Start with your contact details, pick a design, and be editing a real resume in under a
+              minute.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
+              <Button
+                size="lg"
+                className="btn-gradient h-12 px-8 text-[15px] font-semibold rounded-xl gap-2 w-full sm:w-auto"
+                onClick={() => navigate('/create')}
+              >
+                Create My Resume <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 px-8 text-[15px] rounded-xl w-full sm:w-auto"
+                onClick={() => navigate('/resumes')}
+              >
+                My Resumes
+              </Button>
+            </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       <footer className="px-4 lg:px-8 pb-10">

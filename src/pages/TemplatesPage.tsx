@@ -12,8 +12,11 @@ import {
   type TemplateCategory,
 } from "@/lib/templateRegistry";
 import { getSampleResume } from "@/lib/sampleResume";
+import type { ResumeData } from "@/types/resume";
 import ResumeThumbnail from "@/components/ResumeThumbnail";
 import Carousel from "@/components/Carousel";
+import Reveal from "@/components/Reveal";
+import { useDragScroll, usePointerSpotlight } from "@/hooks/useInteraction";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -72,6 +75,100 @@ function LayoutBadge({ layoutType }: { layoutType: string }) {
   );
 }
 
+/* ── Template card ──────────────────────────────────────────────────────── */
+
+interface TemplateCardProps {
+  template: TemplateDefinition;
+  /** Sample content rendered inside the thumbnail. */
+  data: ResumeData;
+  /** Whether this is the design the active resume uses. */
+  isCurrent: boolean;
+  onPreview: () => void;
+  onUse: () => void;
+}
+
+/**
+ * Gallery card with a pointer-following highlight and a lift on hover, so the
+ * card under the cursor is never ambiguous. Both actions stay on screen at all
+ * times — nothing important here is hover-only.
+ */
+function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: TemplateCardProps) {
+  const spot = usePointerSpotlight<HTMLDivElement>();
+
+  return (
+    <div
+      onPointerMove={spot.onPointerMove}
+      onPointerLeave={spot.onPointerLeave}
+      className={cn(
+        "group relative h-full rounded-xl border bg-card overflow-hidden transition-all duration-200 card-hover interactive-card flex flex-col",
+        isCurrent
+          ? "border-accent/50 ring-2 ring-accent/10 shadow-sm"
+          : "border-border/60 hover:border-accent/40",
+      )}
+    >
+      {/* Thumbnail */}
+      <button
+        type="button"
+        className="relative h-48 bg-muted/20 overflow-hidden flex items-start justify-center pt-4 w-full text-left"
+        onClick={onPreview}
+        aria-label={`Preview ${t.label} template`}
+      >
+        <div className="relative w-[118px] h-[167px] shadow-md rounded-sm overflow-hidden border border-border/20 transition-transform duration-200 group-hover:shadow-lg group-hover:scale-[1.03]">
+          <ResumeThumbnail data={{ ...data, template: t.id }} />
+        </div>
+        {isCurrent && (
+          <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full">
+            <CheckCircle2 className="h-3 w-3" /> Active
+          </span>
+        )}
+      </button>
+
+      {/* Info */}
+      <div className="p-4 flex-1 flex flex-col">
+        <div className="flex items-center justify-between mb-1 gap-2">
+          <h3 className="text-[13.5px] font-semibold truncate">{t.label}</h3>
+          <div className="flex items-center gap-1 shrink-0">
+            {t.atsSafe && (
+              <Badge
+                variant="outline"
+                className="text-[9px] border-emerald-500/30 text-emerald-500"
+              >
+                ATS
+              </Badge>
+            )}
+            <LayoutBadge layoutType={t.layoutType} />
+          </div>
+        </div>
+        <p className="text-[11.5px] text-muted-foreground leading-relaxed mb-1.5 flex-1">
+          {t.description}
+        </p>
+        <p className="text-[11px] text-muted-foreground/60 mb-3">
+          Best for: {t.bestFor}
+        </p>
+        <div className="flex gap-1.5">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 h-8 text-[12px] font-medium"
+            onClick={onPreview}
+          >
+            Preview
+          </Button>
+          <Button
+            size="sm"
+            variant={isCurrent ? "default" : "outline"}
+            className="flex-1 h-8 text-[12px] font-medium"
+            onClick={onUse}
+            disabled={isCurrent}
+          >
+            {isCurrent ? "Active" : "Use Template"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ════════════════════════════════════════════════════════════════════════════
    MAIN PAGE
    ════════════════════════════════════════════════════════════════════════════ */
@@ -87,6 +184,9 @@ export default function TemplatesPage() {
   /* ── State ── */
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  // The category pills overflow on small screens; dragging is a friendlier way
+  // to reach the last one than fighting a thin scrollbar.
+  const pillScroll = useDragScroll<HTMLDivElement>();
   const [previewing, setPreviewing] = useState<string | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [zoomIdx, setZoomIdx] = useState(2); // index into ZOOM_LEVELS, default 80%
@@ -188,7 +288,7 @@ export default function TemplatesPage() {
   if (previewTemplate && fullscreen) {
     const Template = previewTemplate.Component;
     return (
-      <div className="h-full bg-workspace overflow-y-auto scrollbar-thin">
+      <div className="h-full bg-workspace overflow-auto scrollbar-thin">
         <div className="sticky top-0 z-10 bg-workspace/90 backdrop-blur-xl border-b border-border/50 px-4 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-[13px] font-semibold">
@@ -244,8 +344,10 @@ export default function TemplatesPage() {
             </Button>
           </div>
         </div>
-        <div className="flex items-start justify-center py-8 px-4">
-          <div className="relative">
+        {/* Block flow + auto margins: a zoomed page stays fully reachable and
+            nothing is clipped at either edge. */}
+        <div className="py-8 px-4">
+          <div className="relative mx-auto w-fit">
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
@@ -284,13 +386,13 @@ export default function TemplatesPage() {
       {/* ── Gallery ── */}
       <div
         className={cn(
-          "flex-1 min-w-0 overflow-y-auto scrollbar-thin",
+          "flex-1 min-w-0 overflow-y-auto overflow-x-hidden scrollbar-thin",
           previewing && "hidden lg:block",
         )}
       >
         <div className="max-w-6xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
           {/* ── Header ── */}
-          <div className="mb-5">
+          <Reveal className="mb-5">
             <div className="flex items-center gap-2 mb-0.5">
               <Layers className="h-5 w-5 text-accent" />
               <h1 className="text-xl font-bold tracking-tight">Templates</h1>
@@ -302,10 +404,10 @@ export default function TemplatesPage() {
               {TEMPLATE_REGISTRY.length} professionally designed templates with
               distinct layouts.
             </p>
-          </div>
+          </Reveal>
 
           {/* ── Spotlight carousel ── */}
-          <div className="mb-5">
+          <Reveal className="mb-5">
             <Carousel
               ariaLabel="Featured design collections"
               slideLabels={spotlightSlides.map((s) => s.label)}
@@ -326,7 +428,7 @@ export default function TemplatesPage() {
                         type="button"
                         onClick={() => setPreviewing(t.id)}
                         aria-label={`Preview ${t.label}`}
-                        className="group relative aspect-[210/297] bg-white rounded-md overflow-hidden border border-border/60 hover:border-accent hover:shadow-sm transition-all"
+                        className="group relative aspect-[210/297] bg-white rounded-md overflow-hidden border border-border/60 hover:border-accent hover:shadow-card transition-all duration-150"
                       >
                         <ResumeThumbnail data={{ ...sample, template: t.id }} />
                       </button>
@@ -335,7 +437,7 @@ export default function TemplatesPage() {
                 </div>
               ))}
             />
-          </div>
+          </Reveal>
 
           {/* ── Search + Categories ── */}
           <div className="space-y-3 mb-5">
@@ -360,7 +462,15 @@ export default function TemplatesPage() {
             </div>
 
             {/* Category tabs — counts from real registry */}
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-thin pb-1">
+            <div
+              ref={pillScroll.ref}
+              {...pillScroll.handlers}
+              data-dragging={pillScroll.dragging}
+              className={cn(
+                "flex items-center gap-1 overflow-x-auto scrollbar-thin pb-1",
+                pillScroll.dragging && "select-none",
+              )}
+            >
               {ALL_CATEGORIES.map((cat) => {
                 const count = categoryCounts[cat.value] ?? 0;
                 return (
@@ -387,81 +497,17 @@ export default function TemplatesPage() {
           {/* ── Template Grid ── */}
           {filtered.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((t) => {
-                const isCurrent = hasResume && resume.template === t.id;
-                return (
-                  <div
-                    key={t.id}
-                    className={cn(
-                      "group relative rounded-xl border bg-card overflow-hidden transition-all duration-200 card-hover flex flex-col",
-                      isCurrent
-                        ? "border-accent/50 ring-2 ring-accent/10"
-                        : "border-border/60",
-                    )}
-                  >
-                    {/* Thumbnail */}
-                    <button
-                      className="relative h-48 bg-muted/20 overflow-hidden flex items-start justify-center pt-4 w-full text-left"
-                      onClick={() => setPreviewing(t.id)}
-                      aria-label={`Preview ${t.label} template`}
-                    >
-                      <div className="relative w-[118px] h-[167px] shadow-md rounded-sm overflow-hidden border border-border/20 transition-transform duration-200 group-hover:shadow-lg group-hover:scale-[1.03]">
-                        <ResumeThumbnail data={{ ...sample, template: t.id }} />
-                      </div>
-                      {isCurrent && (
-                        <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full">
-                          <CheckCircle2 className="h-3 w-3" /> Active
-                        </span>
-                      )}
-                    </button>
-
-                    {/* Info */}
-                    <div className="p-4 flex-1 flex flex-col">
-                      <div className="flex items-center justify-between mb-1 gap-2">
-                        <h3 className="text-[13.5px] font-semibold truncate">
-                          {t.label}
-                        </h3>
-                        <div className="flex items-center gap-1 shrink-0">
-                          {t.atsSafe && (
-                            <Badge
-                              variant="outline"
-                              className="text-[9px] border-emerald-500/30 text-emerald-500"
-                            >
-                              ATS
-                            </Badge>
-                          )}
-                          <LayoutBadge layoutType={t.layoutType} />
-                        </div>
-                      </div>
-                      <p className="text-[11.5px] text-muted-foreground leading-relaxed mb-1.5 flex-1">
-                        {t.description}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground/60 mb-3">
-                        Best for: {t.bestFor}
-                      </p>
-                      <div className="flex gap-1.5">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 h-8 text-[12px] font-medium"
-                          onClick={() => setPreviewing(t.id)}
-                        >
-                          Preview
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={isCurrent ? "default" : "outline"}
-                          className="flex-1 h-8 text-[12px] font-medium"
-                          onClick={() => handleUseTemplate(t)}
-                          disabled={isCurrent}
-                        >
-                          {isCurrent ? "Active" : "Use Template"}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {filtered.map((t, i) => (
+                <Reveal key={t.id} delayMs={Math.min(i, 5) * 45} className="h-full">
+                  <TemplateCard
+                    template={t}
+                    data={sample}
+                    isCurrent={Boolean(hasResume && resume.template === t.id)}
+                    onPreview={() => setPreviewing(t.id)}
+                    onUse={() => handleUseTemplate(t)}
+                  />
+                </Reveal>
+              ))}
             </div>
           ) : (
             <div className="text-center py-16">

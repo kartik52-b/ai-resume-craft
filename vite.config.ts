@@ -8,8 +8,10 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     hmr: false,
+    // Leading-dot entry allows the whole hosted-preview domain, so the dev
+    // server keeps host checking on without breaking every new workspace URL.
     allowedHosts: [
-      "8080-ijofrc5ihyqyba8iiff5h.e2b.app",
+      ".e2b.app",
     ],
     proxy: {
       '/api': {
