@@ -49,9 +49,25 @@ async function callAi<T>(path: string, body: unknown): Promise<T> {
       body: JSON.stringify(body),
       signal: controller.signal,
     });
-    const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
-    if (res.ok) return data as T;
+    // Read as text first: a static host with an SPA fallback (Vercel, Netlify,
+    // any catch-all rewrite to index.html) answers an unknown /api/* path with
+    // the HTML shell and a 200, which must not pass as an empty success.
+    const raw = await res.text().catch(() => '');
+    let data: Record<string, unknown> = {};
+    let parsed = false;
+    try {
+      data = JSON.parse(raw) as Record<string, unknown>;
+      parsed = true;
+    } catch {
+      data = {};
+    }
+
+    if (res.ok) {
+      if (!raw.trim()) throw new AiRequestError('empty_response');
+      if (!parsed) throw new AiRequestError('not_configured');
+      return data as T;
+    }
 
     const code = (typeof data.error === 'string' ? data.error : 'unavailable') as AiErrorCode;
     const mapped: AiErrorCode =

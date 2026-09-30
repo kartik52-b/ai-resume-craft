@@ -32,6 +32,22 @@ describe('aiClient', () => {
     await expect(aiRewrite('text', 'standard')).rejects.toMatchObject({ code: 'unavailable' });
   });
 
+  it('treats an HTML 200 as "no endpoint here" rather than a success', async () => {
+    // What a static host's SPA fallback returns for an unknown /api/* path.
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('<!doctype html><html><body>app</body></html>', {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      }),
+    );
+    await expect(aiRewrite('text', 'professional')).rejects.toMatchObject({ code: 'not_configured' });
+  });
+
+  it('treats an empty 200 as an empty response', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }));
+    await expect(aiRewrite('text', 'professional')).rejects.toMatchObject({ code: 'empty_response' });
+  });
+
   it('maps network failures', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
     await expect(aiRewrite('text', 'professional')).rejects.toMatchObject({ code: 'network' });
