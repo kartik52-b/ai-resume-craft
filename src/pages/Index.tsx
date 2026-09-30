@@ -74,14 +74,14 @@ const Index = () => {
 
       {/* Mobile: Edit/Preview toggle with a sliding pill indicator */}
       <div
-        className="md:hidden fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 flex rounded-full border border-border/60 bg-card/90 backdrop-blur-xl shadow-modal p-1"
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-50 flex -translate-x-1/2 rounded-full border border-border bg-card p-1 shadow-elevated md:hidden"
         role="group"
         aria-label="Editor view"
       >
         <span
           aria-hidden
           className={cn(
-            "absolute top-1 bottom-1 left-1 w-[116px] rounded-full bg-gradient-to-br from-accent to-accent-2 transition-transform duration-300 ease-premium",
+            "absolute bottom-1 left-1 top-1 w-[116px] rounded-full bg-primary transition-transform duration-300 ease-premium",
             mobileView === "preview" ? "translate-x-[116px]" : "translate-x-0",
           )}
         />
@@ -90,7 +90,7 @@ const Index = () => {
           aria-pressed={mobileView === "edit"}
           className={cn(
             "relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-medium transition-colors duration-200 w-[116px] justify-center",
-            mobileView === "edit" ? "text-accent-foreground" : "text-muted-foreground hover:text-foreground"
+            mobileView === "edit" ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Pencil className="h-3.5 w-3.5" /> Edit
@@ -100,7 +100,7 @@ const Index = () => {
           aria-pressed={mobileView === "preview"}
           className={cn(
             "relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-medium transition-colors duration-200 w-[116px] justify-center",
-            mobileView === "preview" ? "text-accent-foreground" : "text-muted-foreground hover:text-foreground"
+            mobileView === "preview" ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Eye className="h-3.5 w-3.5" /> Preview

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, Lightbulb } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface Tip {
@@ -31,15 +31,15 @@ export default function TipStrip({ tips, ariaLabel = 'Writing tips', compact = f
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-lg border border-border/60 bg-muted/30',
+        'flex items-center gap-3 rounded-md border border-border bg-muted/40',
         compact ? 'px-3 py-2' : 'px-4 py-3',
         className,
       )}
       role="group"
       aria-label={ariaLabel}
     >
-      <span className="h-6 w-6 rounded-md bg-accent/10 text-accent flex items-center justify-center shrink-0">
-        <Lightbulb className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
+      <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        Tip
       </span>
 
       <div className="min-w-0 flex-1" aria-live="polite">
@@ -63,7 +63,7 @@ export default function TipStrip({ tips, ariaLabel = 'Writing tips', compact = f
         onClick={() => setIndex((i) => (i + 1) % tips.length)}
         aria-label={`Next tip (${((index + 1) % tips.length) + 1} of ${tips.length})`}
         title="Next tip"
-        className="h-6 w-6 shrink-0 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
       >
         <ArrowRight className="h-3 w-3" />
       </button>

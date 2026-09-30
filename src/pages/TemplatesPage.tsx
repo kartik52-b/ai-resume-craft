@@ -30,7 +30,6 @@ import {
   Maximize2,
   ArrowRight,
   Check,
-  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -100,10 +99,10 @@ function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: Templa
     <div
       {...fx}
       className={cn(
-        "group relative h-full rounded-xl border bg-card overflow-hidden transition-[box-shadow,border-color] duration-200 interactive-card flex flex-col",
+        "group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card transition-[border-color,box-shadow] duration-150",
         isCurrent
-          ? "border-accent/50 ring-2 ring-accent/10 shadow-card"
-          : "border-border/60 hover:border-accent/40 hover:shadow-card-hover",
+          ? "border-bronze shadow-card"
+          : "border-border hover:border-border-strong hover:shadow-card",
       )}
     >
       {/* Thumbnail */}
@@ -113,12 +112,12 @@ function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: Templa
         onClick={onPreview}
         aria-label={`Preview ${t.label} template`}
       >
-        <div className="relative w-[118px] h-[167px] shadow-md rounded-sm overflow-hidden border border-border/20 transition-transform duration-200 group-hover:shadow-lg group-hover:scale-[1.03]">
+        <div className="relative h-[167px] w-[118px] overflow-hidden border border-border shadow-sm transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:shadow-card-hover">
           <ResumeThumbnail data={{ ...data, template: t.id }} />
         </div>
         {isCurrent && (
-          <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full">
-            <CheckCircle2 className="h-3 w-3" /> Active
+          <span className="absolute right-2 top-2 flex items-center gap-1 rounded-sm bg-bronze px-1.5 py-0.5 text-[10px] font-medium text-bronze-foreground shadow-xs">
+            <Check className="h-3 w-3" /> Selected
           </span>
         )}
       </button>
@@ -153,7 +152,7 @@ function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: Templa
             onClick={onUse}
             disabled={isCurrent}
           >
-            {isCurrent ? "Active" : "Use Template"}
+            {isCurrent ? "Selected" : "Use Template"}
           </Button>
         </div>
       </div>
@@ -280,10 +279,10 @@ export default function TemplatesPage() {
   if (previewTemplate && fullscreen) {
     const Template = previewTemplate.Component;
     return (
-      <div className="h-full bg-workspace overflow-auto scrollbar-thin">
-        <div className="sticky top-0 z-10 bg-workspace/90 backdrop-blur-xl border-b border-border/50 px-4 py-2.5 flex items-center justify-between">
+      <div className="h-full overflow-auto bg-workspace scrollbar-thin">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-workspace px-4 py-2.5">
           <div className="flex items-center gap-2">
-            <span className="text-[13px] font-semibold">
+            <span className="text-[13px] font-medium">
               {previewTemplate.label}
             </span>
             <Badge variant="secondary" className="text-[10px]">
@@ -384,17 +383,14 @@ export default function TemplatesPage() {
       >
         <div className="max-w-6xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
           {/* ── Header ── */}
-          <Reveal className="mb-5">
-            <div className="flex items-center gap-2 mb-0.5">
-              <Layers className="h-5 w-5 text-accent" />
-              <h1 className="font-display text-xl font-bold tracking-tight">Templates</h1>
-            </div>
-            <p className="text-[13px] text-muted-foreground">
-              Choose a resume design that fits your career.
-            </p>
-            <p className="text-[12px] text-muted-foreground/60 mt-0.5">
-              {TEMPLATE_REGISTRY.length} professionally designed templates with
-              distinct layouts.
+          <Reveal className="mb-7">
+            <p className="eyebrow mb-3">Design library</p>
+            <h1 className="font-display text-[26px] font-semibold leading-tight text-foreground lg:text-[32px]">
+              Choose your template.
+            </h1>
+            <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
+              {TEMPLATE_REGISTRY.length} professionally designed templates.
+              Find the structure that fits your career.
             </p>
           </Reveal>
 
@@ -406,12 +402,10 @@ export default function TemplatesPage() {
               slides={spotlightSlides.map((s) => (
                 <div key={s.id} className="p-4 sm:p-5 grid sm:grid-cols-[1fr_1.5fr] gap-4 items-center">
                   <div className="min-w-0">
-                    <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-accent/10 text-accent text-[10px] font-semibold uppercase tracking-[0.12em] w-fit mb-2.5">
-                      Spotlight
-                    </div>
-                    <h2 className="font-display text-[16px] font-bold tracking-tight text-foreground">{s.label}</h2>
-                    <p className="text-[12.5px] text-muted-foreground mt-1 leading-relaxed">{s.blurb}</p>
-                    <p className="text-[11px] text-muted-foreground/70 mt-2">Tap a preview to inspect it full-page — sample content only.</p>
+                    <p className="eyebrow mb-2.5">Collection</p>
+                    <h2 className="font-display text-[18px] font-semibold leading-snug text-foreground">{s.label}</h2>
+                    <p className="mt-2 text-[12.5px] leading-relaxed text-muted-foreground">{s.blurb}</p>
+                    <p className="mt-2 text-[11px] text-muted-foreground/80">Open a preview to inspect it full-page — sample content only.</p>
                   </div>
                   <div className="grid grid-cols-4 gap-2">
                     {s.items.map((t) => (
@@ -420,7 +414,7 @@ export default function TemplatesPage() {
                         type="button"
                         onClick={() => setPreviewing(t.id)}
                         aria-label={`Preview ${t.label}`}
-                        className="group relative aspect-[210/297] bg-white rounded-md overflow-hidden border border-border/60 hover:border-accent hover:shadow-card transition-all duration-150"
+                        className="group relative aspect-[210/297] overflow-hidden border border-border bg-paper transition-colors duration-150 hover:border-border-strong"
                       >
                         <ResumeThumbnail data={{ ...sample, template: t.id }} />
                       </button>
@@ -470,10 +464,10 @@ export default function TemplatesPage() {
                     key={cat.value}
                     onClick={() => setActiveFilter(cat.value)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-all duration-200 ease-premium",
+                      "whitespace-nowrap rounded-md border px-3 py-1.5 text-[12px] transition-colors duration-150",
                       activeFilter === cat.value
-                        ? "bg-gradient-to-br from-accent to-accent-2 text-accent-foreground shadow-glow"
-                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground",
                     )}
                   >
                     {cat.label}
@@ -541,9 +535,9 @@ export default function TemplatesPage() {
 
       {/* ── Right-side Preview Panel ── */}
       {previewTemplate && (
-        <div className="fixed lg:relative inset-y-0 right-0 z-40 lg:z-auto w-full lg:w-[480px] xl:w-[540px] shrink-0 bg-workspace border-l border-border/60 flex flex-col animate-slide-in">
+        <div className="fixed inset-y-0 right-0 z-40 flex w-full shrink-0 flex-col border-l border-border bg-workspace animate-slide-in lg:relative lg:z-auto lg:w-[480px] xl:w-[540px]">
           {/* Panel header */}
-          <div className="shrink-0 border-b border-border/60 px-5 py-3.5 flex items-start justify-between gap-3">
+          <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-3.5">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h2 className="text-[15px] font-bold truncate">
@@ -561,7 +555,7 @@ export default function TemplatesPage() {
             </div>
             <button
               onClick={() => setPreviewing(null)}
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors shrink-0"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               aria-label="Close preview"
             >
               <X className="h-4 w-4" />
@@ -572,7 +566,7 @@ export default function TemplatesPage() {
           <div className="flex-1 overflow-y-auto scrollbar-thin">
             <div className="bg-muted/30 py-6 flex justify-center px-4">
               <div
-                className="relative w-full max-w-[380px] overflow-hidden rounded-sm"
+                className="relative w-full max-w-[380px] overflow-hidden"
                 style={{ aspectRatio: "210/297" }}
               >
                 <div
@@ -583,7 +577,7 @@ export default function TemplatesPage() {
                   }}
                 />
                 <div
-                  className="relative bg-white rounded-sm overflow-hidden"
+                  className="relative overflow-hidden bg-paper"
                   style={{ aspectRatio: "210/297" }}
                 >
                   <div
@@ -625,15 +619,14 @@ export default function TemplatesPage() {
           </div>
 
           {/* Apply bar */}
-          <div className="shrink-0 border-t border-border/60 p-4 bg-card">
+          <div className="shrink-0 border-t border-border bg-card p-4">
             {isCurrent ? (
-              <div className="flex items-center justify-center gap-2 h-10 rounded-xl bg-success/10 text-success text-[13px] font-semibold">
-                <CheckCircle2 className="h-4 w-4" /> This is your active
-                template
+              <div className="flex h-10 items-center justify-center gap-2 rounded-md bg-bronze-soft text-[13px] font-medium text-foreground">
+                <CheckCircle2 className="h-4 w-4" /> This is your active design
               </div>
             ) : (
               <Button
-                className="w-full h-10 btn-gradient rounded-xl text-[13px] font-semibold gap-2"
+                className="h-10 w-full gap-2 rounded-md text-[13px]"
                 onClick={() => handleUseTemplate(previewTemplate)}
               >
                 Use This Template <ArrowRight className="h-4 w-4" />

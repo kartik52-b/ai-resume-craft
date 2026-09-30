@@ -1,13 +1,12 @@
 import { type ResumeData, type SectionId, DEFAULT_SECTION_ORDER } from '@/types/resume';
 
 /**
- * Shared section metadata. The editor, templates, the PDF engine and the ATS
- * analyzer all derive from this single list so new sections only need to be
- * added once.
+ * Shared section metadata. The editor, templates and the PDF engine all derive
+ * from this single list so new sections only need to be added once.
  */
 export const SECTION_META: { id: SectionId; title: string; emptyHint: string }[] = [
   { id: 'personal', title: 'Personal Information', emptyHint: 'Add your name and contact details so recruiters can reach you.' },
-  { id: 'experience', title: 'Experience', emptyHint: 'No roles added yet. Start with your most recent position.' },
+  { id: 'experience', title: 'Work Experience', emptyHint: 'No roles added yet. Start with your most recent position.' },
   { id: 'education', title: 'Education', emptyHint: 'No education added yet. Add your most recent degree or program.' },
   { id: 'skills', title: 'Skills', emptyHint: 'No skills yet. Add 6–10 skills relevant to your target role.' },
   { id: 'projects', title: 'Projects', emptyHint: 'No projects yet. Add work that demonstrates your abilities.' },

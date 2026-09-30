@@ -8,15 +8,21 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Sora', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Source Serif 4', 'Georgia', 'Times New Roman', 'serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
+      /*
+       * Radii stay small on purpose — this is a document tool, not a consumer
+       * app: sm 6px (badges) · md 7px (fields) · lg/DEFAULT 8px (buttons) ·
+       * xl 12px (cards, dialogs). Nothing is ever pill-shaped.
+       */
       borderRadius: {
-        DEFAULT: '0.625rem',
-        md: 'calc(var(--radius) - 0.25rem)',
+        sm: 'var(--radius-sm)',
+        DEFAULT: 'var(--radius)',
+        md: 'var(--radius-field)',
         lg: 'var(--radius)',
-        xl: 'calc(var(--radius) + 0.25rem)',
-        '2xl': 'calc(var(--radius) + 0.5rem)',
+        xl: 'var(--radius-lg)',
+        '2xl': '1rem',
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -29,24 +35,30 @@ export default {
         destructive: { DEFAULT: 'hsl(var(--destructive))', foreground: 'hsl(var(--destructive-foreground))' },
         muted: { DEFAULT: 'hsl(var(--muted))', foreground: 'hsl(var(--muted-foreground))' },
         accent: { DEFAULT: 'hsl(var(--accent))', foreground: 'hsl(var(--accent-foreground))' },
-        /* Violet highlight — gradients and glows only. */
-        'accent-2': 'hsl(var(--accent-2))',
+        /* Brand accent — antique bronze, used sparingly. */
+        bronze: {
+          DEFAULT: 'hsl(var(--bronze))',
+          hover: 'hsl(var(--bronze-hover))',
+          foreground: 'hsl(var(--bronze-foreground))',
+          soft: 'hsl(var(--bronze-soft))',
+        },
+        /* Secondary accents, for signals only (assistance ready, validation). */
+        teal: {
+          DEFAULT: 'hsl(var(--teal))',
+          foreground: 'hsl(var(--teal-foreground))',
+        },
+        coral: {
+          DEFAULT: 'hsl(var(--coral))',
+          foreground: 'hsl(var(--coral-foreground))',
+        },
+        'border-strong': 'hsl(var(--border-strong))',
+        /* The A4 document surface. */
+        paper: 'hsl(var(--paper))',
         popover: { DEFAULT: 'hsl(var(--popover))', foreground: 'hsl(var(--popover-foreground))' },
         card: { DEFAULT: 'hsl(var(--card))', foreground: 'hsl(var(--card-foreground))' },
-        ai: {
-          accent: 'hsl(var(--ai-accent))',
-          soft: 'hsl(var(--ai-accent-soft))',
-          glow: 'hsl(var(--ai-glow))',
-        },
         workspace: 'hsl(var(--workspace))',
         canvas: 'hsl(var(--canvas))',
         'surface-raised': 'hsl(var(--surface-raised))',
-        glass: 'hsl(var(--surface-glass))',
-        gradient: {
-          from: 'hsl(var(--gradient-from))',
-          to: 'hsl(var(--gradient-to))',
-          foreground: 'hsl(var(--gradient-foreground))',
-        },
         success: { DEFAULT: 'hsl(var(--success))', foreground: 'hsl(var(--success-foreground))' },
         warning: { DEFAULT: 'hsl(var(--warning))', foreground: 'hsl(var(--warning-foreground))' },
         info: { DEFAULT: 'hsl(var(--info))', foreground: 'hsl(var(--info-foreground))' },
@@ -65,10 +77,11 @@ export default {
         'xs': 'var(--shadow-xs)',
         'card': 'var(--shadow-sm)',
         'card-hover': 'var(--shadow-md)',
+        'raised': 'var(--shadow-md)',
         'elevated': 'var(--shadow-lg)',
         'modal': 'var(--shadow-xl)',
-        'glow': 'var(--shadow-glow)',
         'canvas': 'var(--canvas-shadow)',
+        'inset-field': 'var(--shadow-inset)',
       },
       /**
        * Motion lives in `src/index.css` (outside `@layer utilities`) so the whole

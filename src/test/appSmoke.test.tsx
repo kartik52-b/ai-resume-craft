@@ -19,7 +19,15 @@ describe('app smoke: fresh visitor', () => {
   it('renders the landing hero with the requested copy and CTAs', async () => {
     render(<App />);
 
-    expect(await screen.findByText('Build a resume that gets you noticed.')).toBeInTheDocument();
+    // The headline is set in three lines with the last word accented, so it is
+    // matched by accessible name (which spans the inner spans) rather than by a
+    // single text node.
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: /create a professional resume without the busywork/i,
+      }),
+    ).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Create My Resume/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole('button', { name: /Explore Templates/i }).length).toBeGreaterThan(0);
     // Design previews are explicitly labelled as sample content.
@@ -183,10 +191,10 @@ describe('app smoke: fresh visitor', () => {
 
 describe('app smoke: every route renders for a visitor without a resume', () => {
   const ROUTES: { path: string; marker: RegExp }[] = [
-    { path: '/', marker: /Build a resume that gets you noticed/i },
+    { path: '/', marker: /Beautiful templates. Smart suggestions/i },
     { path: '/create', marker: /Tell us about yourself/i },
     { path: '/resumes', marker: /Welcome to AI Resume Craft/i },
-    { path: '/templates', marker: /Choose a resume design/i },
+    { path: '/templates', marker: /Choose your template/i },
     { path: '/settings', marker: /Account/i },
     { path: '/nonexistent', marker: /Page not found/i },
   ];

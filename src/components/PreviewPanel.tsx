@@ -81,10 +81,10 @@ const PreviewPanel = () => {
   return (
     <div className={cn("h-full w-full bg-workspace overflow-auto scrollbar-thin", fullscreen && "fixed inset-0 z-50 bg-workspace")}>
       {/* ── Toolbar ── */}
-      <div className="w-full sticky top-0 z-10 bg-workspace/80 backdrop-blur-xl border-b border-border/50 px-4 py-2.5 flex items-center justify-between">
+      <div className="sticky top-0 z-10 flex w-full items-center justify-between border-b border-border bg-workspace px-4 py-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Live Preview</span>
-          <span className="text-[11px] text-muted-foreground/60 capitalize">{resume.template}</span>
+          <span className="nav-group-label">Live preview</span>
+          <span className="text-[11px] capitalize text-muted-foreground">{getTemplate(resume.template).label}</span>
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setZoomIdx(Math.max(0, effectiveIdx - 1))} disabled={effectiveIdx === 0} aria-label="Zoom out">
@@ -112,10 +112,11 @@ const PreviewPanel = () => {
           className="relative mx-auto"
           style={{ width: pageSize.width * zoom, height: pageSize.height * zoom }}
         >
-          <div className="absolute inset-0 rounded-sm pointer-events-none canvas-shadow" />
+          {/* Square corners: this is paper, not a card. */}
+          <div className="absolute inset-0 pointer-events-none canvas-shadow" />
           <div
             ref={pageRef}
-            className="bg-canvas rounded-sm transition-transform duration-200 relative origin-top-left"
+            className="bg-canvas transition-transform duration-200 relative origin-top-left"
             style={{ width: "210mm", minHeight: "297mm", padding: "18mm 20mm", transform: `scale(${zoom})` }}
           >
             <Template data={resume} />

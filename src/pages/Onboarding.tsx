@@ -39,7 +39,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import {
-  ArrowLeft, ArrowRight, Check, CheckCircle2, Loader2, Eye, Sparkles,
+  ArrowLeft, ArrowRight, Check, CheckCircle2, Loader2, Eye,
   User, Mail, Phone, MapPin, Briefcase, AlertCircle,
   Linkedin, Globe, GraduationCap, Code2, Award, ListChecks, Plus, X,
 } from 'lucide-react';
@@ -61,10 +61,10 @@ function ProgressIndicator({ current, onStepClick }: { current: number; onStepCl
   const progress = ((current - 1) / (STEPS.length - 1)) * 100;
 
   return (
-    <div className="space-y-3">
-      <div className="h-1 rounded-full bg-muted overflow-hidden" aria-hidden>
+    <div className="space-y-3.5">
+      <div className="h-[3px] overflow-hidden rounded-full bg-muted" aria-hidden>
         <div
-          className="h-full rounded-full bg-gradient-to-r from-accent to-accent-2 transition-[width] duration-500 ease-premium"
+          className="h-full rounded-full bg-foreground transition-[width] duration-500 ease-premium"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -81,8 +81,8 @@ function ProgressIndicator({ current, onStepClick }: { current: number; onStepCl
                 disabled={!canJump}
                 aria-current={state === 'current' ? 'step' : undefined}
                 className={cn(
-                  'flex items-center gap-2 min-w-0 w-full rounded-lg px-2 py-1.5 text-left transition-colors duration-200',
-                  canJump && 'hover:bg-muted/60 cursor-pointer',
+                  'flex w-full min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors duration-150',
+                  canJump && 'cursor-pointer hover:bg-muted/60',
                   !canJump && 'cursor-default',
                 )}
               >
@@ -90,13 +90,13 @@ function ProgressIndicator({ current, onStepClick }: { current: number; onStepCl
                 <span
                   key={state}
                   className={cn(
-                    'h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 border animate-pop-in',
+                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10.5px] font-medium tabular-nums',
                     state === 'done' && 'bg-success border-success text-success-foreground',
-                    state === 'current' && 'bg-gradient-to-br from-accent to-accent-2 border-transparent text-accent-foreground shadow-glow',
+                    state === 'current' && 'border-transparent bg-primary text-primary-foreground',
                     state === 'upcoming' && 'border-border text-muted-foreground',
                   )}
                 >
-                  {state === 'done' ? <Check className="h-3 w-3" /> : step.id}
+                  {state === 'done' ? <Check className="h-3 w-3" /> : String(step.id).padStart(2, '0')}
                 </span>
                 <span className="min-w-0 hidden sm:block">
                   <span
@@ -115,7 +115,7 @@ function ProgressIndicator({ current, onStepClick }: { current: number; onStepCl
                   aria-hidden
                   className={cn(
                     'h-[2px] flex-1 min-w-3 shrink-0 rounded-full transition-colors duration-500',
-                    step.id < current ? 'bg-gradient-to-r from-accent to-accent-2' : 'bg-border',
+                    step.id < current ? 'bg-foreground' : 'bg-border',
                   )}
                 />
               )}
@@ -192,8 +192,8 @@ function DetailsStep({
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? `${inputId}-error` : undefined}
                 className={cn(
-                  'h-11 text-[14px] bg-background/60 transition-colors',
-                  error ? 'border-destructive/60 focus-visible:ring-destructive/30' : 'border-border/60 focus:border-accent/50',
+                  'h-11 text-[14px] transition-colors',
+                  error ? 'border-destructive/60 focus-visible:ring-destructive/30' : '',
                 )}
               />
               {error && (
@@ -219,7 +219,7 @@ function DetailsStep({
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to home
         </Link>
-        <Button type="submit" size="lg" className="btn-gradient h-11 px-7 rounded-xl text-[14px] font-semibold gap-2">
+        <Button type="submit" size="lg" className="h-11 gap-2 rounded-md px-6 text-[13.5px] font-medium">
           Continue <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
@@ -257,7 +257,7 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-11 text-[14px] bg-background/60 border-border/60 focus:border-accent/50"
+        className="h-11 text-[14px]"
       />
     </div>
   );
@@ -273,7 +273,7 @@ function BackgroundCard({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-border/60 bg-background/40 p-4 space-y-3.5">
+    <div className="space-y-3.5 rounded-md border border-border bg-card p-4">
       <div className="flex items-center gap-2">
         <span className="h-7 w-7 rounded-lg bg-accent/10 flex items-center justify-center">
           <Icon className="h-3.5 w-3.5 text-accent" />
@@ -309,8 +309,7 @@ function SummaryStep({
       noValidate
     >
       <div className="max-w-2xl space-y-1.5">
-        <Label htmlFor="onboarding-summary" className="text-[12px] font-medium flex items-center gap-1.5">
-          <Sparkles className="h-3 w-3 opacity-50" />
+        <Label htmlFor="onboarding-summary" className="flex items-center gap-1.5 text-[12px] font-medium">
           Professional Summary
           <span className="text-[10px] font-normal text-muted-foreground">Optional</span>
         </Label>
@@ -320,7 +319,7 @@ function SummaryStep({
           value={summary}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Two or three sentences on who you are, what you do best, and the impact you deliver."
-          className="text-[14px] bg-background/60 border-border/60 focus:border-accent/50 resize-y"
+          className="resize-y text-[14px]"
         />
         <p className="text-[11.5px] text-muted-foreground leading-relaxed">
           You can leave this for later — the AI assistant in the editor can draft or polish your
@@ -329,10 +328,10 @@ function SummaryStep({
       </div>
 
       <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
-        <Button type="button" variant="outline" onClick={onBack} className="h-11 rounded-xl text-[13px] gap-2">
+        <Button type="button" variant="outline" onClick={onBack} className="h-11 gap-2 rounded-md text-[13px]">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
-        <Button type="submit" size="lg" className="btn-gradient h-11 px-7 rounded-xl text-[14px] font-semibold gap-2">
+        <Button type="submit" size="lg" className="h-11 gap-2 rounded-md px-6 text-[13.5px] font-medium">
           Continue <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
@@ -373,7 +372,7 @@ function EducationEntryFields({
   return (
     <div
       data-entry-id={entry.id}
-      className="rounded-lg border border-border/40 bg-background/30 p-3 space-y-3"
+      className="space-y-3 rounded-md border border-border bg-muted/40 p-3"
     >
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-semibold text-muted-foreground">Education {index + 1}</span>
@@ -400,8 +399,8 @@ function EducationEntryFields({
             aria-invalid={Boolean(error)}
             aria-describedby={error ? `${inputId('school')}-error` : undefined}
             className={cn(
-              'h-11 text-[14px] bg-background/60 transition-colors',
-              error ? 'border-destructive/60 focus-visible:ring-destructive/30' : 'border-border/60 focus:border-accent/50',
+              'h-11 text-[14px] transition-colors',
+              error ? 'border-destructive/60 focus-visible:ring-destructive/30' : '',
             )}
           />
           {error && (
@@ -425,7 +424,7 @@ function EducationEntryFields({
             value={entry.description}
             onChange={(e) => onChange({ description: e.target.value })}
             placeholder="Honors, relevant coursework, activities — anything worth highlighting."
-            className="text-[14px] bg-background/60 border-border/60 focus:border-accent/50 resize-y"
+            className="resize-y text-[14px]"
           />
         </div>
       </div>
@@ -551,7 +550,7 @@ function BackgroundStep({
           <button
             type="button"
             onClick={addEducation}
-            className="w-full py-2.5 border-2 border-dashed border-border/60 rounded-xl text-[12.5px] text-muted-foreground hover:border-accent/30 hover:text-accent/80 hover:bg-accent/[0.02] transition-all duration-150"
+            className="w-full rounded-md border border-dashed border-border py-2.5 text-[12.5px] text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground"
           >
             + Add Education
           </button>
@@ -577,7 +576,7 @@ function BackgroundStep({
                 value={exp.description}
                 onChange={(e) => setExp({ description: e.target.value })}
                 placeholder="What you owned and the impact you made. Add more bullets in the editor."
-                className="text-[14px] bg-background/60 border-border/60 focus:border-accent/50 resize-y"
+                className="resize-y text-[14px]"
               />
             </div>
           </div>
@@ -597,7 +596,7 @@ function BackgroundStep({
                 }
               }}
               placeholder="Type a skill and press Enter"
-              className="h-11 text-[14px] bg-background/60 border-border/60 focus:border-accent/50"
+              className="h-11 text-[14px]"
             />
             <Button type="button" variant="outline" onClick={addSkill} className="h-11 px-4 gap-1.5 shrink-0">
               <Plus className="h-3.5 w-3.5" /> Add
@@ -640,7 +639,7 @@ function BackgroundStep({
                   value={project.description}
                   onChange={(e) => setProject({ description: e.target.value })}
                   placeholder="One or two sentences about what it does."
-                  className="text-[14px] bg-background/60 border-border/60 focus:border-accent/50 resize-y"
+                  className="resize-y text-[14px]"
                 />
               </div>
             </div>
@@ -663,11 +662,11 @@ function BackgroundStep({
         grow each section later in the editor.
       </p>
 
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-1 border-t border-border/60">
-        <Button type="button" variant="outline" onClick={onBack} className="h-11 rounded-xl text-[13px] gap-2">
+      <div className="flex flex-col-reverse gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <Button type="button" variant="outline" onClick={onBack} className="h-11 gap-2 rounded-md text-[13px]">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
-        <Button type="submit" size="lg" className="btn-gradient h-11 px-7 rounded-xl text-[14px] font-semibold gap-2">
+        <Button type="submit" size="lg" className="h-11 gap-2 rounded-md px-6 text-[13.5px] font-medium">
           Next: Choose Design <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
@@ -695,8 +694,8 @@ function DesignCard({
   return (
     <div
       className={cn(
-        'group rounded-xl border bg-card overflow-hidden flex flex-col transition-all duration-200',
-        selected ? 'border-accent ring-2 ring-accent/25 shadow-sm' : 'border-border/60 hover:border-border hover:shadow-sm',
+        'group flex flex-col overflow-hidden rounded-lg border bg-card transition-colors duration-150',
+        selected ? 'border-bronze ring-1 ring-bronze/40' : 'border-border hover:border-foreground/30',
       )}
     >
       <button
@@ -704,11 +703,11 @@ function DesignCard({
         onClick={onSelect}
         aria-pressed={selected}
         aria-label={`Select ${template.label} design`}
-        className="relative block w-full aspect-[210/297] bg-white overflow-hidden"
+        className="relative block w-full aspect-[210/297] bg-paper overflow-hidden"
       >
         <ResumeThumbnail data={{ ...data, template: template.id }} />
         {selected && (
-          <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-semibold text-accent-foreground bg-accent px-2 py-0.5 rounded-full shadow-sm">
+          <span className="absolute right-2 top-2 flex items-center gap-1 rounded bg-bronze px-1.5 py-0.5 text-[10px] font-medium text-bronze-foreground">
             <CheckCircle2 className="h-3 w-3" /> Selected
           </span>
         )}
@@ -717,7 +716,7 @@ function DesignCard({
       <div className="p-3.5 flex-1 flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-[13.5px] font-semibold leading-tight">{template.label}</h3>
-          <Badge variant="outline" className="text-[9px] border-border/60 text-muted-foreground shrink-0 capitalize">
+          <Badge variant="outline" className="shrink-0 border-border text-[9px] capitalize text-muted-foreground">
             {template.category}
           </Badge>
         </div>
@@ -794,7 +793,7 @@ function DesignStep({
               className={cn(
                 'px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-all duration-150',
                 collectionId === c.id
-                  ? 'bg-accent text-accent-foreground shadow-sm'
+                  ? 'bg-primary text-primary-foreground'
                   : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
               )}
             >
@@ -810,7 +809,7 @@ function DesignStep({
             'self-start lg:self-auto shrink-0 flex items-center gap-2 text-[11.5px] font-medium px-3 py-1.5 rounded-full border transition-colors',
             showMyDetails
               ? 'border-accent/40 bg-accent/10 text-accent'
-              : 'border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/40',
+              : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/40',
           )}
         >
           <span className={cn('h-3.5 w-6 rounded-full p-0.5 transition-colors', showMyDetails ? 'bg-accent/70' : 'bg-muted-foreground/30')}>
@@ -839,16 +838,16 @@ function DesignStep({
         ))}
       </div>
 
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-border/60">
-        <Button variant="outline" onClick={onBack} className="h-11 rounded-xl text-[13px] gap-2">
+      <div className="flex flex-col-reverse gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <Button variant="outline" onClick={onBack} className="h-11 gap-2 rounded-md text-[13px]">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
         <div className="flex items-center gap-3">
           <span className="text-[12px] text-muted-foreground hidden sm:block">
             Design: <span className="font-medium text-foreground">{selectedName}</span>
           </span>
-          <Button size="lg" onClick={onBuild} className="btn-gradient h-11 px-7 rounded-xl text-[14px] font-semibold gap-2">
-            <Sparkles className="h-4 w-4" /> Build My Resume
+          <Button size="lg" onClick={onBuild} className="h-11 gap-2 rounded-md px-6 text-[13.5px] font-medium">
+            Build My Resume
           </Button>
         </div>
       </div>
@@ -856,7 +855,7 @@ function DesignStep({
       {/* Full-size preview of the selected design */}
       <Dialog open={previewing !== null} onOpenChange={(open) => !open && setPreviewing(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 gap-0">
-          <DialogHeader className="px-5 py-4 border-b border-border/60">
+          <DialogHeader className="border-b border-border px-5 py-4">
             <DialogTitle className="text-[15px]">{previewing?.label} design</DialogTitle>
             <DialogDescription className="text-[12px] text-muted-foreground">
               {previewing?.layoutDescription} · Best for {previewing?.bestFor}
@@ -864,17 +863,17 @@ function DesignStep({
           </DialogHeader>
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-muted/30 p-5">
             <div className="mx-auto" style={{ width: '210mm', maxWidth: '100%' }}>
-              <div className="bg-white shadow-modal origin-top mx-auto" style={{ width: '210mm', minHeight: '297mm', padding: '18mm 20mm', transform: 'scale(0.92)', transformOrigin: 'top center' }}>
+              <div className="bg-paper shadow-modal origin-top mx-auto" style={{ width: '210mm', minHeight: '297mm', padding: '18mm 20mm', transform: 'scale(0.92)', transformOrigin: 'top center' }}>
                 {previewing && <previewing.Component data={{ ...previewData, template: previewing.id }} />}
               </div>
             </div>
           </div>
-          <div className="px-5 py-3.5 border-t border-border/60 flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 border-t border-border px-5 py-3.5">
             <span className="text-[11.5px] text-muted-foreground">
               {showMyDetails ? 'Previewing with your details' : 'Previewing with sample content'}
             </span>
             <Button
-              className="btn-gradient h-9 rounded-lg text-[13px] font-medium gap-2"
+              className="h-9 gap-2 rounded-md text-[13px] font-medium"
               onClick={() => {
                 if (previewing) onUse(previewing.id);
                 setPreviewing(null);
@@ -894,9 +893,7 @@ function DesignStep({
 function BuildStep({ name, design }: { name: string; design: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
-      <div className="h-14 w-14 rounded-2xl bg-accent/10 flex items-center justify-center mb-5">
-        <Loader2 className="h-6 w-6 text-accent animate-spin" />
-      </div>
+      <Loader2 className="mb-5 h-6 w-6 animate-spin text-muted-foreground" />
       <h2 className="text-[18px] font-semibold mb-1.5">Building your resume…</h2>
       <p className="text-[13px] text-muted-foreground max-w-sm leading-relaxed">
         {name ? `${name}'s` : 'Your'} resume is being generated with the {design} design and your
@@ -1037,19 +1034,14 @@ export default function Onboarding() {
   const designLabel = getTemplate(template).label;
 
   return (
-    <div className="relative min-h-full bg-workspace overflow-x-hidden">
-      {/* Layered background — the same aurora language as the landing page. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[380px] overflow-hidden" aria-hidden>
-        <div className="aurora animate-aurora opacity-60" />
-      </div>
-
-      <div className="relative z-10 max-w-5xl mx-auto px-4 lg:px-8 py-8 lg:py-10">
+    <div className="min-h-full bg-background overflow-x-hidden">
+      <div className="mx-auto max-w-5xl px-5 py-8 lg:px-8 lg:py-10">
         {/* Header */}
         <div className="mb-6 animate-fade-down">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent mb-1.5">
+          <p className="eyebrow mb-3">
             {hasResume ? 'New resume' : 'Create your resume'}
           </p>
-          <h1 className="font-display text-[24px] lg:text-[28px] font-bold tracking-tight text-foreground leading-tight">
+          <h1 className="font-display text-[24px] font-semibold leading-tight text-foreground lg:text-[28px]">
             {step === 1 && 'Tell us about yourself'}
             {step === 2 && 'Your professional summary'}
             {step === 3 && 'Round out your background'}
@@ -1066,7 +1058,7 @@ export default function Onboarding() {
         </div>
 
         {/* Progress */}
-        <div className="mb-6 rounded-xl border border-border/60 bg-card/90 backdrop-blur px-3 py-3 shadow-xs animate-fade-up">
+        <div className="mb-6 rounded-lg border border-border bg-card px-4 py-3.5 animate-fade-up">
           <ProgressIndicator current={step} onStepClick={goTo} />
         </div>
 

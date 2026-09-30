@@ -4,11 +4,29 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Database, Sparkles, ExternalLink, Info, Sun, Moon, Monitor, User, Shield, Settings, Download, Upload, Trash2 } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { STORAGE_KEY, clearStoredResume } from "@/lib/storage";
 import { toast } from "sonner";
+
+/** A settings section: hairline rule, quiet label, no card chrome. */
+function Section({
+  title,
+  hint,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="border-t border-border pt-7 first:border-t-0 first:pt-0">
+      <h2 className="text-[13px] font-semibold text-foreground">{title}</h2>
+      {hint && <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-muted-foreground">{hint}</p>}
+      <div className="mt-5">{children}</div>
+    </section>
+  );
+}
 
 export default function SettingsPage() {
   const { resumes, activeId, resume, switchResume, loadStatus, updatePersonal } = useResume();
@@ -50,95 +68,193 @@ export default function SettingsPage() {
     setTimeout(() => window.location.reload(), 500);
   };
 
+  const statusLabel = loadStatus === 'restored' ? 'restored' : loadStatus === 'salvaged' ? 'recovered' : loadStatus;
+
   return (
-    <div className="relative min-h-full bg-workspace overflow-x-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[320px] overflow-hidden" aria-hidden>
-        <div className="aurora animate-aurora opacity-40" />
-      </div>
+    <div className="min-h-full bg-background overflow-x-hidden">
+      <div className="mx-auto max-w-3xl px-5 py-10 lg:px-8 lg:py-14 space-y-7">
+        <header className="animate-fade-up">
+          <p className="eyebrow mb-3">Preferences</p>
+          <h1 className="font-display text-[26px] font-semibold leading-tight text-foreground lg:text-[30px]">
+            Settings
+          </h1>
+          <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
+            Everything runs in this browser. Your resumes are stored locally and
+            never uploaded.
+          </p>
+        </header>
 
-      <div className="relative z-10 max-w-3xl mx-auto px-4 lg:px-8 py-8 space-y-6">
-        {/* Account */}
-        <section className="premium-card p-5 space-y-3 animate-fade-up">
-          <div className="flex items-center gap-2.5"><div className="icon-chip h-9 w-9"><User className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Account</h2></div>
-          <p className="text-[13px] text-muted-foreground leading-relaxed">These are the contact details of your active resume. New resumes always start blank and are filled in through the create flow.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-muted-foreground">Full Name</Label>
-              <Input
-                value={resume.personal.fullName}
-                onChange={(e) => updatePersonal('fullName', e.target.value)}
-                placeholder="Your full name"
-                className="h-9 text-[13px]"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-muted-foreground">Email</Label>
-              <Input
-                value={resume.personal.email}
-                onChange={(e) => updatePersonal('email', e.target.value)}
-                placeholder="you@example.com"
-                className="h-9 text-[13px]"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Appearance */}
-        <section className="premium-card p-5 space-y-3 animate-fade-up">
-          <div className="flex items-center gap-2.5"><div className="icon-chip h-9 w-9"><Sun className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Appearance</h2></div>
-          <p className="text-[13px] text-muted-foreground">Choose your preferred theme. System follows your operating system setting.</p>
-          <div className="flex gap-2 pt-1">
-            {([
-              { value: "light", label: "Light", icon: Sun },
-              { value: "dark", label: "Dark", icon: Moon },
-              { value: "system", label: "System", icon: Monitor },
-            ] as const).map(({ value, label, icon: Icon }) => (
-              <button key={value} onClick={() => setTheme(value)}
-                className={cn("flex items-center gap-2 px-4 py-2.5 rounded-lg border text-[13px] font-medium transition-all duration-150",
-                  theme === value ? "border-accent/40 bg-accent/5 text-accent shadow-sm" : "border-border/60 bg-background text-muted-foreground hover:border-border hover:text-foreground")}>
-                <Icon className="h-4 w-4" />{label}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Data & Privacy */}
-        <section className="premium-card p-5 space-y-3 animate-fade-up">
-          <div className="flex items-center gap-2.5"><div className="icon-chip h-9 w-9"><Database className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">Data & Privacy</h2></div>
-          <p className="text-[13px] text-muted-foreground leading-relaxed">Your resumes are saved automatically to this browser's local storage. Data never leaves your device except when you explicitly request an AI action.</p>
-          <ul className="text-[12px] text-muted-foreground space-y-1 list-disc list-inside">
-            <li>{resumes.length} resume(s) stored</li>
-            <li>Clearing your browser data will delete stored resumes</li>
-          </ul>
-          <Badge variant="secondary" className="text-[11px] capitalize">{loadStatus === "restored" ? "restored" : loadStatus === "salvaged" ? "recovered" : loadStatus}</Badge>
-          {resumes.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-1">
-              {resumes.map((r) => (
-                <button key={r.id} onClick={() => switchResume(r.id)}
-                  className={cn("text-[11px] px-2.5 py-1 rounded-md border transition-all duration-150",
-                    r.id === activeId ? "border-accent/50 bg-accent/10 text-accent" : "border-border/60 hover:bg-muted/50 text-muted-foreground hover:text-foreground")}>
-                  {r.title}
+        <div className="space-y-7 animate-fade-up">
+          <Section title="Appearance" hint="System follows your operating system setting.">
+            <div className="inline-flex rounded-lg border border-border bg-secondary/70 p-[3px]">
+              {([
+                { value: "light", label: "Light", icon: Sun },
+                { value: "dark", label: "Dark", icon: Moon },
+                { value: "system", label: "System", icon: Monitor },
+              ] as const).map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setTheme(value)}
+                  aria-pressed={theme === value}
+                  className={cn(
+                    "flex items-center gap-2 rounded-md px-3.5 py-1.5 text-[12.5px] transition-colors",
+                    theme === value
+                      ? "bg-card text-foreground shadow-xs ring-1 ring-border"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
                 </button>
               ))}
             </div>
-          )}
-          <div className="flex flex-wrap gap-2 pt-2">
-            <Button variant="outline" size="sm" className="h-8 text-[12px] gap-1.5" onClick={handleExport}><Download className="h-3.5 w-3.5" /> Export all data</Button>
-            <Button variant="outline" size="sm" className="h-8 text-[12px] gap-1.5" onClick={() => importRef.current?.click()}><Upload className="h-3.5 w-3.5" /> Import data</Button>
-            <input ref={importRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
-            <Button variant="outline" size="sm" className={cn('h-8 text-[12px] gap-1.5', confirmClear && 'border-destructive text-destructive bg-destructive/5')} onClick={handleClear}><Trash2 className="h-3.5 w-3.5" /> {confirmClear ? 'Confirm clear' : 'Clear all data'}</Button>
-          </div>
-        </section>
+          </Section>
 
-        {/* AI */}
-        <section className="premium-card p-5 space-y-3 animate-fade-up">
-          <div className="flex items-center gap-2.5"><div className="icon-chip h-9 w-9"><Sparkles className="h-4 w-4 text-accent" /></div><h2 className="text-[14px] font-semibold">AI Features</h2></div>
-          <p className="text-[13px] text-muted-foreground leading-relaxed">AI runs through a server-side proxy. The <code className="px-1.5 py-0.5 rounded bg-muted text-[11px] font-mono">GOOGLE_API_KEY</code> is set on the server only.</p>
-          <p className="text-[12px] text-muted-foreground">If AI actions return "not configured", the key is missing. The rest of the app works fully without it.</p>
-          <a href="https://ai.google.dev/pricing" target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1.5 text-[13px] text-primary hover:underline">Google AI Studio <ExternalLink className="h-3.5 w-3.5" /></a>
-        </section>
+          <Section
+            title="Account"
+            hint="These are the contact details of your active resume. New resumes always start blank and are filled in through the create flow."
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="settings-name" className="text-[12px] text-muted-foreground">Full name</Label>
+                <Input
+                  id="settings-name"
+                  value={resume.personal.fullName}
+                  onChange={(e) => updatePersonal('fullName', e.target.value)}
+                  placeholder="Your full name"
+                  className="h-10 text-[13.5px]"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="settings-email" className="text-[12px] text-muted-foreground">Email</Label>
+                <Input
+                  id="settings-email"
+                  value={resume.personal.email}
+                  onChange={(e) => updatePersonal('email', e.target.value)}
+                  placeholder="you@example.com"
+                  className="h-10 text-[13.5px]"
+                />
+              </div>
+            </div>
+          </Section>
 
-        <p className="flex items-start gap-2 text-[12px] text-muted-foreground"><Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />Everything in this app runs locally in your browser. The only server component is the optional AI proxy.</p>
+          <Section
+            title="Data & Privacy"
+            hint="Resumes are saved automatically to this browser's local storage. Data leaves your device only when you explicitly request help with wording."
+          >
+            <dl className="divide-y divide-border border-y border-border text-[13px]">
+              <div className="flex items-baseline justify-between gap-4 py-2.5">
+                <dt className="text-muted-foreground">Stored resumes</dt>
+                <dd className="text-foreground tabular-nums">{resumes.length}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 py-2.5">
+                <dt className="text-muted-foreground">Storage state</dt>
+                <dd className="capitalize text-foreground">{statusLabel}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 py-2.5">
+                <dt className="text-muted-foreground">Sign-in</dt>
+                <dd className="text-foreground">Not required</dd>
+              </div>
+            </dl>
+
+            {resumes.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {resumes.map((r) => (
+                  <button
+                    key={r.id}
+                    onClick={() => switchResume(r.id)}
+                    aria-pressed={r.id === activeId}
+                    className={cn(
+                      "rounded border px-2.5 py-1 text-[11.5px] transition-colors",
+                      r.id === activeId
+                        ? "border-bronze bg-bronze-soft text-foreground"
+                        : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                    )}
+                  >
+                    {r.title}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" className="h-9 gap-1.5 text-[12.5px]" onClick={handleExport}>
+                Export all data
+              </Button>
+              <Button variant="outline" size="sm" className="h-9 gap-1.5 text-[12.5px]" onClick={() => importRef.current?.click()}>
+                Import data
+              </Button>
+              <input ref={importRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn('h-9 gap-1.5 text-[12.5px]', confirmClear && 'border-destructive text-destructive')}
+                onClick={handleClear}
+              >
+                {confirmClear ? 'Confirm clear' : 'Clear all data'}
+              </Button>
+            </div>
+            <p className="mt-3 text-[12px] text-muted-foreground">
+              Clearing your browser data also removes stored resumes.
+            </p>
+          </Section>
+
+          <Section
+            title="AI Configuration"
+            hint="Writing assistance is optional. Summaries and bullet points can be rewritten through a server-side proxy — the provider key never reaches the browser, and every suggestion is shown to you before it is applied."
+          >
+            <div className="rounded-lg border border-border bg-card p-4">
+              <p className="text-[13px] font-medium text-foreground">Writing assistance is optional.</p>
+              <p className="mt-1.5 max-w-xl text-[12.5px] leading-relaxed text-muted-foreground">
+                Set{' '}
+                <code className="font-mono text-[11.5px] text-foreground">GOOGLE_API_KEY</code> on the
+                server running{' '}
+                <code className="font-mono text-[11.5px] text-foreground">api/app.py</code>. If an AI
+                action reports that it isn't configured yet, that key is missing. Editing,
+                templates, saving and PDF export work fully without it.
+              </p>
+              <div className="mt-3.5 flex flex-wrap items-center gap-2">
+                <a
+                  href="https://ai.google.dev/pricing"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="inline-flex h-8 items-center rounded-lg border border-border px-3 text-[12px] font-medium text-foreground transition-colors hover:border-border-strong hover:bg-secondary/70"
+                >
+                  Set up AI
+                </a>
+                <a
+                  href="https://ai.google.dev/gemini-api/docs/api-key"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-[12.5px] text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground hover:decoration-bronze"
+                >
+                  How to get a key
+                </a>
+              </div>
+            </div>
+          </Section>
+
+          <Section title="Environment" hint="What this app runs on, and where your work is kept.">
+            <dl className="divide-y divide-border border-y border-border text-[13px]">
+              <div className="flex items-baseline justify-between gap-4 py-2.5">
+                <dt className="text-muted-foreground">Runs in</dt>
+                <dd className="text-foreground text-right">This browser — no server round-trips for your data</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 py-2.5">
+                <dt className="text-muted-foreground">Storage key</dt>
+                <dd className="font-mono text-[11.5px] text-foreground">{STORAGE_KEY}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 py-2.5">
+                <dt className="text-muted-foreground">Export</dt>
+                <dd className="text-foreground text-right">A4 PDF, selectable text</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 py-2.5">
+                <dt className="text-muted-foreground">Writing assistance</dt>
+                <dd className="text-foreground text-right">Optional · server-side proxy</dd>
+              </div>
+            </dl>
+          </Section>
+        </div>
       </div>
     </div>
   );

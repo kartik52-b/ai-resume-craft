@@ -52,7 +52,7 @@ export const ImportDialog = ({ open, onOpenChange }: { open: boolean; onOpenChan
         </DialogHeader>
         {!parsed && !error && (
           <div role="button" tabIndex={0} onClick={() => inputRef.current?.click()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) void handleFile(f); }}
-            className="border-2 border-dashed border-border/60 rounded-xl p-8 text-center cursor-pointer hover:border-accent/40 hover:bg-accent/[0.02] transition-all duration-150">
+            className="cursor-pointer rounded-md border border-dashed border-border p-8 text-center transition-colors duration-150 hover:border-foreground/30 hover:bg-muted/40">
             <Upload className="h-8 w-8 mx-auto text-muted-foreground/60" />
             <p className="text-[13px] font-medium mt-2">Click or drop a file</p>
             <p className="text-[11px] text-muted-foreground mt-1">.txt · .md · .docx — up to 2 MB</p>

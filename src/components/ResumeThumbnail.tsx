@@ -12,7 +12,7 @@ import { getTemplate } from '@/lib/templateRegistry';
 export default function ResumeThumbnail({ data }: { data: ResumeData }) {
   const Template = getTemplate(data.template).Component;
   return (
-    <div className="absolute inset-0 overflow-hidden bg-white pointer-events-none select-none">
+    <div className="absolute inset-0 overflow-hidden bg-paper pointer-events-none select-none">
       <div
         style={{
           width: '286%',

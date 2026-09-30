@@ -32,11 +32,11 @@ export default function TemplateTile({ id, data, to, className }: TemplateTilePr
       onPointerMove={spot.onPointerMove}
       onPointerLeave={spot.onPointerLeave}
       className={cn(
-        'group block h-full rounded-xl border border-border/60 bg-card overflow-hidden card-hover interactive-card',
+        'group block h-full overflow-hidden rounded-lg border border-border bg-card transition-colors duration-150 hover:border-foreground/25',
         className,
       )}
     >
-      <div className="relative aspect-[210/297] bg-white overflow-hidden">
+      <div className="relative aspect-[210/297] bg-paper overflow-hidden">
         <ResumeThumbnail data={{ ...data, template: id }} />
       </div>
       <div className="px-3 py-2.5 flex items-center justify-between gap-2">
@@ -45,7 +45,7 @@ export default function TemplateTile({ id, data, to, className }: TemplateTilePr
           <div className="text-[10.5px] text-muted-foreground truncate capitalize">{template.category}</div>
         </div>
         <ArrowRight
-          className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-accent transition-colors shrink-0"
+          className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground"
           aria-hidden
         />
       </div>

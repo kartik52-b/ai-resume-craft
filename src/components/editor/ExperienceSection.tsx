@@ -19,12 +19,12 @@ const ExperienceSection = () => {
   const addBullet = (expId: string) => updateField('experience', resume.experience.map(e => e.id === expId ? { ...e, bullets: [...e.bullets, ''] } : e));
   const removeBullet = (expId: string, idx: number) => updateField('experience', resume.experience.map(e => e.id === expId ? { ...e, bullets: e.bullets.filter((_, i) => i !== idx) } : e));
 
-  const INPUT = "h-9 text-[13px] bg-background/50 border-border/60 focus:border-accent/50 focus:ring-accent/20 transition-colors";
+  const INPUT = "h-9 text-[13px]";
 
   return (
     <div className="space-y-3">
       {resume.experience.map((exp, idx) => (
-        <div key={exp.id} data-entry-id={exp.id} className="p-3.5 bg-secondary/20 border border-border/40 rounded-xl space-y-3 group relative hover:border-border/60 transition-colors">
+        <div key={exp.id} data-entry-id={exp.id} className="group relative space-y-3 rounded-md border border-border bg-muted/30 p-3.5 transition-colors hover:border-foreground/20">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40" />
@@ -66,7 +66,7 @@ const ExperienceSection = () => {
           </div>
         </div>
       ))}
-      <button data-editor-focus-target="add-experience" onClick={addExperience} className="w-full py-3 border-2 border-dashed border-border/60 rounded-xl text-[13px] text-muted-foreground hover:border-accent/30 hover:text-accent/80 hover:bg-accent/[0.02] transition-all duration-150">+ Add Experience</button>
+      <button data-editor-focus-target="add-experience" onClick={addExperience} className="w-full rounded-md border border-dashed border-border py-2.5 text-[12.5px] text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground">+ Add Experience</button>
     </div>
   );
 };

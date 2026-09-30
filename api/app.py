@@ -141,7 +141,7 @@ def rewrite():
         "concise": "Rewrite it to be more concise without losing meaning.",
         "achievement": "Rewrite it to emphasize concrete achievements and results.",
         "grammar": "Fix grammar, spelling and clarity only; keep the wording close to the original.",
-        "ats": "Rewrite it to be clear, factual and ATS-friendly (standard wording, no symbols).",
+        "standard": "Rewrite it to be clear, factual and plainly worded (standard phrasing, no symbols).",
     }
     instruction = mode_instructions.get(mode)
     if not instruction:

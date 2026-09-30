@@ -27,10 +27,10 @@ export default function SectionNav({ activeSection, onSectionClick }: SectionNav
   const order = resolveSectionOrder(resume);
 
   return (
-    <div className="h-full overflow-y-auto scrollbar-thin bg-card border-r border-border/60 flex flex-col">
+    <div className="flex h-full flex-col overflow-y-auto border-r border-border bg-card scrollbar-thin">
       {/* Section list */}
       <div className="flex-1 px-3 py-4 animate-fade-up">
-        <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-2">Resume</div>
+        <div className="nav-group-label px-2 mb-2">Resume</div>
         <div className="space-y-0.5">
           {order.map((id) => {
             const meta = sectionMeta(id);
@@ -44,17 +44,21 @@ export default function SectionNav({ activeSection, onSectionClick }: SectionNav
                 key={id}
                 onClick={() => onSectionClick(id)}
                 className={cn(
-                  'relative w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-all duration-200 ease-premium',
-                  isActive ? 'bg-accent/10 text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30',
+                  'relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors duration-150',
+                  // The selected section is the one place a soft bronze wash is
+                  // allowed in the editor chrome — quiet, but unmistakable.
+                  isActive
+                    ? 'bg-bronze-soft text-foreground'
+                    : 'text-muted-foreground hover:bg-foreground/[0.035] hover:text-foreground',
                 )}
               >
                 {isActive && (
                   <span
                     aria-hidden
-                    className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[2.5px] rounded-full bg-gradient-to-b from-accent to-accent-2 animate-scale-in"
+                    className="absolute left-0 top-1/2 h-4 w-[2.5px] -translate-y-1/2 rounded-full bg-bronze"
                   />
                 )}
-                <Icon className={cn('h-3.5 w-3.5 shrink-0 transition-colors', isActive ? 'text-accent' : 'text-muted-foreground/60')} />
+                <Icon className={cn('h-3.5 w-3.5 shrink-0 transition-colors', isActive ? 'text-bronze' : 'text-muted-foreground/60')} />
                 <span className="flex-1 text-[12px] font-medium truncate">{meta.title}</span>
                 {hidden ? (
                   <EyeOff className="h-3 w-3 text-muted-foreground/40 shrink-0" />

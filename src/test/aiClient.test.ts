@@ -29,7 +29,7 @@ describe('aiClient', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response('{"error":"weird_unknown"}', { status: 500 }),
     );
-    await expect(aiRewrite('text', 'ats')).rejects.toMatchObject({ code: 'unavailable' });
+    await expect(aiRewrite('text', 'standard')).rejects.toMatchObject({ code: 'unavailable' });
   });
 
   it('maps network failures', async () => {

@@ -23,8 +23,9 @@ import { usePrefersReducedMotion } from '@/hooks/useInteraction';
  * - Horizontal trackpad gesture advances a slide; vertical wheel/touch keeps
  *   scrolling the page normally
  * - Touch swipe on mobile, arrow keys on any focused control
- * - Autoplay that pauses on hover, keyboard focus, touch, hidden tabs and via
- *   the pause button; any manual interaction restarts the autoplay timer
+ * - Autoplay that runs continuously and loops 1 → 2 → 3 → 4 → 1 forever, pausing
+ *   on hover, keyboard focus, touch and hidden tabs, and via the pause button;
+ *   any manual interaction restarts the autoplay timer
  * - Honors `prefers-reduced-motion` (no autoplay, no sliding animation)
  * - Fully controlled by the consumer: one child per slide
  */
@@ -36,14 +37,17 @@ export interface CarouselProps {
   ariaLabel: string;
   /** Optional per-slide labels (used for dot aria-labels). */
   slideLabels?: string[];
-  /** Autoplay interval in ms. 0 disables autoplay. Default 6000. */
+  /**
+   * Autoplay interval in ms. 0 disables autoplay. Default 4500 — long enough
+   * to read a slide, short enough that the carousel never looks stalled.
+   */
   autoplayMs?: number;
   /** Slim variant for tight spaces (editor banner, dashboard strip). */
   compact?: boolean;
   className?: string;
 }
 
-const DEFAULT_AUTOPLAY_MS = 6000;
+const DEFAULT_AUTOPLAY_MS = 4500;
 const SWIPE_THRESHOLD_PX = 40;
 const DRAG_THRESHOLD_PX = 8;
 const WHEEL_COOLDOWN_MS = 420;
@@ -223,7 +227,7 @@ export default function Carousel({
       aria-label={ariaLabel}
       className={cn(
         'overflow-hidden',
-        compact ? 'rounded-lg border border-border/60 bg-muted/30' : 'rounded-2xl border border-border/60 bg-card shadow-card',
+        compact ? 'rounded-md border border-border bg-muted/30' : 'rounded-lg border border-border bg-card',
         className,
       )}
       onPointerEnter={(e) => e.pointerType !== 'touch' && setHoverPaused(true)}
@@ -272,7 +276,7 @@ export default function Carousel({
       {/* Controls */}
       <div
         className={cn(
-          'flex items-center justify-between gap-3 border-t border-border/60 bg-muted/20',
+          'flex items-center justify-between gap-3 border-t border-border bg-muted/20',
           compact ? 'px-3 py-1.5' : 'px-5 sm:px-8 py-3.5',
         )}
       >

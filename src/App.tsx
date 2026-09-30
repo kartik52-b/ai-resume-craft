@@ -6,9 +6,9 @@ import { ResumeProvider, useResume } from "@/context/ResumeContext";
 import { ThemeProvider, useTheme } from "next-themes";
 import TemplatePickerDialog from "@/components/TemplatePickerDialog";
 import {
-  LayoutDashboard, Palette,
-  Settings, PenLine, PanelLeftClose, PanelLeft, Sun, Moon, Monitor,
-  ArrowLeft, Undo2, Redo2, Download, Search, ChevronRight, FilePlus2,
+  Home, FileText, PenLine, LayoutTemplate, Plus,
+  Settings, PanelLeftClose, PanelLeft, Sun, Moon, Monitor,
+  Undo2, Redo2, Download, ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,19 +27,17 @@ const TemplatesPage = React.lazy(() => import("./pages/TemplatesPage.tsx"));
 function PageLoader() {
   return (
     <div className="flex-1 p-8 space-y-4">
-      <Skeleton className="h-7 w-48 rounded-md" />
-      <Skeleton className="h-4 w-64 rounded-md" />
-      <Skeleton className="h-[500px] w-full rounded-lg" />
+      <Skeleton className="h-6 w-44 rounded-md" />
+      <Skeleton className="h-3.5 w-60 rounded-md" />
+      <Skeleton className="h-[480px] w-full rounded-lg" />
     </div>
   );
 }
 
 /**
- * Route transition.
- *
- * Keyed on the pathname so each navigation replays a short rise-and-fade.
- * Deliberately CSS-only and very short (340ms) — it must never make navigation
- * feel slow, and reduced-motion visitors get an instant swap.
+ * Route transition — keyed on the pathname so each navigation replays a short
+ * rise-and-fade. Deliberately CSS-only and short; reduced-motion visitors get
+ * an instant swap.
  */
 function PageTransition({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
@@ -54,51 +52,76 @@ const NAV_GROUPS = [
   {
     label: "Workspace",
     items: [
-      { href: "/", icon: LayoutDashboard, label: "Home" },
+      { href: "/", icon: Home, label: "Home" },
+      { href: "/resumes", icon: FileText, label: "My Resumes" },
       { href: "/editor", icon: PenLine, label: "Resume Editor" },
-      { href: "/resumes", icon: LayoutDashboard, label: "My Resumes" },
-      { href: "/create", icon: FilePlus2, label: "Create Resume" },
     ],
   },
   {
     label: "Design",
     items: [
-      { href: "/templates", icon: Palette, label: "Templates" },
+      { href: "/templates", icon: LayoutTemplate, label: "Templates" },
     ],
   },
 ];
 
-const BOTTOM_NAV = [
-  { href: "/settings", icon: Settings, label: "Settings" },
-];
+function BrandMark({ collapsed }: { collapsed: boolean }) {
+  return (
+    <Link
+      to="/"
+      className={cn("flex items-center gap-2.5 min-w-0 group", collapsed && "justify-center")}
+      aria-label="AI Resume Craft — home"
+    >
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-foreground text-background font-display text-[15px] leading-none pb-0.5">
+        A
+      </span>
+      {!collapsed && (
+        <span className="min-w-0">
+          <span className="block font-display text-[15px] font-semibold leading-tight text-foreground truncate">
+            AI Resume Craft
+          </span>
+          <span className="block text-[10.5px] text-muted-foreground truncate">
+            Resumes, designed properly
+          </span>
+        </span>
+      )}
+    </Link>
+  );
+}
 
 function Sidebar({ onNav, collapsed, onToggle }: { onNav?: () => void; collapsed: boolean; onToggle: () => void }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const isActive = (href: string) =>
     href === "/" ? location.pathname === "/" : location.pathname.startsWith(href);
 
   return (
     <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className={cn("flex items-center gap-2.5 shrink-0 border-b border-white/[0.06]", collapsed ? "px-3 py-4 justify-center" : "px-5 py-4")}>
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center shrink-0 shadow-sm shadow-accent/30">
-          <span className="text-white text-[11px] font-bold tracking-tight">AI</span>
-        </div>
-        {!collapsed && (
-          <div className="min-w-0">
-            <span className="text-[14px] font-bold tracking-tight text-white block leading-tight">AI Resume Craft</span>
-            <span className="text-[10px] text-white/30 font-medium">Build a resume that gets noticed.</span>
-          </div>
-        )}
+      {/* Brand */}
+      <div className={cn("shrink-0 border-b border-sidebar-border", collapsed ? "px-3 py-4" : "px-4 py-4")}>
+        <BrandMark collapsed={collapsed} />
+      </div>
+
+      {/* Primary action */}
+      <div className={cn("px-3 pt-4", collapsed && "px-2")}>
+        <button
+          onClick={() => { onNav?.(); navigate("/create"); }}
+          className={cn(
+            "w-full inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground text-[13px] font-medium transition-colors hover:bg-primary/88",
+            collapsed ? "h-9 px-0" : "h-9 px-3",
+          )}
+          title={collapsed ? "Create resume" : undefined}
+        >
+          <Plus className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Create resume</span>}
+        </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-2.5 py-3 space-y-3 overflow-y-auto scrollbar-thin" aria-label="Main navigation" role="navigation">
+      <nav className="flex-1 px-3 py-5 space-y-5 overflow-y-auto scrollbar-thin" aria-label="Main navigation" role="navigation">
         {NAV_GROUPS.map((group) => (
           <div key={group.label}>
-            {!collapsed && (
-              <div className="px-3 mb-1.5 nav-group-label">{group.label}</div>
-            )}
+            {!collapsed && <div className="px-2.5 mb-1.5 nav-group-label">{group.label}</div>}
             <div className="space-y-0.5">
               {group.items.map(({ href, icon: Icon, label }) => {
                 const active = isActive(href);
@@ -108,35 +131,27 @@ function Sidebar({ onNav, collapsed, onToggle }: { onNav?: () => void; collapsed
                     to={href}
                     onClick={onNav}
                     title={collapsed ? label : undefined}
-                    aria-current={active ? 'page' : undefined}
+                    aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative flex items-center gap-2.5 rounded-lg transition-all duration-200 ease-premium",
-                      collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2",
+                      "relative flex items-center gap-2.5 rounded-md transition-colors duration-150",
+                      collapsed ? "justify-center px-2 py-2.5" : "px-2.5 py-2",
                       active
-                        ? "bg-accent/[0.14] text-white shadow-sm shadow-accent/10"
-                        : "text-white/50 hover:text-white/85 hover:bg-white/[0.05] hover:translate-x-0.5",
+                        ? "bg-foreground/[0.055] text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.035]",
                     )}
                   >
-                    {/* Active route indicator — grows in on every navigation. */}
+                    {/* Active indicator — the one place bronze appears in the nav. */}
                     {active && (
                       <span
                         aria-hidden
-                        className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-gradient-to-b from-accent to-accent-2 animate-scale-in"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[2.5px] rounded-full bg-bronze"
                       />
                     )}
-                    <Icon
-                      className={cn(
-                        "shrink-0 transition-transform duration-200",
-                        active ? "h-[18px] w-[18px] text-accent" : "h-4 w-4",
-                      )}
-                    />
+                    <Icon className="h-4 w-4 shrink-0" />
                     {!collapsed && (
                       <span className={cn("text-[13px] truncate", active ? "font-medium" : "font-normal")}>
                         {label}
                       </span>
-                    )}
-                    {active && !collapsed && (
-                      <div className="ml-auto h-1.5 w-1.5 rounded-full bg-accent shrink-0 animate-pulse-dot" />
                     )}
                   </Link>
                 );
@@ -146,38 +161,34 @@ function Sidebar({ onNav, collapsed, onToggle }: { onNav?: () => void; collapsed
         ))}
       </nav>
 
-      {/* Bottom section */}
-      <div className="mt-auto">
-        <div className="px-2.5 pb-2 space-y-0.5">
-          {BOTTOM_NAV.map(({ href, icon: Icon, label }) => {
-            const active = isActive(href);
-            return (
-              <Link
-                key={href}
-                to={href}
-                onClick={onNav}
-                title={collapsed ? label : undefined}
-                aria-current={active ? 'page' : undefined}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-lg transition-all duration-150",
-                  collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2",
-                  active
-                    ? "bg-white/[0.08] text-white"
-                    : "text-white/35 hover:text-white/65 hover:bg-white/[0.04]",
-                )}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                {!collapsed && <span className="text-[13px]">{label}</span>}
-              </Link>
-            );
-          })}
+      {/* Footer */}
+      <div className="mt-auto border-t border-sidebar-border">
+        <div className={cn("px-3 py-3", collapsed && "px-2")}>
+          <Link
+            to="/settings"
+            onClick={onNav}
+            title={collapsed ? "Settings" : undefined}
+            aria-current={isActive("/settings") ? "page" : undefined}
+            className={cn(
+              "relative flex items-center gap-2.5 rounded-md transition-colors duration-150",
+              collapsed ? "justify-center px-2 py-2.5" : "px-2.5 py-2",
+              isActive("/settings")
+                ? "bg-foreground/[0.055] text-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.035]",
+            )}
+          >
+            {isActive("/settings") && (
+              <span aria-hidden className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[2.5px] rounded-full bg-bronze" />
+            )}
+            <Settings className="h-4 w-4 shrink-0" />
+            {!collapsed && <span className="text-[13px]">Settings</span>}
+          </Link>
         </div>
 
-        {/* Collapse + Theme */}
-        <div className={cn("flex items-center border-t border-white/[0.06]", collapsed ? "flex-col gap-1 px-1.5 py-2" : "justify-between px-3 py-3")}>
+        <div className={cn("flex items-center border-t border-sidebar-border", collapsed ? "flex-col gap-1 px-1.5 py-2" : "justify-between px-3 py-2.5")}>
           <button
             onClick={onToggle}
-            className="flex items-center gap-2 rounded-lg text-white/25 hover:text-white/60 hover:bg-white/[0.04] transition-colors px-2 py-1.5"
+            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-foreground/[0.035] transition-colors"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
@@ -192,9 +203,7 @@ function Sidebar({ onNav, collapsed, onToggle }: { onNav?: () => void; collapsed
 
 function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { resume, canUndo, canRedo, undo, redo, saveStatus, renameResumeAction } = useResume();
-  const { theme, setTheme } = useTheme();
+  const { resume, canUndo, canRedo, undo, redo, renameResumeAction } = useResume();
   const isEditor = location.pathname === "/editor";
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(resume.title);
@@ -206,7 +215,7 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
     setEditingTitle(false);
   }, [titleValue, resume.id, resume.title, renameResumeAction]);
 
-  const breadcrumbs = useCallback(() => {
+  const crumbs = useCallback(() => {
     const parts: { label: string; href?: string; editable?: boolean }[] = [];
     if (location.pathname === "/editor") {
       parts.push({ label: "Resumes", href: "/resumes" });
@@ -220,22 +229,19 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
     } else if (location.pathname === "/") {
       parts.push({ label: "Home" });
     } else {
-      parts.push({ label: "Not Found" });
+      parts.push({ label: "Not found" });
     }
     return parts;
   }, [location.pathname, resume.title]);
 
-  const crumbs = breadcrumbs();
-
-  const nextTheme = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
-  const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
+  const crumbsList = crumbs();
 
   return (
-    <div className="relative z-20 h-12 shrink-0 border-b border-border/60 bg-card/75 backdrop-blur-xl flex items-center justify-between px-4 gap-4">
-      {/* Left: Breadcrumbs + mobile trigger */}
-      <div className="flex items-center gap-3 min-w-0">
+    <div className="relative z-20 h-12 shrink-0 border-b border-border bg-card flex items-center justify-between px-3 lg:px-4 gap-4">
+      {/* Left: mobile trigger + breadcrumbs */}
+      <div className="flex items-center gap-2.5 min-w-0">
         <button
-          className="lg:hidden h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          className="lg:hidden h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           onClick={onMobileMenuOpen}
           aria-label="Open navigation"
         >
@@ -243,10 +249,10 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
             <path d="M2 4h12M2 8h12M2 12h12" />
           </svg>
         </button>
-        <nav className="flex items-center gap-1 text-[13px] min-w-0">
-          {crumbs.map((crumb, i) => (
+        <nav className="flex items-center gap-1 text-[13px] min-w-0" aria-label="Breadcrumb">
+          {crumbsList.map((crumb, i) => (
             <React.Fragment key={i}>
-              {i > 0 && <ChevronRight className="h-3 w-3 text-muted-foreground/50 shrink-0" />}
+              {i > 0 && <ChevronRight className="h-3 w-3 text-muted-foreground/60 shrink-0" />}
               {crumb.href ? (
                 <Link to={crumb.href} className="text-muted-foreground hover:text-foreground transition-colors truncate">{crumb.label}</Link>
               ) : crumb.editable && editingTitle ? (
@@ -256,13 +262,13 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
                   onChange={(e) => setTitleValue(e.target.value)}
                   onBlur={handleTitleSubmit}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleTitleSubmit(); if (e.key === 'Escape') { setTitleValue(resume.title); setEditingTitle(false); } }}
-                  className="text-foreground font-medium text-[13px] bg-muted/50 rounded px-1.5 py-0.5 outline-none focus:ring-2 focus:ring-accent/30 min-w-[120px] max-w-[200px]"
+                  className="text-foreground font-medium text-[13px] bg-muted rounded px-1.5 py-0.5 outline-none focus:ring-2 focus:ring-ring/40 min-w-[120px] max-w-[220px]"
                   aria-label="Resume title"
                 />
               ) : crumb.editable ? (
                 <button
                   onClick={() => { setTitleValue(resume.title); setEditingTitle(true); }}
-                  className="text-foreground font-medium truncate hover:text-accent transition-colors cursor-text"
+                  className="text-foreground font-medium truncate hover:text-bronze transition-colors cursor-text"
                   title="Click to rename"
                 >
                   {crumb.label}
@@ -275,71 +281,60 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
         </nav>
       </div>
 
-      {/* Right: Actions */}
+      {/* Right: editor actions */}
       <div className="flex items-center gap-1 shrink-0">
         {isEditor && (
           <>
-            <button onClick={undo} disabled={!canUndo} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-30" aria-label="Undo" title="Undo">
+            <button onClick={undo} disabled={!canUndo} className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:hover:bg-transparent" aria-label="Undo" title="Undo">
               <Undo2 className="h-4 w-4" />
             </button>
-            <button onClick={redo} disabled={!canRedo} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-30" aria-label="Redo" title="Redo">
+            <button onClick={redo} disabled={!canRedo} className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:hover:bg-transparent" aria-label="Redo" title="Redo">
               <Redo2 className="h-4 w-4" />
             </button>
-            <div className="h-5 w-px bg-border/60 mx-1" />
-            <SaveStatusIndicator />
-            <div className="h-5 w-px bg-border/60 mx-1" />
+            <div className="h-5 w-px bg-border mx-1 hidden sm:block" />
+            <div className="hidden sm:block"><SaveStatusIndicator /></div>
+            <div className="h-5 w-px bg-border mx-1 hidden sm:block" />
             <button
               onClick={() => setTemplatePickerOpen(true)}
-              className="h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-              title="Change the design of this resume"
+              className="hidden md:flex h-8 px-2.5 rounded-md items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="Change this resume's design"
             >
-              <Palette className="h-3.5 w-3.5" /> Change Template
+              <LayoutTemplate className="h-3.5 w-3.5" /> Design
             </button>
-            <div className="h-5 w-px bg-border/60 mx-1" />
+            <div className="h-5 w-px bg-border mx-1 hidden md:block" />
             <button
               onClick={() => { try { downloadResumePdf(resume); toast.success("PDF exported"); } catch { toast.error("Export failed"); } }}
-              className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-[12px] font-medium flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+              className="h-8 px-3 rounded-md bg-primary text-primary-foreground text-[12px] font-medium flex items-center gap-1.5 hover:bg-primary/88 transition-colors"
             >
-              <Download className="h-3.5 w-3.5" /> Export PDF
+              <Download className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Export</span> PDF
             </button>
             <TemplatePickerDialog open={templatePickerOpen} onOpenChange={setTemplatePickerOpen} />
           </>
         )}
-        <div className="h-5 w-px bg-border/60 mx-1" />
-        <button
-          onClick={() => setTheme(nextTheme)}
-          className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          aria-label="Toggle theme"
-          title={`Theme: ${theme}`}
-        >
-          <ThemeIcon className="h-4 w-4" />
-        </button>
+        <div className="h-5 w-px bg-border mx-1" />
+        <ThemeToggle />
       </div>
     </div>
   );
 }
 
-function ThemeToggleInner() {
+function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
-  if (!mounted) return <button className="h-6 w-6" />;
+  if (!mounted) return <span className="h-8 w-8 inline-block" />;
   const next = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
-  const icon = theme === "dark" ? <Moon className="h-3.5 w-3.5" /> : theme === "light" ? <Sun className="h-3.5 w-3.5" /> : <Monitor className="h-3.5 w-3.5" />;
+  const Icon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
   return (
     <button
       onClick={() => setTheme(next)}
-      className="h-7 w-7 rounded-md flex items-center justify-center text-white/30 hover:text-white/70 hover:bg-white/[0.04] transition-colors"
+      className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
       aria-label="Toggle theme"
-      title={`Theme: ${theme} (click to switch to ${next})`}
+      title={`Theme: ${theme} — click to switch to ${next}`}
     >
-      {icon}
+      <Icon className="h-4 w-4" />
     </button>
   );
-}
-
-function ThemeToggle() {
-  return <ThemeToggleInner />;
 }
 
 function ShellLayout({ children }: { children: React.ReactNode }) {
@@ -348,34 +343,30 @@ function ShellLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Desktop sidebar — a subtle cyan rim marks the active route column. */}
+      {/* Desktop rail */}
       <aside
         className={cn(
-          "hidden lg:flex shrink-0 bg-sidebar border-r border-white/[0.06] flex-col transition-[width] duration-300 ease-premium relative",
-          sidebarCollapsed ? "w-[60px]" : "w-[240px]",
+          "hidden lg:flex shrink-0 bg-sidebar border-r border-sidebar-border flex-col transition-[width] duration-200 ease-premium",
+          sidebarCollapsed ? "w-[64px]" : "w-[236px]",
         )}
       >
         <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(v => !v)} />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-accent/25 to-transparent"
-        />
       </aside>
 
-      {/* Mobile sidebar overlay */}
+      {/* Mobile rail */}
       {mobileOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/55 backdrop-blur-sm lg:hidden animate-fade-in"
+            className="fixed inset-0 z-40 bg-foreground/25 lg:hidden animate-fade-in"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="fixed inset-y-0 left-0 z-50 w-[260px] bg-sidebar lg:hidden animate-drawer-in shadow-modal">
+          <aside className="fixed inset-y-0 left-0 z-50 w-[264px] bg-sidebar lg:hidden animate-drawer-in shadow-modal">
             <Sidebar collapsed={false} onToggle={() => setMobileOpen(false)} onNav={() => setMobileOpen(false)} />
           </aside>
         </>
       )}
 
-      {/* Content area */}
+      {/* Content */}
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
         <TopBar onMobileMenuOpen={() => setMobileOpen(true)} />
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:bg-primary focus:text-primary-foreground focus:px-3 focus:py-1.5 focus:rounded-md focus:text-sm">
@@ -400,7 +391,6 @@ const App = () => (
     <TooltipProvider>
       <Sonner
         toastOptions={{
-          className: "dark:bg-card dark:text-card-foreground dark:border-border/40",
           style: {
             fontSize: "13px",
             fontFamily: "'Inter', system-ui, sans-serif",
@@ -411,17 +401,17 @@ const App = () => (
         <BrowserRouter>
           <ShellLayout>
             <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/create" element={<Onboarding />} />
-            <Route path="/editor" element={<Index />} />
-            <Route path="/resumes" element={<Dashboard />} />
-            <Route path="/templates" element={<TemplatesPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </ShellLayout>
-      </BrowserRouter>
-    </ResumeProvider>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/create" element={<Onboarding />} />
+              <Route path="/editor" element={<Index />} />
+              <Route path="/resumes" element={<Dashboard />} />
+              <Route path="/templates" element={<TemplatesPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ShellLayout>
+        </BrowserRouter>
+      </ResumeProvider>
     </TooltipProvider>
   </ThemeProvider>
 );

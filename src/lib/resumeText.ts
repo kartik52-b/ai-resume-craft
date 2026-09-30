@@ -3,7 +3,7 @@ import { resolveSectionOrder, isSectionHidden, sectionMeta } from '@/lib/section
 
 /**
  * Converts a resume into structured plain text. Shared by the AI summary
- * generator, the ATS analyzer, job matching and the PDF engine so every
+ * generator and the PDF engine so every
  * consumer sees the same section order and visibility rules.
  */
 export interface ResumeTextSection {

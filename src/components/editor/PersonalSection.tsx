@@ -35,7 +35,7 @@ const PersonalSection = () => {
               <Icon className="h-3 w-3 opacity-50" />{label}
             </Label>
             <Input data-editor-focus-target={key} value={p[key]} onChange={(e) => updatePersonal(key, e.target.value)} placeholder={placeholder}
-              className="h-9 text-[13px] bg-background/50 border-border/60 focus:border-accent/50 focus:ring-accent/20 transition-colors" />
+              className="h-9 text-[13px]" />
           </div>
         ))}
       </div>
@@ -47,7 +47,7 @@ const PersonalSection = () => {
         <div className="relative">
           <Textarea value={p.summary} onChange={(e) => updatePersonal('summary', e.target.value)}
             placeholder="Experienced software engineer with 5+ years..."
-            className="text-[13px] bg-background/50 border-border/60 resize-none min-h-[80px] pr-2 focus:border-accent/50 focus:ring-accent/20 transition-colors" />
+            className="min-h-[80px] resize-none pr-2 text-[13px]" />
           <div className="flex justify-end mt-0.5">
             <AiToolbar text={p.summary} onAccept={(text) => updatePersonal('summary', text)} />
           </div>

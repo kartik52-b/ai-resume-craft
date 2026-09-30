@@ -57,7 +57,7 @@ export default function TemplatePickerDialog({ open, onOpenChange }: TemplatePic
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 gap-0">
-        <DialogHeader className="px-5 pt-5 pb-3 border-b border-border/60">
+        <DialogHeader className="border-b border-border px-5 pb-3 pt-5">
           <DialogTitle className="text-[15px]">Change template</DialogTitle>
           <p className="text-[12px] text-muted-foreground">Your resume content stays exactly the same — only the design changes.</p>
           <div className="relative mt-2">
@@ -68,7 +68,7 @@ export default function TemplatePickerDialog({ open, onOpenChange }: TemplatePic
             {FILTERS.map((f) => (
               <button key={f.value} onClick={() => setActiveFilter(f.value)}
                 className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap transition-all duration-150",
-                  activeFilter === f.value ? "bg-accent text-accent-foreground shadow-sm" : "bg-secondary text-secondary-foreground hover:bg-secondary/80")}>
+                  activeFilter === f.value ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:text-foreground")}>
                 {f.label}
               </button>
             ))}
@@ -80,18 +80,18 @@ export default function TemplatePickerDialog({ open, onOpenChange }: TemplatePic
               const isCurrent = resume.template === t.id;
               return (
                 <div key={t.id} className={cn("group relative rounded-lg border bg-card overflow-hidden transition-all duration-150 cursor-pointer",
-                  isCurrent ? "border-accent/50 ring-1 ring-accent/20" : "border-border/60 hover:border-border hover:shadow-sm")}
+                  isCurrent ? "border-bronze" : "border-border hover:border-foreground/30")}
                   onClick={() => !isCurrent && handleSelect(t.id, t.label)}>
                   <div className="relative h-36 bg-muted/20 overflow-hidden flex items-start justify-center pt-3">
                     <div className="relative w-[90px] h-[127px] shadow-sm rounded-sm overflow-hidden border border-border/20 transition-transform duration-150 group-hover:scale-[1.03]">
                       <ResumeThumbnail data={{ ...sample, template: t.id }} />
                     </div>
-                    {isCurrent && <span className="absolute top-1.5 right-1.5 flex items-center gap-0.5 text-[9px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full"><CheckCircle2 className="h-2.5 w-2.5" /> Active</span>}
+                    {isCurrent && <span className="absolute right-1.5 top-1.5 flex items-center gap-0.5 rounded bg-bronze px-1.5 py-0.5 text-[9px] font-medium text-bronze-foreground"><CheckCircle2 className="h-2.5 w-2.5" /> Active</span>}
                   </div>
                   <div className="p-3">
                     <div className="flex items-center justify-between mb-0.5">
                       <h3 className="text-[12px] font-semibold truncate">{t.label}</h3>
-                      <Badge variant="outline" className="text-[8px] border-border/60 text-muted-foreground shrink-0 capitalize">{t.category}</Badge>
+                      <Badge variant="outline" className="shrink-0 border-border text-[8px] capitalize text-muted-foreground">{t.category}</Badge>
                     </div>
                     <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">{t.description}</p>
                   </div>

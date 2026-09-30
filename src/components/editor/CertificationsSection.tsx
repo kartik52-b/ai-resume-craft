@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { createEmptyCertification } from '@/types/resume';
 import { Trash2 } from 'lucide-react';
 
-const INPUT = "h-9 text-[13px] bg-background/50 border-border/60 focus:border-accent/50 focus:ring-accent/20 transition-colors";
+const INPUT = "h-9 text-[13px]";
 
 const CertificationsSection = () => {
   const { resume, updateField } = useResume();
@@ -16,7 +16,7 @@ const CertificationsSection = () => {
   return (
     <div className="space-y-3">
       {resume.certifications.map((cert) => (
-        <div key={cert.id} data-entry-id={cert.id} className="p-3.5 bg-secondary/20 border border-border/40 rounded-xl space-y-3 group relative hover:border-border/60 transition-colors">
+        <div key={cert.id} data-entry-id={cert.id} className="group relative space-y-3 rounded-md border border-border bg-muted/30 p-3.5 transition-colors hover:border-foreground/20">
           <div className="flex justify-end"><Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive transition-colors" onClick={() => removeCert(cert.id)}><Trash2 className="h-3.5 w-3.5" /></Button></div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">Name</Label><Input value={cert.name} onChange={e => updateCert(cert.id, 'name', e.target.value)} placeholder="AWS Solutions Architect" className={INPUT} /></div>
@@ -26,7 +26,7 @@ const CertificationsSection = () => {
           </div>
         </div>
       ))}
-      <button onClick={addCert} className="w-full py-3 border-2 border-dashed border-border/60 rounded-xl text-[13px] text-muted-foreground hover:border-accent/30 hover:text-accent/80 hover:bg-accent/[0.02] transition-all duration-150">+ Add Certification</button>
+      <button onClick={addCert} className="w-full rounded-md border border-dashed border-border py-2.5 text-[12.5px] text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground">+ Add Certification</button>
     </div>
   );
 };

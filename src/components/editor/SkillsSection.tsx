@@ -17,7 +17,7 @@ const SkillsSection = () => {
     <div className="space-y-3">
       <div className="flex gap-2">
         <Input data-editor-focus-target="skills-input" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="Type a skill and press Enter"
-          className="h-9 text-[13px] bg-background/50 border-border/60 focus:border-accent/50 focus:ring-accent/20 transition-colors flex-1" />
+          className="h-9 flex-1 text-[13px]" />
         <Button variant="secondary" size="sm" onClick={addSkill} className="h-9 text-[12px] px-3"><Plus className="h-3 w-3 mr-1" /> Add</Button>
       </div>
       <div className="flex flex-wrap gap-1.5">

@@ -10,7 +10,7 @@ export interface ValidationIssue {
 
 /**
  * Deterministic validation for the resume. Returns issues with actionable
- * messages. Used by the editor for inline hints and by the ATS analyzer.
+ * messages. Used by the editor for inline hints and section completeness.
  */
 export function validateResume(resume: ResumeData): ValidationIssue[] {
   const issues: ValidationIssue[] = [];

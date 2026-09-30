@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400..700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,157 +6,168 @@
 
 @layer base {
   /* ══════════════════════════════════════════════════════════════════════
-     Design tokens — "deep ink & electric cyan"
+     Design tokens — "warm paper & antique bronze"
 
-     One system for the whole product: a deep ink canvas, a single controlled
-     cyan accent for interaction, a violet highlight used only for gradients,
-     and layered surfaces (background → workspace → card → raised).
-     Contrast (WCAG AA): ink on canvas ≈ 15:1, muted text ≈ 5:1,
-     white on the primary button ≈ 5.5:1, focus ring ≈ 3:1 against surfaces.
+     An editorial document studio: warm ivory paper, soft ivory cards, near
+     black ink for interaction, and a single antique bronze used sparingly for
+     selected and important states. Teal and coral exist only as secondary
+     signals (assistance ready, validation). No neon, no glow, no gradient UI.
+
+     Contrast (WCAG AA): ink on ivory ≈ 16:1, secondary text ≈ 7:1,
+     paper on the primary fill ≈ 16:1, bronze on paper ≈ 4.8:1.
      ══════════════════════════════════════════════════════════════════════ */
   :root {
-    /* ── Light Surface System ── */
-    --background: 210 32% 98.5%;
-    --foreground: 224 47% 11%;
+    /* ── Surfaces ── */
+    --background: 42 31% 94%;        /* #F4F1EA warm ivory */
+    --foreground: 45 3% 9%;          /* #181817 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 224 47% 11%;
+    --card: 43 100% 99%;             /* #FFFDF8 paper */
+    --card-foreground: 45 3% 9%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 47% 11%;
+    --popover: 43 100% 99%;
+    --popover-foreground: 45 3% 9%;
 
-    --primary: 190 92% 30%;
-    --primary-foreground: 0 0% 100%;
+    /* ── Interaction: warm near-black ink ── */
+    --primary: 45 3% 9%;
+    --primary-foreground: 43 100% 99%;
 
-    --secondary: 210 30% 95.5%;
-    --secondary-foreground: 224 40% 18%;
+    --secondary: 40 29% 92%;         /* #F0ECE4 */
+    --secondary-foreground: 40 12% 15%;
 
-    --accent: 190 92% 31%;
-    --accent-foreground: 0 0% 100%;
-    /* Violet highlight — gradients and glows only, never for text on light. */
-    --accent-2: 262 80% 58%;
+    --accent: 45 3% 9%;              /* active nav, links, selection */
+    --accent-foreground: 43 100% 99%;
 
-    --muted: 210 30% 95.5%;
-    --muted-foreground: 218 15% 44%;
+    /* ── Brand accent: antique bronze (used sparingly) ── */
+    --bronze: 26 36% 48%;            /* #A8754F */
+    --bronze-hover: 25 40% 38%;      /* #865A3A */
+    --bronze-foreground: 43 100% 99%;
+    --bronze-soft: 34 42% 88%;       /* #EEE3D5 */
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    /* ── Secondary accents: muted teal + muted coral (extremely sparing) ── */
+    --teal: 176 43% 33%;             /* #2F7772 */
+    --teal-foreground: 43 100% 99%;
+    --coral: 9 58% 56%;              /* #C4685A — text/border safe on ivory */
+    --coral-foreground: 45 3% 9%;
 
-    --border: 214 24% 89%;
-    --input: 214 24% 89%;
-    --ring: 190 92% 38%;
+    --muted: 40 29% 92%;
+    --muted-foreground: 40 6% 42%;   /* #706C64 */
 
-    --radius: 0.75rem;
+    --destructive: 9 52% 44%;        /* the coral family, at error contrast */
+    --destructive-foreground: 43 100% 99%;
 
-    --workspace: 212 30% 96.5%;
-    --canvas: 0 0% 100%;
-    --surface-raised: 0 0% 100%;
-    --surface-glass: 0 0% 100%;
+    --border: 39 20% 84%;            /* #DED8CD */
+    --border-strong: 37 19% 77%;     /* #CFC6B8 */
+    --input: 39 20% 84%;
+    --ring: 26 36% 42%;
 
-    /* Deep gradient stays dark in both themes so button text keeps contrast. */
-    --gradient-from: 189 94% 28%;
-    --gradient-to: 262 78% 55%;
-    --gradient-foreground: 0 0% 100%;
+    /* Product controls feel tighter than consumer SaaS: 6 / 7 / 8 / 12px. */
+    --radius: 0.5rem;
+    --radius-sm: 0.375rem;
+    --radius-field: 0.4375rem;
+    --radius-lg: 0.75rem;
 
-    --ai-accent: 190 92% 31%;
-    --ai-accent-soft: 190 92% 96%;
-    --ai-glow: 190 92% 80%;
+    --workspace: 40 29% 92%;         /* #F0ECE4 */
+    --paper: 43 100% 99%;            /* #FFFDF8 — the A4 document itself */
+    --canvas: 43 100% 99%;
+    --surface-raised: 43 100% 99%;
 
-    --success: 162 84% 32%;
-    --success-foreground: 0 0% 100%;
-    --warning: 32 92% 45%;
-    --warning-foreground: 0 0% 100%;
-    --info: 199 89% 44%;
-    --info-foreground: 0 0% 100%;
+    --success: 176 40% 30%;
+    --success-foreground: 43 100% 99%;
+    --warning: 26 58% 38%;
+    --warning-foreground: 43 100% 99%;
+    --info: 40 6% 35%;
+    --info-foreground: 43 100% 99%;
 
-    /* ── Sidebar — always the deep ink rail, in both themes ── */
-    --sidebar-background: 226 47% 6%;
-    --sidebar-foreground: 215 22% 72%;
-    --sidebar-primary: 187 92% 55%;
-    --sidebar-primary-foreground: 226 60% 7%;
-    --sidebar-accent: 224 34% 13%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 224 30% 12%;
-    --sidebar-ring: 187 92% 55%;
+    /* ── Sidebar: the ivory rail, a shade deeper than the canvas ── */
+    --sidebar-background: 41 29% 92%;
+    --sidebar-foreground: 40 6% 36%;
+    --sidebar-primary: 45 3% 9%;
+    --sidebar-primary-foreground: 43 100% 99%;
+    --sidebar-accent: 45 3% 9%;
+    --sidebar-accent-foreground: 45 3% 9%;
+    --sidebar-border: 39 20% 85%;
+    --sidebar-ring: 26 36% 42%;
 
-    --shadow-xs: 0 1px 2px rgba(12,22,40,.04);
-    --shadow-sm: 0 1px 3px rgba(12,22,40,.06), 0 1px 2px rgba(12,22,40,.04);
-    --shadow-md: 0 6px 16px -6px rgba(12,22,40,.12), 0 2px 6px -2px rgba(12,22,40,.06);
-    --shadow-lg: 0 16px 32px -12px rgba(12,22,40,.16), 0 6px 12px -6px rgba(12,22,40,.06);
-    --shadow-xl: 0 28px 56px -20px rgba(12,22,40,.22), 0 12px 20px -12px rgba(12,22,40,.08);
-    --shadow-glow: 0 0 0 1px hsl(var(--accent) / .12), 0 0 24px hsl(var(--accent) / .10);
-    --canvas-shadow: 0 1px 3px rgba(12,22,40,.04), 0 4px 12px rgba(12,22,40,.06), 0 16px 40px rgba(12,22,40,.05);
+    /* ── Elevation: warm, restrained, paper-forward ── */
+    --shadow-xs: 0 1px 1px rgba(40,35,30,.04);
+    --shadow-sm: 0 1px 2px rgba(70,60,45,.05), 0 2px 6px rgba(70,60,45,.04);
+    --shadow-md: 0 6px 20px rgba(70,60,45,.08);
+    --shadow-lg: 0 10px 30px rgba(70,60,45,.10), 0 2px 6px rgba(70,60,45,.05);
+    --shadow-xl: 0 24px 56px rgba(40,35,30,.14), 0 6px 16px rgba(40,35,30,.07);
+    --shadow-inset: inset 0 1px 3px rgba(40,35,30,.06);
+    --canvas-shadow: 0 1px 2px rgba(30,25,20,.05), 0 10px 24px rgba(30,25,20,.08), 0 20px 50px rgba(30,25,20,.12);
   }
 
-  /* ── Dark Mode — the deep ink canvas the light theme is a mirror of ── */
+  /* "Black paper" — the same warm system, printed at night.
+     The A4 document stays real paper in both themes. */
   .dark {
-    --background: 224 44% 5%;
-    --foreground: 210 40% 96%;
+    --background: 40 10% 6%;         /* #11100E */
+    --foreground: 42 32% 92%;        /* #F1EDE4 */
 
-    --card: 224 36% 8.5%;
-    --card-foreground: 210 40% 96%;
+    --card: 40 7% 9%;                /* #181715 */
+    --card-foreground: 42 32% 92%;
 
-    --popover: 224 38% 9.5%;
-    --popover-foreground: 210 40% 96%;
+    --popover: 40 10% 11%;           /* #201E1A elevated */
+    --popover-foreground: 42 32% 92%;
 
-    /* Electric cyan — dark text keeps AA contrast on the bright fill. */
-    --primary: 187 92% 55%;
-    --primary-foreground: 226 60% 7%;
+    --primary: 42 32% 92%;
+    --primary-foreground: 40 10% 8%;
 
-    --secondary: 224 30% 13%;
-    --secondary-foreground: 210 25% 88%;
+    --secondary: 40 10% 11%;         /* #201E1A */
+    --secondary-foreground: 42 25% 88%;
 
-    --accent: 187 92% 55%;
-    --accent-foreground: 226 60% 7%;
-    --accent-2: 262 84% 68%;
+    --accent: 42 32% 92%;
+    --accent-foreground: 40 10% 8%;
 
-    --muted: 224 28% 14%;
-    --muted-foreground: 215 18% 64%;
+    --bronze: 33 35% 53%;            /* #B08A5C */
+    --bronze-hover: 33 40% 59%;      /* #C09A6B */
+    --bronze-foreground: 40 10% 8%;
+    --bronze-soft: 40 10% 14%;
 
-    --destructive: 0 72% 58%;
-    --destructive-foreground: 0 0% 100%;
+    --teal: 176 39% 38%;             /* #3B8580 */
+    --teal-foreground: 40 10% 8%;
+    --coral: 7 49% 59%;              /* #C96F63 */
+    --coral-foreground: 40 10% 8%;
 
-    --border: 224 26% 16%;
-    --input: 224 26% 16%;
-    --ring: 187 92% 55%;
+    --muted: 40 10% 13%;
+    --muted-foreground: 37 10% 63%;  /* #AAA398 */
 
-    --workspace: 226 44% 4%;
-    --canvas: 0 0% 100%;
-    --surface-raised: 224 36% 10%;
-    --surface-glass: 224 38% 9%;
+    --destructive: 7 49% 60%;
+    --destructive-foreground: 40 10% 8%;
 
-    /* Bright gradient in dark so the fill reads, still with white text. */
-    --gradient-from: 187 92% 42%;
-    --gradient-to: 262 80% 60%;
-    --gradient-foreground: 0 0% 100%;
+    --border: 36 10% 19%;            /* #35312B */
+    --border-strong: 36 10% 26%;
+    --input: 36 10% 19%;
+    --ring: 33 40% 55%;
 
-    --ai-accent: 187 92% 55%;
-    --ai-accent-soft: 187 60% 12%;
-    --ai-glow: 187 92% 60%;
+    --workspace: 40 10% 6%;
+    --paper: 43 100% 99%;
+    --canvas: 43 100% 99%;
+    --surface-raised: 40 10% 11%;
 
-    --success: 160 84% 46%;
-    --success-foreground: 226 60% 7%;
-    --warning: 38 92% 58%;
-    --warning-foreground: 226 60% 7%;
-    --info: 199 89% 62%;
-    --info-foreground: 226 60% 7%;
+    --success: 176 35% 52%;
+    --success-foreground: 40 10% 8%;
+    --warning: 33 45% 60%;
+    --warning-foreground: 40 10% 8%;
+    --info: 37 10% 68%;
+    --info-foreground: 40 10% 8%;
 
-    --sidebar-background: 226 47% 4.5%;
-    --sidebar-foreground: 215 22% 70%;
-    --sidebar-primary: 187 92% 55%;
-    --sidebar-primary-foreground: 226 60% 7%;
-    --sidebar-accent: 224 34% 12%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 224 30% 11%;
-    --sidebar-ring: 187 92% 55%;
+    --sidebar-background: 40 10% 7%;
+    --sidebar-foreground: 37 10% 60%;
+    --sidebar-primary: 42 32% 92%;
+    --sidebar-primary-foreground: 40 10% 8%;
+    --sidebar-accent: 42 32% 92%;
+    --sidebar-accent-foreground: 42 32% 92%;
+    --sidebar-border: 36 10% 17%;
+    --sidebar-ring: 33 40% 55%;
 
-    --shadow-xs: 0 1px 2px rgba(0,0,0,.3);
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.36), 0 1px 2px rgba(0,0,0,.3);
-    --shadow-md: 0 6px 16px -6px rgba(0,0,0,.5), 0 2px 6px -2px rgba(0,0,0,.36);
-    --shadow-lg: 0 16px 32px -12px rgba(0,0,0,.55), 0 6px 12px -6px rgba(0,0,0,.4);
-    --shadow-xl: 0 28px 56px -20px rgba(0,0,0,.6), 0 12px 20px -12px rgba(0,0,0,.45);
-    --shadow-glow: 0 0 0 1px hsl(var(--accent) / .22), 0 0 28px hsl(var(--accent) / .16);
-    --canvas-shadow: 0 1px 3px rgba(0,0,0,.24), 0 4px 12px rgba(0,0,0,.2), 0 16px 40px rgba(0,0,0,.16);
+    --shadow-xs: 0 1px 1px rgba(0,0,0,.32);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.38), 0 2px 6px rgba(0,0,0,.26);
+    --shadow-md: 0 6px 20px rgba(0,0,0,.42);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,.48), 0 2px 6px rgba(0,0,0,.32);
+    --shadow-xl: 0 24px 56px rgba(0,0,0,.58), 0 6px 16px rgba(0,0,0,.40);
+    --shadow-inset: inset 0 1px 3px rgba(0,0,0,.35);
+    --canvas-shadow: 0 1px 2px rgba(0,0,0,.42), 0 12px 28px rgba(0,0,0,.38), 0 24px 56px rgba(0,0,0,.32);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -182,21 +193,25 @@
     @apply antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    line-height: 1.5;
+    line-height: 1.55;
     color: hsl(var(--foreground));
     background: hsl(var(--background));
   }
 
-  /* Display type gets the geometric face — used by headings across the app. */
-  h1, h2, h3, .font-display {
-    font-family: 'Sora', 'Inter', system-ui, sans-serif;
-    letter-spacing: -0.02em;
+  /*
+   * UI headings stay in the interface face — dense panels read better in a
+   * sans. Editorial titles opt in with `.font-display`, which is a serif:
+   * that contrast is what makes the product feel designed rather than generated.
+   */
+  h1, h2, h3 {
+    font-family: 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.011em;
   }
 }
 
 @layer utilities {
   .font-sans { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-  .font-display { font-family: 'Sora', 'Inter', system-ui, sans-serif; }
+  .font-display { font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif; letter-spacing: -0.01em; }
   .font-mono { font-family: 'JetBrains Mono', monospace; }
   .font-resume-serif { font-family: 'Georgia', serif; }
   .font-resume-sans { font-family: 'Inter', system-ui, sans-serif; }
@@ -208,340 +223,202 @@
   .shadow-card-hover { box-shadow: var(--shadow-md); }
   .shadow-elevated { box-shadow: var(--shadow-lg); }
   .shadow-modal { box-shadow: var(--shadow-xl); }
-  .shadow-glow { box-shadow: var(--shadow-glow); }
   .canvas-shadow { box-shadow: var(--canvas-shadow); }
+
+  /* Soft inset — the one neumorphic detail we allow: a field that reads as
+     pressed into the paper. Never applied to the document itself. */
+  .field-inset { box-shadow: var(--shadow-inset); }
 
   /* ── Layered surfaces ── */
   .surface-base { background: hsl(var(--background)); }
   .surface-raised { background: hsl(var(--card)); }
   .surface-sunken { background: hsl(var(--workspace)); }
 
+  /* ── Small uppercase label — the editorial "eyebrow" ── */
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
   /* ── Scrollbar ── */
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
   }
-  .scrollbar-thin::-webkit-scrollbar { width: 5px; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
   .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
   .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 10px; }
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
-
-  /* ── AI Glow ── */
-  .ai-glow { box-shadow: var(--shadow-glow); }
-  .ai-glow-strong {
-    box-shadow: 0 0 0 1px hsl(var(--accent) / 0.22), 0 0 26px hsl(var(--accent) / 0.16);
-  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.45); }
 
   ::selection {
-    background-color: hsl(var(--accent) / 0.18);
-  }
-
-  .hover-lift {
-    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .hover-lift:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    background-color: hsl(var(--bronze) / 0.22);
   }
 
   .card-hover {
-    transition: border-color 0.15s ease, box-shadow 0.2s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: border-color 0.15s ease, box-shadow 0.18s ease;
   }
   .card-hover:hover {
-    border-color: hsl(var(--accent) / 0.34);
+    border-color: hsl(var(--foreground) / 0.22);
     box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
   }
 
-  .section-number {
+  /* ── Small bronze rule — the recurring editorial divider ── */
+  .rule-bronze {
+    height: 1px;
+    width: 28px;
+    background: hsl(var(--bronze) / 0.55);
+  }
+
+  /* ── Section numeral, used by the landing walkthrough ── */
+  .numeral {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     font-variant-numeric: tabular-nums;
-    font-feature-settings: 'tnum';
+    color: hsl(var(--bronze));
   }
 
-  .progress-ring {
-    transition: stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  /* ── Premium gradient button ── */
-  .btn-gradient {
-    background-image: linear-gradient(110deg, hsl(var(--gradient-from)) 0%, hsl(var(--accent-2)) 50%, hsl(var(--gradient-from)) 100%);
-    background-size: 200% 100%;
-    background-position: 0% 50%;
-    color: hsl(var(--gradient-foreground));
-    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, background-position 0.6s ease;
-  }
-  .btn-gradient:hover {
-    background-position: 100% 50%;
-    box-shadow: 0 10px 26px -10px hsl(var(--accent) / 0.65), 0 2px 8px -3px hsl(var(--accent-2) / 0.4);
-  }
-  .btn-gradient:active {
-    transform: scale(0.98);
-  }
-
-  /* ── Section group label ── */
+  /* ── Section group label (sidebar) ── */
   .nav-group-label {
     font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: hsl(0 0% 100% / 0.22);
+    color: hsl(var(--muted-foreground) / 0.85);
   }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
    Component layer — the shared surface language
-
-   These live in `@layer components` (not `utilities`) on purpose: Tailwind
-   emits `utilities` last, so a call site can still override any of this with a
-   utility — `premium-card border-accent/40` keeps the accent border, and
-   `aurora opacity-70` really is 70%. Declared outside a layer instead, these
-   rules would silently win against every Tailwind utility they set.
    ══════════════════════════════════════════════════════════════════════════ */
 @layer components {
-  /* Glass panels: translucent fill + blur + an elegant hairline. */
-  .glass-panel {
-    background: hsl(var(--surface-glass) / 0.72);
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    border: 1px solid hsl(var(--border) / 0.7);
-  }
-
-  /* A raised card: soft border, a light-catching top edge, and a small lift. */
+  /* A card: hairline border, paper surface, a whisper of shadow on hover. */
   .premium-card {
     position: relative;
-    border-radius: 1rem;
-    border: 1px solid hsl(var(--border) / 0.75);
+    border-radius: var(--radius-lg);
+    border: 1px solid hsl(var(--border));
     background: hsl(var(--card));
-    transition:
-      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.24s ease;
-  }
-  .premium-card::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 1px;
-    border-radius: inherit;
-    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.09), transparent);
-    pointer-events: none;
+    transition: border-color 0.16s ease, box-shadow 0.18s ease;
   }
   @media (hover: hover) and (pointer: fine) {
     .premium-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-lg);
-      border-color: hsl(var(--accent) / 0.32);
+      box-shadow: var(--shadow-md);
+      border-color: hsl(var(--border-strong));
     }
   }
 
-  /* Icon chip — the consistent treatment for every feature/step icon. */
-  .icon-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.75rem;
-    background: linear-gradient(150deg, hsl(var(--accent) / 0.16), hsl(var(--accent-2) / 0.12));
-    border: 1px solid hsl(var(--accent) / 0.22);
-    color: hsl(var(--accent));
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
-  }
-  .group:hover .icon-chip {
-    transform: translateY(-1px) scale(1.06);
-    box-shadow: 0 6px 18px -8px hsl(var(--accent) / 0.6);
-  }
-
-  /* Gradient text for eyebrow labels and headline highlights. */
-  .text-gradient {
-    background: linear-gradient(100deg, hsl(var(--gradient-from)), hsl(var(--gradient-to)));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  /* If a browser cannot clip text to a background, keep the words readable. */
-  @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-    .text-gradient {
-      background: none;
-      color: hsl(var(--accent));
-    }
-  }
-
-  /* The aurora: three soft colour blooms that drift almost imperceptibly.
-     One element, transform-only animation, so it composites on the GPU. */
-  .aurora {
-    position: absolute;
-    inset: -20%;
-    pointer-events: none;
-    z-index: 0;
-    filter: blur(48px);
-    opacity: 0.55;
-    background:
-      radial-gradient(38% 42% at 22% 28%, hsl(var(--accent) / 0.42) 0%, transparent 70%),
-      radial-gradient(34% 38% at 78% 22%, hsl(var(--accent-2) / 0.34) 0%, transparent 70%),
-      radial-gradient(40% 44% at 58% 82%, hsl(var(--accent) / 0.28) 0%, transparent 72%);
-    will-change: transform;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .aurora { animation: none; will-change: auto; }
-  }
-
-  /* Faint grid behind hero/CTA sections for a technical, layered feel. */
-  .grid-veil {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background-image:
-      linear-gradient(to right, hsl(var(--foreground) / 0.045) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--foreground) / 0.045) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: radial-gradient(70% 60% at 50% 40%, #000 0%, transparent 100%);
-    -webkit-mask-image: radial-gradient(70% 60% at 50% 40%, #000 0%, transparent 100%);
+  /*
+   * The A4 document surface — a document, not a UI panel.
+   * Square corners (real paper has none), the warm paper tint, and a shadow
+   * that reads as a sheet resting on a desk rather than a floating card.
+   */
+  .paper {
+    background: hsl(var(--paper));
+    border-radius: 0;
+    box-shadow:
+      0 1px 2px rgba(30,25,20,.05),
+      0 10px 24px rgba(30,25,20,.08),
+      0 20px 50px rgba(30,25,20,.12);
   }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
    Animation layer
 
-   Declared outside `@layer utilities` so the whole keyframe library always
-   ships — these are the product's motion language, not one-off helpers.
-
-   Hierarchy, from slowest to fastest:
-     sections  → .animate-fade-up / .animate-fade-down   (0.5–0.6s)
-     cards     → .animate-fade-up + .stagger             (staggered ~60ms)
-     panels    → [data-step-panel]                       (0.42s slide)
-     buttons   → .btn-gradient / .magnetic micro-fx     (< 250ms)
-     background→ .animate-aurora                         (22s drift)
+   Motion is intentional and short. Sections rise 12–16px once; panels slide
+   a few pixels; nothing loops, pulses or drifts. If it does not aid
+   comprehension it is not animated.
    ══════════════════════════════════════════════════════════════════════════ */
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(3px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes fade-up {
-  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
   to { opacity: 1; transform: none; }
 }
 @keyframes fade-down {
-  from { opacity: 0; transform: translate3d(0, -14px, 0); }
+  from { opacity: 0; transform: translate3d(0, -10px, 0); }
   to { opacity: 1; transform: none; }
 }
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(8px); }
+  from { opacity: 0; transform: translateX(6px); }
   to { opacity: 1; transform: translateX(0); }
 }
 @keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-10px); }
+  from { opacity: 0; transform: translateX(-8px); }
   to { opacity: 1; transform: none; }
 }
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.96); }
+  from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
 }
 @keyframes pop-in {
-  from { opacity: 0; transform: scale(0.94) translateY(6px); }
-  60% { opacity: 1; }
+  from { opacity: 0; transform: scale(0.97) translateY(4px); }
   to { opacity: 1; transform: none; }
 }
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .4; }
-}
 @keyframes save-success {
-  0% { transform: scale(0.8); opacity: 0; }
-  50% { transform: scale(1.1); }
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.04); }
   100% { transform: scale(1); opacity: 1; }
 }
 @keyframes progress-fill {
   from { stroke-dashoffset: 100; }
 }
-/* Continuous, very slow background drift for the hero aurora. */
-@keyframes aurora-drift {
-  0%   { transform: translate3d(-4%, -3%, 0) scale(1.05); }
-  50%  { transform: translate3d(4%, 3%, 0) scale(1.14); }
-  100% { transform: translate3d(-4%, -3%, 0) scale(1.05); }
-}
-@keyframes float-soft {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-/* Animated gradient sweep for primary CTAs. */
-@keyframes gradient-pan {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
-}
-/* Route transition — a gentle rise, fast enough never to feel like a delay. */
+/* Route transition — a gentle rise, short enough to never feel like a delay. */
 @keyframes page-enter {
-  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
   to { opacity: 1; transform: none; }
 }
 /* Onboarding step transitions. */
 @keyframes step-in-right {
-  from { opacity: 0; transform: translate3d(28px, 0, 0); }
+  from { opacity: 0; transform: translate3d(20px, 0, 0); }
   to { opacity: 1; transform: none; }
 }
 @keyframes step-in-left {
-  from { opacity: 0; transform: translate3d(-28px, 0, 0); }
+  from { opacity: 0; transform: translate3d(-20px, 0, 0); }
   to { opacity: 1; transform: none; }
-}
-@keyframes ring-pulse {
-  0% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.4); }
-  100% { box-shadow: 0 0 0 12px hsl(var(--accent) / 0); }
 }
 /* Mobile navigation drawer. */
 @keyframes drawer-in {
-  from { opacity: 0.4; transform: translate3d(-100%, 0, 0); }
+  from { opacity: 0.5; transform: translate3d(-100%, 0, 0); }
   to { opacity: 1; transform: none; }
 }
 /* Editor panels swap sides on mobile (form ←, preview →). */
 @keyframes panel-in-left {
-  from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+  from { opacity: 0; transform: translate3d(-14px, 0, 0); }
   to { opacity: 1; transform: none; }
 }
 @keyframes panel-in-right {
-  from { opacity: 0; transform: translate3d(18px, 0, 0); }
+  from { opacity: 0; transform: translate3d(14px, 0, 0); }
   to { opacity: 1; transform: none; }
 }
 
-.animate-fade-in { animation: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-.animate-fade-up { animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-fade-down { animation: fade-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-slide-in { animation: slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-.animate-slide-in-left { animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-scale-in { animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-.animate-pop-in { animation: pop-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
-.animate-save-success { animation: save-success 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-.animate-float { animation: float-soft 5s ease-in-out infinite; }
-.animate-ring-pulse { animation: ring-pulse 1.6s ease-out infinite; }
-.animate-aurora { animation: aurora-drift 22s ease-in-out infinite; }
-.animate-page-enter { animation: page-enter 0.34s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-drawer-in { animation: drawer-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-panel-left { animation: panel-in-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-panel-right { animation: panel-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in { animation: fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-fade-up { animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-down { animation: fade-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-slide-in { animation: slide-in-right 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-slide-in-left { animation: slide-in-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-scale-in { animation: scale-in 0.16s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-pop-in { animation: pop-in 0.26s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-save-success { animation: save-success 0.26s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-page-enter { animation: page-enter 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-drawer-in { animation: drawer-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-panel-left { animation: panel-in-left 0.26s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-panel-right { animation: panel-in-right 0.26s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 /* Cards arrive in sequence, never all at once: set --stagger inline. */
 .stagger { animation-delay: var(--stagger, 0ms); }
 
-.skeleton-shimmer {
-  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--background)) 37%, hsl(var(--muted)) 63%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-
 /* ══════════════════════════════════════════════════════════════════════════
-   Interaction layer — smart scrolling, reveals and mouse feedback
-
-   Declared outside `@layer utilities` on purpose: these are behavioural rules
-   (cursor states, revealed/hidden content, pointer tracking variables) that
-   must always ship, independent of Tailwind's on-demand class generation.
+   Interaction layer
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Hide the native scrollbar on rails and carousels — drag, arrows and swipe
-   carry the affordance instead. Keyboard scrolling still works. */
 .scrollbar-none {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -552,12 +429,42 @@
   display: none;
 }
 
-/* Pointer-follow effects: the homepage resume tilt and the magnetic CTAs.
-   The transform values are written from the hooks; these rules own the easing
-   and the "tracking" state that removes the transition while the pointer moves,
-   so following feels direct and leaving eases home. */
+/* ══════════════════════════════════════════════════════════════════════════
+   Landing hero — a physical sheet on a desk
+
+   Pointer position is written to --hero-x / --hero-y (-0.5 … 0.5) by one
+   rAF-throttled listener. The sheet drifts a few pixels one way while the
+   decorative shapes drift a few pixels the other. The movement is deliberately
+   tiny: this is depth, not an effect.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.hero-stage { --hero-x: 0; --hero-y: 0; }
+
+.hero-sheet {
+  transform: translate3d(calc(var(--hero-x) * 8px), calc(var(--hero-y) * 6px), 0);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+  box-shadow: var(--canvas-shadow);
+  will-change: transform;
+}
+.hero-stage[data-engaged="true"] .hero-sheet { box-shadow: var(--shadow-xl); }
+
+.hero-shape {
+  transform: translate3d(
+    calc(var(--hero-x) * var(--hero-k, -14px)),
+    calc(var(--hero-y) * var(--hero-k, -14px) * 0.7),
+    0
+  );
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-sheet,
+  .hero-shape { transform: none !important; transition: none; }
+}
+
+/* Pointer-follow: a tiny tilt on a card surface, capped so it never looks animated. */
 .tilt-surface {
-  transform: perspective(1100px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0);
+  transform: perspective(1200px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0);
   transition:
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.3s ease,
@@ -569,15 +476,13 @@
 }
 
 .magnetic {
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .magnetic[data-tracking="true"] {
   transition: none;
   will-change: transform;
 }
 
-/* Belt and braces: a reduced-motion visitor never sees residual offset, even if
-   the preference flips mid-session while a transform is already inline. */
 @media (prefers-reduced-motion: reduce) {
   .tilt-surface,
   .magnetic {
@@ -592,14 +497,14 @@
   .draggable-area[data-dragging="true"] { cursor: grabbing; }
 }
 
-/* Scroll reveal — a few pixels of travel and a fade, never clipped or hidden
+/* Scroll reveal — a few pixels of travel and a fade; never clipped or hidden
    from layout, so a failed observer can only ever be a cosmetic problem. */
 [data-reveal] {
   opacity: 0;
-  transform: translate3d(0, 16px, 0);
+  transform: translate3d(0, 14px, 0);
   transition:
-    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
 }
 [data-reveal="shown"] {
@@ -610,43 +515,22 @@
 /* Card actions that stay discoverable on touch but stay quiet on desktop. */
 .hover-reveal {
   opacity: 0.6;
-  transition: opacity 0.18s ease;
+  transition: opacity 0.16s ease;
 }
 .hover-reveal:hover,
 .hover-reveal:focus-visible {
   opacity: 1;
 }
 @media (hover: hover) and (pointer: fine) {
-  /* Faintly present rather than invisible: still discoverable, still quiet. */
   .hover-reveal { opacity: 0.35; }
   .group:hover .hover-reveal,
   .group:focus-within .hover-reveal,
   .hover-reveal:focus-visible { opacity: 1; }
 }
 
-/* Cursor-following sheen for cards (variables set from usePointerSpotlight). */
-.interactive-card { position: relative; }
-.interactive-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  background: radial-gradient(
-    260px circle at var(--spot-x, 50%) var(--spot-y, 0%),
-    hsl(var(--accent) / 0.10),
-    transparent 68%
-  );
-}
-@media (hover: hover) and (pointer: fine) {
-  .interactive-card:hover::after { opacity: 1; }
-}
-
 /* Onboarding step transitions — a directional slide, driven by `data-dir`. */
 [data-step-panel] {
-  animation-duration: 0.42s;
+  animation-duration: 0.34s;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: both;
 }
@@ -655,7 +539,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1; transform: none; transition: none; }
-  .interactive-card::after { display: none; }
   [data-step-panel] { animation: none; }
   .animate-fade-up,
   .animate-fade-down,
@@ -664,11 +547,7 @@
   .animate-page-enter,
   .animate-drawer-in,
   .animate-panel-left,
-  .animate-panel-right,
-  .animate-float,
-  .animate-ring-pulse,
-  .animate-aurora { animation: none; }
+  .animate-panel-right { animation: none; }
   .magnetic[data-tracking="true"],
-  .hover-lift:hover,
   .premium-card:hover { transform: none; }
 }

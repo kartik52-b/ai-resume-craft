@@ -431,9 +431,9 @@ test('sidebar navigation: all routes load', async ({ page }) => {
   await freshApp(page);
 
   const routes = [
-    { nav: 'Home', heading: 'Build a resume that gets you noticed.' },
+    { nav: 'Home', heading: 'Beautiful templates. Smart suggestions' },
     { nav: 'My Resumes', heading: 'Your Resumes' },
-    { nav: 'Templates', heading: 'Choose a resume design' },
+    { nav: 'Templates', heading: 'Choose your template' },
     { nav: 'Settings', heading: 'Account' },
   ];
 

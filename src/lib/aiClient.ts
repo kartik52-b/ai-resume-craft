@@ -27,7 +27,7 @@ const TIMEOUT_MS = 30_000;
 export const MAX_AI_INPUT_CHARS = 6000;
 
 export const AI_ERROR_MESSAGES: Record<AiErrorCode, string> = {
-  not_configured: 'AI is not configured on this server. Set GOOGLE_API_KEY to enable it.',
+  not_configured: "AI writing assistance isn't configured yet.",
   rate_limited: 'Too many AI requests right now. Please wait a minute and try again.',
   network: 'Could not reach the AI service. Check your connection and try again.',
   provider_error: 'The AI service returned an error. Please try again.',
@@ -68,7 +68,7 @@ async function callAi<T>(path: string, body: unknown): Promise<T> {
   }
 }
 
-export type RewriteMode = 'professional' | 'concise' | 'achievement' | 'grammar' | 'ats';
+export type RewriteMode = 'professional' | 'concise' | 'achievement' | 'grammar' | 'standard';
 
 export const aiRewrite = (text: string, mode: RewriteMode) =>
   callAi<{ text: string }>('/api/ai/rewrite', { text, mode });

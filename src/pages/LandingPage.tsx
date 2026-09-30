@@ -1,180 +1,110 @@
-import { useMemo, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useResume } from '@/context/ResumeContext';
-import { TEMPLATE_REGISTRY } from '@/lib/templateRegistry';
+import { TEMPLATE_REGISTRY, getTemplate } from '@/lib/templateRegistry';
 import { getSampleResume } from '@/lib/sampleResume';
 import type { ResumeData } from '@/types/resume';
 import ResumeThumbnail from '@/components/ResumeThumbnail';
-import Magnetic from '@/components/Magnetic';
-import HeroSlider from '@/components/HeroSlider';
 import ScrollRail from '@/components/ScrollRail';
 import Reveal from '@/components/Reveal';
 import TemplateTile from '@/components/TemplateTile';
-import { useActiveSection, useCardInteraction, useTilt } from '@/hooks/useInteraction';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import {
-  Sparkles, FileText, Shield, LayoutTemplate, ArrowRight, Check,
-  PenLine, Download, Eye, Wand2, ListChecks,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 /* ── Content ─────────────────────────────────────────────────────────────── */
 
-const FEATURES = [
-  {
-    icon: LayoutTemplate,
-    title: 'Premium templates',
-    desc: '25 professionally designed layouts across engineering, finance, academic, creative, healthcare and legal careers.',
-  },
-  {
-    icon: Wand2,
-    title: 'AI-assisted writing',
-    desc: 'Generate summaries, sharpen bullet points and surface relevant skills — every suggestion is reviewed by you before it lands.',
-  },
-  {
-    icon: Shield,
-    title: 'ATS-friendly',
-    desc: 'A transparent 100-point resume health score shows exactly what to fix for applicant tracking systems.',
-  },
-  {
-    icon: Eye,
-    title: 'Live A4 preview',
-    desc: 'The page on the right is your resume. Edits appear instantly, and the PDF export matches what you see.',
-  },
-  {
-    icon: ListChecks,
-    title: 'You stay in control',
-    desc: 'Edit every section, reorder or hide blocks, switch designs any time — your content never gets overwritten.',
-  },
-];
+const FACTS = ['25 resume designs', '6 editable sections', 'Nothing uploaded'];
 
+/** The four movements of the product, as an editorial walkthrough (01…04). */
 const STEPS = [
   {
     num: '01',
-    icon: PenLine,
-    title: 'Add your details',
-    desc: 'Name, email and phone. That is all we need to start — no long forms.',
+    label: 'Create',
+    title: 'Start with your details',
+    desc: 'Name, email and phone are enough to open a real resume. No account, nothing uploaded.',
   },
   {
     num: '02',
-    icon: LayoutTemplate,
-    title: 'Choose a design',
-    desc: 'Browse real, full-page previews and pick the layout that fits your field.',
+    label: 'Choose',
+    title: 'Pick the structure',
+    desc: 'Twenty-five layouts — single column, sidebar, editorial, compact — each previewed as a full A4 page.',
   },
   {
     num: '03',
-    icon: FileText,
-    title: 'Build your resume',
-    desc: 'Your details are laid out in your design. Add experience, education and skills in the editor.',
+    label: 'Customize',
+    title: 'Fill in your background',
+    desc: 'Experience, education, skills, projects and certifications, every section editable in place.',
   },
   {
     num: '04',
-    icon: Download,
-    title: 'Export your PDF',
-    desc: 'Download a clean, selectable-text PDF that matches the live preview.',
+    label: 'Export',
+    title: 'Download the PDF',
+    desc: 'Selectable-text A4 pages that match the preview exactly, ready to send.',
   },
 ];
 
-const FACT_STRIP = [
-  { value: '25', label: 'Resume designs' },
-  { value: '6', label: 'Editable sections' },
-  { value: '0', label: 'Files uploaded' },
-  { value: '1-click', label: 'A4 PDF export' },
+/**
+ * Hero parallax.
+ *
+ * One rAF-throttled pointer listener writes the cursor position into
+ * `--hero-x` / `--hero-y` (-0.5 … 0.5) on the hero stage; CSS does the rest.
+ * Touch devices and reduced-motion visitors never attach it, so the sheet is
+ * simply still for them.
+ */
+function useHeroStage() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [engaged, setEngaged] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    if (!window.matchMedia?.('(hover: hover) and (pointer: fine)').matches) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    let frame = 0;
+    const move = (event: PointerEvent) => {
+      const rect = element.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const x = (event.clientX - rect.left) / rect.width - 0.5;
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        element.style.setProperty('--hero-x', x.toFixed(3));
+        element.style.setProperty('--hero-y', y.toFixed(3));
+      });
+    };
+    const settle = () => {
+      cancelAnimationFrame(frame);
+      element.style.setProperty('--hero-x', '0');
+      element.style.setProperty('--hero-y', '0');
+    };
+    const enter = () => setEngaged(true);
+    const leave = () => { settle(); setEngaged(false); };
+
+    element.addEventListener('pointerenter', enter);
+    element.addEventListener('pointermove', move);
+    element.addEventListener('pointerleave', leave);
+    return () => {
+      cancelAnimationFrame(frame);
+      element.removeEventListener('pointerenter', enter);
+      element.removeEventListener('pointermove', move);
+      element.removeEventListener('pointerleave', leave);
+    };
+  }, []);
+
+  return { ref, engaged };
+}
+
+/** Designs used in the interactive showcase. */
+const SHOWCASE_IDS: ResumeData['template'][] = [
+  'professional', 'modern', 'two-column', 'executive', 'developer', 'academic',
 ];
 
-/**
- * Featured designs for the rail — twelve cards plus a "see all" card. Enough
- * items that horizontal browsing genuinely helps; the full 25 live on
- * /templates behind search and category filters.
- */
 const RAIL_TEMPLATE_IDS: ResumeData['template'][] = [
   'modern', 'professional', 'minimal', 'creative', 'executive', 'developer',
   'elegant', 'two-column', 'startup', 'engineering', 'finance', 'designer',
 ];
-
-/** In-page navigation anchors for the sticky section bar. */
-const PAGE_SECTIONS = [
-  { id: 'highlights', label: 'Highlights' },
-  { id: 'how-it-works', label: 'How it works' },
-  { id: 'features', label: 'Features' },
-  { id: 'designs', label: 'Designs' },
-];
-/** Stable identity — the scroll-spy observer re-subscribes only with this. */
-const PAGE_SECTION_IDS = PAGE_SECTIONS.map((s) => s.id);
-
-/** Stagger helper: cards arrive in sequence, never all at once. */
-const at = (ms: number) => ({ animationDelay: `${ms}ms` }) as CSSProperties;
-
-/* ── Building blocks ─────────────────────────────────────────────────────── */
-
-/**
- * One feature tile. The pointer feedback is a very light tilt plus a cursor
- * sheen — composed into a single listener pair (see `useCardInteraction`), so a
- * grid of these costs no more than one hover effect each.
- */
-function FeatureCard({
-  icon: Icon,
-  title,
-  desc,
-  delayMs,
-}: {
-  icon: typeof LayoutTemplate;
-  title: string;
-  desc: string;
-  delayMs: number;
-}) {
-  const fx = useCardInteraction<HTMLDivElement>();
-
-  return (
-    <Reveal delayMs={delayMs} className="h-full">
-      <div
-        {...fx}
-        className="premium-card interactive-card group h-full p-6"
-      >
-        <div className="icon-chip h-11 w-11 mb-4">
-          <Icon className="h-5 w-5" />
-        </div>
-        <h3 className="text-[15px] font-semibold mb-1.5">{title}</h3>
-        <p className="text-[13px] text-muted-foreground leading-relaxed">{desc}</p>
-      </div>
-    </Reveal>
-  );
-}
-
-function StepCard({
-  num,
-  icon: Icon,
-  title,
-  desc,
-  delayMs,
-}: {
-  num: string;
-  icon: typeof PenLine;
-  title: string;
-  desc: string;
-  delayMs: number;
-}) {
-  return (
-    <li className="h-full list-none">
-      <Reveal delayMs={delayMs} className="h-full">
-        <div className="premium-card group relative h-full p-6">
-          <span
-            aria-hidden
-            className="absolute right-5 top-5 font-display text-[26px] font-bold leading-none text-muted-foreground/[0.18] tabular-nums"
-          >
-            {num}
-          </span>
-          <div className="icon-chip h-11 w-11 mb-4">
-            <Icon className="h-5 w-5" />
-          </div>
-          <h3 className="text-[15px] font-semibold mb-1.5">{title}</h3>
-          <p className="text-[13px] text-muted-foreground leading-relaxed">{desc}</p>
-        </div>
-      </Reveal>
-    </li>
-  );
-}
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
 
@@ -182,232 +112,294 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const { hasResume } = useResume();
   const sample = useMemo(() => getSampleResume(), []);
+  const [showcase, setShowcase] = useState<ResumeData['template']>('professional');
+  const { ref: heroRef, engaged } = useHeroStage();
   const totalTemplates = TEMPLATE_REGISTRY.length;
-  const activeSection = useActiveSection(PAGE_SECTION_IDS);
-  // The hero resume is a static preview — it tilts with the mouse, never scrolls.
-  const heroTilt = useTilt<HTMLDivElement>();
+  const showcaseName = getTemplate(showcase).label;
 
   return (
-    <div className="min-h-full bg-workspace overflow-x-hidden">
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative px-4 lg:px-8 pt-14 lg:pt-20 pb-14">
-        {/* Layered background: a drifting aurora over a faint technical grid. */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-          <div className="aurora animate-aurora" />
-          <div className="grid-veil" />
-        </div>
-
-        <div className="relative z-10 max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-10 items-center">
+    <div className="min-h-full bg-background">
+      {/* ══ Hero ═══════════════════════════════════════════════════════════════
+          The resume is the hero visual: one real A4 sheet, with the page's own
+          paper tones (ivory, beige, antique bronze, a whisper of teal) drifting
+          behind it. */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-24 grid lg:grid-cols-[1.02fr_0.98fr] gap-12 lg:gap-16 items-center">
           <div>
-            <div className="animate-fade-down inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel text-accent text-[12px] font-medium mb-6">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-accent animate-ring-pulse" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+            <p className="eyebrow mb-5 animate-fade-down">Resume design studio</p>
+            <h1 className="font-display text-balance text-[34px] sm:text-[44px] lg:text-[54px] font-semibold leading-[1.07] tracking-[-0.015em] text-foreground animate-fade-up">
+              <span className="block">Create a professional</span>{' '}
+              <span className="block">resume without the</span>{' '}
+              <span className="block">
+                <span className="text-bronze">busywork</span>.
               </span>
-              AI-powered resume builder
-            </div>
-
-            <h1 className="font-display text-[34px] sm:text-[42px] lg:text-[50px] font-bold tracking-tight leading-[1.05] animate-fade-up" style={at(60)}>
-              <span className="text-gradient">Build a resume that gets you noticed.</span>
             </h1>
-
-            <p className="text-[16px] lg:text-[17px] text-muted-foreground mt-5 max-w-xl leading-relaxed animate-fade-up" style={at(140)}>
-              Create a professional, ATS-friendly resume with premium templates, AI-assisted
-              writing, and a live preview.
+            <p className="mt-6 max-w-lg text-[16.5px] leading-relaxed text-muted-foreground animate-fade-up">
+              Beautiful templates. Smart suggestions. Complete control.
+              Everything stays in your browser.
             </p>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-8 animate-fade-up" style={at(220)}>
-              <Magnetic>
-                <Button
-                  size="lg"
-                  className="btn-gradient h-12 px-7 text-[15px] font-semibold rounded-xl gap-2 w-full sm:w-auto group/cta"
-                  onClick={() => navigate('/create')}
-                >
-                  Create My Resume
-                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/cta:translate-x-0.5" />
-                </Button>
-              </Magnetic>
-              <Magnetic>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 px-7 text-[15px] rounded-xl w-full sm:w-auto border-border/70 hover:border-accent/40 hover:bg-accent/[0.06] transition-colors"
-                  onClick={() => navigate('/templates')}
-                >
-                  Explore Templates
-                </Button>
-              </Magnetic>
+            <div className="rule-bronze mt-8 animate-fade-up" aria-hidden />
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-fade-up">
+              <Button
+                size="lg"
+                className="h-11 px-6 rounded-md text-[14px] font-medium gap-2"
+                onClick={() => navigate('/create')}
+              >
+                Create My Resume
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-11 px-6 rounded-md text-[14px]"
+                onClick={() => navigate('/templates')}
+              >
+                Explore Templates
+              </Button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-6 text-[12.5px] text-muted-foreground animate-fade-up" style={at(300)}>
-              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-success" /> Free to start</span>
-              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-success" /> Saved in your browser</span>
-              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-success" /> No account needed</span>
-            </div>
+            <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-muted-foreground animate-fade-up">
+              {FACTS.map((fact) => (
+                <li key={fact} className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-bronze" aria-hidden />
+                  {fact}
+                </li>
+              ))}
+            </ul>
 
             {hasResume && (
-              <p className="text-[12.5px] text-muted-foreground mt-5 animate-fade-up" style={at(360)}>
+              <p className="mt-6 text-[12.5px] text-muted-foreground animate-fade-up">
                 Already started?{' '}
-                <Link to="/resumes" className="text-accent hover:underline font-medium">Open My Resumes</Link>
+                <Link to="/resumes" className="text-foreground underline decoration-border underline-offset-4 hover:decoration-bronze">
+                  Open My Resumes
+                </Link>
               </p>
             )}
           </div>
 
-          {/* Static preview of a real template — it tilts with the mouse */}
-          <div className="relative flex justify-center lg:justify-end animate-fade-up" style={at(180)}>
-            <div className="relative w-[250px] sm:w-[290px] lg:w-[310px]">
-              <div
-                className="absolute -inset-5 rounded-[1.7rem] bg-gradient-to-br from-accent/[0.10] via-accent-2/[0.06] to-transparent border border-accent/15"
-                aria-hidden
-              />
-              <div
-                {...heroTilt}
-                data-hero-preview="tilt"
-                className="tilt-surface relative rounded-xl overflow-hidden border border-border/60 bg-white shadow-modal hover:border-accent/40 hover:shadow-xl"
-              >
-                <div className="relative aspect-[210/297]">
-                  <ResumeThumbnail data={sample} />
-                </div>
-              </div>
+          {/* One sheet of paper on a desk. */}
+          <div
+            ref={heroRef}
+            data-engaged={engaged ? 'true' : 'false'}
+            className="hero-stage relative isolate flex justify-center lg:justify-end animate-fade-up"
+          >
+            {/* Decorative shapes — ivory, beige, bronze and a hint of teal.
+                Kept soft and large rather than blobby: they set the light. */}
+            <span
+              aria-hidden
+              className="hero-shape pointer-events-none absolute -left-8 -top-6 hidden h-[240px] w-[240px] rounded-full sm:block"
+              style={{ '--hero-k': '-18px', background: 'radial-gradient(circle at 45% 45%, hsl(var(--bronze) / 0.15), transparent 68%)' } as CSSProperties}
+            />
+            <span
+              aria-hidden
+              className="hero-shape pointer-events-none absolute -bottom-12 right-0 hidden h-[280px] w-[280px] rounded-full sm:block"
+              style={{ '--hero-k': '14px', background: 'radial-gradient(circle at 50% 50%, hsl(var(--teal) / 0.10), transparent 70%)' } as CSSProperties}
+            />
+            <span
+              aria-hidden
+              className="hero-shape pointer-events-none absolute -top-16 left-1/4 hidden h-[260px] w-[260px] rounded-full sm:block"
+              style={{ '--hero-k': '-7px', background: 'radial-gradient(circle at 50% 50%, hsl(var(--card)), transparent 72%)' } as CSSProperties}
+            />
 
-              <div className="animate-float absolute -left-4 bottom-8 rounded-xl border border-border/60 bg-card/95 backdrop-blur px-3.5 py-2.5 shadow-card">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-success animate-pulse-dot" />
-                  <span className="text-[11px] font-semibold">Resume health</span>
-                  <span className="text-[11px] font-bold text-success tabular-nums">92</span>
-                </div>
+            <figure className="relative w-full max-w-[330px]">
+              <div className="hero-sheet paper relative aspect-[210/297] w-full overflow-hidden border border-border">
+                <ResumeThumbnail data={sample} />
               </div>
-
-              <Badge variant="outline" className="absolute -right-2 top-6 bg-card/95 backdrop-blur border-border/60 text-[10px] text-muted-foreground">
-                Sample content
-              </Badge>
-            </div>
+              <figcaption className="mt-4 flex items-center justify-between text-[11.5px] text-muted-foreground">
+                <span>Design preview · sample content</span>
+                <span className="font-mono text-[10.5px] tabular-nums">{sample.personal.fullName}</span>
+              </figcaption>
+            </figure>
           </div>
         </div>
       </section>
 
-      {/* ── Sticky in-page navigation ────────────────────────────────────── */}
-      <nav
-        aria-label="Page sections"
-        className="sticky top-0 z-30 border-y border-border/60 bg-workspace/80 backdrop-blur-xl"
-      >
-        <div className="max-w-6xl mx-auto px-4 lg:px-8 flex items-center gap-1 py-2 overflow-x-auto scrollbar-none">
-          {PAGE_SECTIONS.map((section) => {
-            const current = activeSection === section.id;
-            return (
-              <a
-                key={section.id}
-                href={`#${section.id}`}
-                aria-current={current ? 'true' : undefined}
-                className={cn(
-                  'shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-medium transition-all duration-200',
-                  current
-                    ? 'text-foreground bg-accent/12 shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
-                )}
-              >
-                {section.label}
-              </a>
-            );
-          })}
-          <Button
-            size="sm"
-            className="ml-auto shrink-0 hidden sm:inline-flex h-8 rounded-full text-[12px] font-medium gap-1.5 group/nav"
-            onClick={() => navigate('/create')}
-          >
-            Get started
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/nav:translate-x-0.5" />
-          </Button>
-        </div>
-      </nav>
-
-      {/* ── Hero content slider ─────────────────────────────────────────── */}
-      <section id="highlights" className="px-4 lg:px-8 pt-10 pb-14 scroll-mt-20" aria-label="Product highlights">
-        <div className="max-w-6xl mx-auto">
+      {/* ══ Walkthrough — 01 … 04, editorial rather than carded ═════════════ */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-5 lg:px-8 py-16 lg:py-24">
           <Reveal>
-            <HeroSlider />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ── Fact strip ───────────────────────────────────────────────────── */}
-      <Reveal className="px-4 lg:px-8 pb-14">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {FACT_STRIP.map((f, i) => (
-            <div
-              key={f.label}
-              className="premium-card animate-fade-up px-4 py-4 text-center"
-              style={at(i * 70)}
-            >
-              <div className="font-display text-[22px] font-bold tracking-tight text-gradient leading-none">{f.value}</div>
-              <div className="text-[11.5px] text-muted-foreground mt-1.5">{f.label}</div>
+            <div className="max-w-2xl">
+              <p className="eyebrow mb-4">How it works</p>
+              <h2 className="font-display text-[26px] lg:text-[34px] font-semibold leading-tight text-foreground">
+                Four steps, no blank page.
+              </h2>
+              <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+                A short guided setup puts your details into the design. Everything
+                after that happens in the editor, section by section.
+              </p>
             </div>
-          ))}
-        </div>
-      </Reveal>
-
-      {/* ── How it works ─────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="px-4 lg:px-8 pb-16 scroll-mt-20">
-        <div className="max-w-5xl mx-auto">
-          <Reveal className="text-center mb-9">
-            <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent mb-3">
-              <Sparkles className="h-3.5 w-3.5" /> The workflow
-            </div>
-            <h2 className="font-display text-[22px] lg:text-[27px] font-bold tracking-tight">Four steps to a finished resume</h2>
-            <p className="text-[14px] text-muted-foreground mt-2 max-w-xl mx-auto">
-              No blank-page paralysis. A short guided setup puts your details into the design, then
-              you build the rest section by section.
-            </p>
           </Reveal>
-          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+          <ol className="mt-14 grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((step, i) => (
-              <StepCard key={step.num} {...step} delayMs={i * 80} />
+              <li key={step.num} className="border-t border-border pt-5">
+                <Reveal delayMs={i * 70}>
+                  <div className="flex items-baseline gap-2.5">
+                    <span className="font-display text-[21px] font-semibold leading-none tabular-nums text-bronze">
+                      {step.num}
+                    </span>
+                    <span className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      {step.label}
+                    </span>
+                  </div>
+                  <h3 className="mt-4 font-display text-[18px] font-semibold leading-snug text-foreground">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{step.desc}</p>
+                </Reveal>
+              </li>
             ))}
           </ol>
         </div>
       </section>
 
-      {/* ── Features ─────────────────────────────────────────────────────── */}
-      <section id="features" className="px-4 lg:px-8 pb-16 scroll-mt-20">
-        <div className="max-w-5xl mx-auto">
-          <Reveal className="mb-8">
-            <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent mb-3">
-              <Shield className="h-3.5 w-3.5" /> Built in
-            </div>
-            <h2 className="font-display text-[22px] lg:text-[27px] font-bold tracking-tight">Everything a modern resume needs</h2>
-            <p className="text-[14px] text-muted-foreground mt-2 max-w-2xl">
-              Writing assistance, structure and formatting handled in one place — with you approving
-              every change.
+      {/* ══ Live showcase — switch designs on real content ══════════════════ */}
+      <section className="border-b border-border bg-workspace">
+        <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20 grid lg:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-center">
+          <Reveal>
+            <p className="eyebrow mb-3">One resume, many designs</p>
+            <h2 className="font-display text-[26px] lg:text-[32px] font-semibold leading-tight text-foreground">
+              Swap the layout, keep the words.
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+              Every template reads the same resume data. Pick a different design
+              and only the layout, typography and colour change — your content is
+              untouched.
             </p>
+
+            <div className="mt-7">
+              <p className="mb-2.5 text-[11.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                Showing · {showcaseName}
+              </p>
+              <div className="grid grid-cols-3 gap-2 max-w-md">
+                {SHOWCASE_IDS.map((id) => {
+                  const active = id === showcase;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setShowcase(id)}
+                      aria-pressed={active}
+                      className={cn(
+                        'relative aspect-[210/297] overflow-hidden rounded-sm border bg-card transition-colors',
+                        active ? 'border-bronze' : 'border-border hover:border-foreground/30',
+                      )}
+                    >
+                      <ResumeThumbnail data={{ ...sample, template: id }} />
+                      {active && <span aria-hidden className="absolute inset-0 ring-1 ring-inset ring-bronze/60" />}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground capitalize">
+                {getTemplate(showcase).layoutType.replace('-', ' ')} · {getTemplate(showcase).bestFor}
+              </p>
+            </div>
+
+            <Button
+              variant="outline"
+              className="mt-6 h-10 rounded-md gap-2"
+              onClick={() => navigate('/templates')}
+            >
+              Browse all {totalTemplates} designs
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </Reveal>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((feature, i) => (
-              <FeatureCard key={feature.title} {...feature} delayMs={i * 70} />
-            ))}
-          </div>
+
+          <Reveal className="flex justify-center lg:justify-end">
+            <figure className="w-full max-w-[400px]">
+              <div className="relative aspect-[210/297] w-full overflow-hidden border border-border paper">
+                <ResumeThumbnail data={{ ...sample, template: showcase }} />
+              </div>
+              <figcaption className="mt-3 text-[11.5px] text-muted-foreground">
+                {showcaseName} · rendered from the same content
+              </figcaption>
+            </figure>
+          </Reveal>
         </div>
       </section>
 
-      {/* ── Design showcase ──────────────────────────────────────────────── */}
-      <section id="designs" className="px-4 lg:px-8 pb-16 scroll-mt-20">
-        <div className="max-w-6xl mx-auto">
-          <Reveal className="flex flex-wrap items-end justify-between gap-3 mb-2">
-            <div>
-              <h2 className="font-display text-[22px] lg:text-[27px] font-bold tracking-tight">
-                {totalTemplates} designs, one set of content
+      {/* ══ Editorial two-up: writing help & ownership ══════════════════════ */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20 grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <Reveal>
+            <p className="eyebrow mb-3">Writing help</p>
+            <h2 className="font-display text-[24px] lg:text-[28px] font-semibold leading-tight text-foreground">
+              Help with the wording, when you want it.
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+              Summaries, bullet points and project descriptions can be rewritten
+              for clarity or impact. Every suggestion appears as a draft — you
+              read it, then apply or discard it.
+            </p>
+
+            {/* A quiet demonstration of the real interaction. */}
+            <div className="mt-6 rounded-md border border-border bg-card p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-medium text-foreground">Professional summary</span>
+                <span className="text-[11.5px] text-muted-foreground">Improve with AI</span>
+              </div>
+              <p className="mt-2.5 rounded border border-border bg-background p-3 text-[12px] leading-relaxed text-foreground/85">
+                Product engineer with eight years building and maintaining
+                customer-facing web platforms.
+              </p>
+              <div className="mt-3 flex gap-2">
+                <span className="inline-flex h-7 items-center rounded-md bg-primary px-3 text-[11.5px] font-medium text-primary-foreground">
+                  Apply
+                </span>
+                <span className="inline-flex h-7 items-center rounded-md border border-border px-3 text-[11.5px] text-muted-foreground">
+                  Discard
+                </span>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <p className="eyebrow mb-3">Ownership</p>
+            <h2 className="font-display text-[24px] lg:text-[28px] font-semibold leading-tight text-foreground">
+              Your content stays yours.
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+              Resumes are saved in this browser. No account, no upload, no
+              watermark. Create once and refine it any time.
+            </p>
+
+            <dl className="mt-6 divide-y divide-border border-y border-border">
+              {[
+                { k: 'Stored', v: 'Locally, in your browser' },
+                { k: 'Account', v: 'Not required' },
+                { k: 'Export', v: 'Clean, selectable-text A4 PDF' },
+                { k: 'Designs', v: 'Change any time, content intact' },
+              ].map((row) => (
+                <div key={row.k} className="flex items-baseline justify-between gap-6 py-3">
+                  <dt className="text-[12px] uppercase tracking-[0.08em] text-muted-foreground">{row.k}</dt>
+                  <dd className="text-[13.5px] text-foreground text-right">{row.v}</dd>
+                </div>
+              ))}
+            </dl>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ══ Design rail ═════════════════════════════════════════════════════ */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20">
+          <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-6">
+            <div className="max-w-2xl">
+              <p className="eyebrow mb-3">The collection</p>
+              <h2 className="font-display text-[26px] lg:text-[32px] font-semibold leading-tight text-foreground">
+                {totalTemplates} designs, genuinely different.
               </h2>
-              <p className="text-[14px] text-muted-foreground mt-2 max-w-xl">
-                Switch designs whenever you like. Your content stays exactly the same — only the
-                layout, typography and colour change.
+              <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+                Single column, sidebar, editorial, timeline, compact — different
+                structures, not recolours of one layout.
               </p>
             </div>
-            <Button
-              variant="outline"
-              className="rounded-xl gap-2 group/btn border-border/70 hover:border-accent/40 hover:bg-accent/[0.06]"
-              onClick={() => navigate('/templates')}
-            >
-              Explore Templates
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
+            <Button variant="outline" className="h-10 rounded-md gap-2" onClick={() => navigate('/templates')}>
+              Open the gallery
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </Reveal>
 
@@ -415,26 +407,20 @@ const LandingPage = () => {
             <ScrollRail
               ariaLabel="Featured resume designs"
               itemClassName="w-[168px] sm:w-[186px]"
+              // A slow, continuous drift — a showcase shelf rather than a ticker.
+              autoScrollSpeed={40}
               items={[
                 ...RAIL_TEMPLATE_IDS.map((id) => (
-                  <TemplateTile
-                    key={id}
-                    id={id}
-                    data={sample}
-                    to="/templates"
-                    className="h-full"
-                  />
+                  <TemplateTile key={id} id={id} data={sample} to="/templates" className="h-full" />
                 )),
                 <Link
                   key="__all"
                   to="/templates"
-                  className="group flex h-full min-h-[220px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/60 p-4 text-center transition-all duration-200 hover:border-accent/40 hover:bg-accent/[0.05]"
+                  className="group flex h-full min-h-[232px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-card p-4 text-center transition-colors hover:border-foreground/30"
                 >
-                  <span className="h-10 w-10 rounded-full bg-accent/10 text-accent flex items-center justify-center transition-transform duration-200 group-hover:scale-105 group-hover:translate-x-0.5">
-                    <ArrowRight className="h-4 w-4" />
-                  </span>
-                  <span className="text-[12.5px] font-semibold">All {totalTemplates} designs</span>
-                  <span className="text-[11px] text-muted-foreground">Search and filter the full gallery</span>
+                  <span className="text-[12.5px] font-semibold text-foreground">All {totalTemplates} designs</span>
+                  <span className="text-[11px] text-muted-foreground">Search and filter the gallery</span>
+                  <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform duration-150 group-hover:translate-x-0.5" />
                 </Link>,
               ]}
             />
@@ -442,63 +428,48 @@ const LandingPage = () => {
 
           <Reveal className="mt-3">
             <p className="text-[11.5px] text-muted-foreground">
-              Design previews use sample content. Your resume only ever contains what you enter.
+              Design previews use sample content — your resume only ever contains what you enter.
             </p>
           </Reveal>
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────────────────── */}
-      <section id="start" className="px-4 lg:px-8 pb-16 scroll-mt-20">
-        <Reveal className="max-w-4xl mx-auto">
-          <div className="relative overflow-hidden rounded-2xl border border-accent/20 bg-card p-8 lg:p-12 text-center">
-            <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-              <div className="aurora animate-aurora opacity-70" />
-            </div>
-            <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel text-accent text-[11px] font-semibold uppercase tracking-[0.12em] mb-4">
-                <Sparkles className="h-3.5 w-3.5" /> Under a minute
-              </div>
-              <h2 className="font-display text-[24px] lg:text-[30px] font-bold tracking-tight">Ready to build your resume?</h2>
-              <p className="text-[14.5px] text-muted-foreground mt-3 max-w-xl mx-auto leading-relaxed">
-                Start with your contact details, pick a design, and be editing a real resume in under a
-                minute.
+      {/* ══ Closing CTA ═════════════════════════════════════════════════════ */}
+      <section>
+        <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20">
+          <Reveal>
+            <div className="rounded-lg border border-border bg-card px-6 py-10 lg:px-12 lg:py-14 text-center">
+              <h2 className="font-display text-[26px] lg:text-[32px] font-semibold leading-tight text-foreground">
+                Ready when you are.
+              </h2>
+              <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
+                Start with your contact details. You will be editing a real
+                resume in under a minute.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
-                <Magnetic>
-                  <Button
-                    size="lg"
-                    className="btn-gradient h-12 px-8 text-[15px] font-semibold rounded-xl gap-2 w-full sm:w-auto group/cta"
-                    onClick={() => navigate('/create')}
-                  >
-                    Create My Resume
-                    <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/cta:translate-x-0.5" />
-                  </Button>
-                </Magnetic>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 px-8 text-[15px] rounded-xl w-full sm:w-auto border-border/70 hover:border-accent/40 hover:bg-accent/[0.06]"
-                  onClick={() => navigate('/resumes')}
-                >
+              <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Button size="lg" className="h-11 px-7 rounded-md gap-2" onClick={() => navigate('/create')}>
+                  Create My Resume
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button size="lg" variant="outline" className="h-11 px-7 rounded-md" onClick={() => navigate('/resumes')}>
                   My Resumes
                 </Button>
               </div>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
-      <footer className="px-4 lg:px-8 pb-10">
-        <div className="max-w-5xl mx-auto border-t border-border/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <footer className="border-t border-border">
+        <div className="mx-auto max-w-6xl px-5 lg:px-8 py-7 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[12px] text-muted-foreground">
-            AI Resume Craft — build a resume that gets noticed.
+            AI Resume Craft — resumes, designed properly.
           </p>
-          <div className="flex items-center gap-4 text-[12px] text-muted-foreground">
+          <nav className="flex items-center gap-5 text-[12px] text-muted-foreground" aria-label="Footer">
             <Link to="/templates" className="hover:text-foreground transition-colors">Templates</Link>
             <Link to="/resumes" className="hover:text-foreground transition-colors">My Resumes</Link>
             <Link to="/settings" className="hover:text-foreground transition-colors">Settings</Link>
-          </div>
+          </nav>
         </div>
       </footer>
     </div>

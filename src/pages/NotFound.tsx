@@ -1,25 +1,24 @@
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <div className="relative flex min-h-full items-center justify-center overflow-hidden bg-workspace">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-        <div className="aurora animate-aurora opacity-50" />
-        <div className="grid-veil" />
-      </div>
-
-      <div className="relative z-10 text-center animate-fade-up">
-        <div className="icon-chip mx-auto mb-5 h-16 w-16 rounded-2xl">
-          <span className="font-display text-[20px] font-bold">?</span>
+    <div className="flex min-h-full items-center justify-center bg-background px-6 py-20">
+      <div className="w-full max-w-md text-center animate-fade-up">
+        <p className="font-display text-[44px] font-semibold leading-none text-foreground">404</p>
+        <div className="mx-auto mt-5 h-px w-16 bg-border" aria-hidden />
+        <h1 className="mt-5 text-[16px] font-semibold text-foreground">Page not found</h1>
+        <p className="mt-2 text-[13.5px] leading-relaxed text-muted-foreground">
+          The page you were looking for does not exist, or it has been moved.
+        </p>
+        <div className="mt-7 flex items-center justify-center gap-2.5">
+          <Button asChild className="h-10 rounded-md px-5">
+            <Link to="/resumes">Go to My Resumes</Link>
+          </Button>
+          <Button asChild variant="outline" className="h-10 rounded-md px-5">
+            <Link to="/">Home</Link>
+          </Button>
         </div>
-        <h1 className="font-display mb-2 text-4xl font-bold tracking-tight text-foreground">404</h1>
-        <p className="mb-6 text-[15px] text-muted-foreground">Page not found</p>
-        <Link
-          to="/"
-          className="btn-gradient inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold"
-        >
-          Go to Resume Editor
-        </Link>
       </div>
     </div>
   );

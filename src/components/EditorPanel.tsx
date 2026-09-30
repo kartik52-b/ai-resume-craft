@@ -150,7 +150,7 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
       {/* Onboarding — compact */}
       {showOnboarding && (
         <div className="px-4 pt-4 pb-2 shrink-0">
-          <div className="rounded-xl border border-accent/20 bg-gradient-to-br from-accent/[0.07] to-accent-2/[0.04] p-3 shadow-xs">
+          <div className="rounded-md border border-border bg-muted/40 p-3">
             <div className="text-[12px] font-semibold text-foreground mb-2">Let's build your resume</div>
             <div className="flex flex-wrap gap-1.5">
               {essentials.map((step, i) => (
@@ -158,8 +158,8 @@ const EditorPanel = ({ scrollToSection, onScrollComplete }: EditorPanelProps) =>
                   key={step.label}
                   onClick={() => navigateToField(step.target.section, step.target.field)}
                   disabled={step.done}
-                  className={cn('flex items-center gap-1.5 text-[11px] rounded-full px-2.5 py-1 transition-colors',
-                    step.done ? 'bg-success/10 text-success' : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground')}
+                  className={cn('flex items-center gap-1.5 rounded px-2 py-1 text-[11px] transition-colors',
+                    step.done ? 'bg-success/10 text-success' : 'bg-background text-muted-foreground hover:text-foreground')}
                 >
                   {step.done ? <CheckCircle2 className="h-3 w-3" /> : <span className="text-[9px] font-bold">{i + 1}</span>}
                   {step.label}
