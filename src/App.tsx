@@ -72,9 +72,12 @@ function BrandMark({ collapsed }: { collapsed: boolean }) {
       className={cn("flex items-center gap-2.5 min-w-0 group", collapsed && "justify-center")}
       aria-label="AI Resume Craft — home"
     >
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-foreground text-background font-display text-[15px] leading-none pb-0.5">
-        A
-      </span>
+      <img
+        src="/icon.svg"
+        alt=""
+        aria-hidden="true"
+        className="h-8 w-8 shrink-0 rounded-md transition-transform duration-200 group-hover:scale-[1.03]"
+      />
       {!collapsed && (
         <span className="min-w-0">
           <span className="block font-display text-[15px] font-semibold leading-tight text-foreground truncate">
