@@ -165,6 +165,78 @@ const STYLE_PROFILES: Record<string, StyleProfile> = {
     font: 'helvetica', nameSize: 21, contactSize: 9, titleSize: 10, bodySize: 9.5,
     lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
   },
+  social: {
+    font: 'helvetica', nameSize: 23, contactSize: 9.5, titleSize: 11, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  tim: {
+    font: 'helvetica', nameSize: 20, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  mark: {
+    font: 'times', nameSize: 24, contactSize: 9.5, titleSize: 10.5, bodySize: 10,
+    lineHeightFactor: 1.5, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.48,
+  },
+  shelah: {
+    font: 'courier', nameSize: 20, contactSize: 9, titleSize: 9.5, bodySize: 9,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '›', charRatio: 0.58,
+  },
+  moon: {
+    font: 'helvetica', nameSize: 22, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.4, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  max: {
+    font: 'helvetica', nameSize: 21, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  lana: {
+    font: 'helvetica', nameSize: 21, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  timeless: {
+    font: 'times', nameSize: 25, contactSize: 9.5, titleSize: 11, bodySize: 10.5,
+    lineHeightFactor: 1.55, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.48,
+  },
+  plain: {
+    font: 'courier', nameSize: 18, contactSize: 9, titleSize: 9.5, bodySize: 9,
+    lineHeightFactor: 1.6, sectionUppercase: true, sectionRule: false, bullet: '-', charRatio: 0.6,
+  },
+  blogger: {
+    font: 'helvetica', nameSize: 20, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  pacific: {
+    font: 'helvetica', nameSize: 21, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  comic: {
+    font: 'helvetica', nameSize: 21, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  kaly: {
+    font: 'helvetica', nameSize: 21, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  mula: {
+    font: 'helvetica', nameSize: 21, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  bela: {
+    font: 'helvetica', nameSize: 21, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+  },
+  'general-ats': {
+    font: 'helvetica', nameSize: 20, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: false, sectionRule: false, bullet: '•', charRatio: 0.5,
+  },
+  freshman: {
+    font: 'helvetica', nameSize: 23, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '▸', charRatio: 0.5,
+  },
+  graphic: {
+    font: 'helvetica', nameSize: 22, contactSize: 9, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '·', charRatio: 0.5,
+  },
 };
 
 export function getStyleProfile(template: ResumeData['template']): StyleProfile {
@@ -203,6 +275,24 @@ const LAYOUT_PROFILES: Record<string, LayoutProfile> = {
   healthcare: { headerAlign: 'left', columns: 'sidebar-right', sidebarRatio: 0.28, nameRule: true },
   legal: { headerAlign: 'center', columns: 'single', sidebarRatio: 0.34, nameRule: true },
   international: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.27, nameRule: false },
+  social: { headerAlign: 'center', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  tim: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.27, nameRule: false },
+  mark: { headerAlign: 'center', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  shelah: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.32, nameRule: false },
+  moon: { headerAlign: 'center', columns: 'sidebar-right', sidebarRatio: 0.25, nameRule: true },
+  max: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  lana: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.38, nameRule: true },
+  timeless: { headerAlign: 'center', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  plain: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: false },
+  blogger: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.28, nameRule: true },
+  pacific: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.32, nameRule: true },
+  comic: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  kaly: { headerAlign: 'center', columns: 'sidebar-right', sidebarRatio: 0.25, nameRule: true },
+  mula: { headerAlign: 'left', columns: 'sidebar-right', sidebarRatio: 0.26, nameRule: true },
+  bela: { headerAlign: 'center', columns: 'sidebar-left', sidebarRatio: 0.26, nameRule: true },
+  'general-ats': { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: false },
+  freshman: { headerAlign: 'center', columns: 'sidebar-left', sidebarRatio: 0.36, nameRule: true },
+  graphic: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.38, nameRule: true },
 };
 
 export function getLayoutProfile(template: ResumeData['template']): LayoutProfile {

@@ -4,14 +4,16 @@ import { TEMPLATE_REGISTRY, getTemplate } from '@/lib/templateRegistry';
 import { createEmptyResume } from '@/types/resume';
 
 describe('template registry', () => {
-  it('contains all twenty-five templates with unique ids', () => {
+  it('contains all templates with unique ids', () => {
     const ids = TEMPLATE_REGISTRY.map((t) => t.id);
-    expect(new Set(ids).size).toBe(25);
+    expect(new Set(ids).size).toBe(TEMPLATE_REGISTRY.length);
     expect(ids).toEqual(expect.arrayContaining([
       'modern', 'minimal', 'professional', 'ats-classic', 'student', 'tech', 'executive',
       'creative', 'academic', 'developer', 'corporate', 'elegant', 'compact', 'two-column', 'portfolio',
       'startup', 'engineering', 'finance', 'consultant', 'research', 'marketing', 'designer',
-      'healthcare', 'legal', 'international',
+      'healthcare', 'legal', 'international', 'social', 'tim', 'mark', 'shelah', 'moon', 'max',
+      'lana', 'timeless', 'plain', 'blogger', 'pacific', 'comic', 'kaly', 'mula', 'bela',
+      'general-ats', 'freshman', 'graphic',
     ]));
   });
 

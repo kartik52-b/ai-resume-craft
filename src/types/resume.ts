@@ -53,8 +53,8 @@ export interface Certification {
   link: string;
 }
 
-export type TemplateType = 'modern' | 'minimal' | 'professional' | 'ats-classic' | 'student' | 'tech' | 'executive' | 'creative' | 'academic' | 'developer' | 'corporate' | 'elegant' | 'compact' | 'two-column' | 'portfolio' | 'startup' | 'engineering' | 'finance' | 'consultant' | 'research' | 'marketing' | 'designer' | 'healthcare' | 'legal' | 'international';
-export const ALL_TEMPLATE_TYPES: TemplateType[] = ['modern', 'minimal', 'professional', 'ats-classic', 'student', 'tech', 'executive', 'creative', 'academic', 'developer', 'corporate', 'elegant', 'compact', 'two-column', 'portfolio', 'startup', 'engineering', 'finance', 'consultant', 'research', 'marketing', 'designer', 'healthcare', 'legal', 'international'];
+export type TemplateType = 'modern' | 'minimal' | 'professional' | 'ats-classic' | 'student' | 'tech' | 'executive' | 'creative' | 'academic' | 'developer' | 'corporate' | 'elegant' | 'compact' | 'two-column' | 'portfolio' | 'startup' | 'engineering' | 'finance' | 'consultant' | 'research' | 'marketing' | 'designer' | 'healthcare' | 'legal' | 'international' | 'social' | 'tim' | 'mark' | 'shelah' | 'moon' | 'max' | 'lana' | 'timeless' | 'plain' | 'blogger' | 'pacific' | 'comic' | 'kaly' | 'mula' | 'bela' | 'general-ats' | 'freshman' | 'graphic';
+export const ALL_TEMPLATE_TYPES: TemplateType[] = ['modern', 'minimal', 'professional', 'ats-classic', 'student', 'tech', 'executive', 'creative', 'academic', 'developer', 'corporate', 'elegant', 'compact', 'two-column', 'portfolio', 'startup', 'engineering', 'finance', 'consultant', 'research', 'marketing', 'designer', 'healthcare', 'legal', 'international', 'social', 'tim', 'mark', 'shelah', 'moon', 'max', 'lana', 'timeless', 'plain', 'blogger', 'pacific', 'comic', 'kaly', 'mula', 'bela', 'general-ats', 'freshman', 'graphic'];
 
 /** Editable/visible resume sections, in their default order. */
 export type SectionId = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications';
