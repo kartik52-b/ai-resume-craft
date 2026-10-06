@@ -84,13 +84,13 @@ const PreviewPanel = () => {
       <div className="sticky top-0 z-10 flex w-full items-center justify-between border-b border-border bg-workspace px-4 py-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
           <span className="nav-group-label">Live preview</span>
-          <span className="text-[11px] capitalize text-muted-foreground">{getTemplate(resume.template).label}</span>
+          <span className="text-xs capitalize text-muted-foreground">{getTemplate(resume.template).label}</span>
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setZoomIdx(Math.max(0, effectiveIdx - 1))} disabled={effectiveIdx === 0} aria-label="Zoom out">
             <ZoomOut className="h-3.5 w-3.5" />
           </Button>
-          <span className="text-[11px] text-muted-foreground tabular-nums w-10 text-center font-medium">{Math.round(zoom * 100)}%</span>
+          <span className="text-xs text-muted-foreground tabular-nums w-10 text-center font-medium">{Math.round(zoom * 100)}%</span>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setZoomIdx(Math.min(ZOOM_LEVELS.length - 1, effectiveIdx + 1))} disabled={effectiveIdx === ZOOM_LEVELS.length - 1} aria-label="Zoom in">
             <ZoomIn className="h-3.5 w-3.5" />
           </Button>
@@ -122,9 +122,9 @@ const PreviewPanel = () => {
             <Template data={resume} />
             {isEmpty && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center px-8 pointer-events-none">
-                <Eye className="h-6 w-6 text-muted-foreground/40" />
-                <p className="text-[13px] font-medium text-muted-foreground">Your resume preview appears here</p>
-                <p className="text-[11px] text-muted-foreground/80">Fill in the sections on the left and this page updates as you type.</p>
+                <Eye className="h-6 w-6 text-muted-2" />
+                <p className="text-sm font-medium text-muted-foreground">Your resume preview appears here</p>
+                <p className="text-xs text-muted-2">Fill in the sections on the left and this page updates as you type.</p>
               </div>
             )}
           </div>

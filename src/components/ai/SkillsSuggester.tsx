@@ -16,7 +16,7 @@ export default function SkillsSuggester({ role, experienceContext, existingSkill
 
   return (
     <div className="space-y-1.5">
-      <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[11.5px]" onClick={generate} disabled={loading}>
+      <Button variant="secondary" size="sm" className="gap-1.5" onClick={generate} disabled={loading}>
         {loading && <Loader2 className="h-3 w-3 animate-spin" />}
         {loading ? 'Thinking…' : 'Suggest skills'}
       </Button>

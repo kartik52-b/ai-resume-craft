@@ -8,7 +8,7 @@ import { createEmptyEducation } from '@/types/resume';
 import { Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const INPUT = "h-9 text-[13px]";
+const INPUT = "h-9 text-sm";
 const REQUIRED_MESSAGE = 'Please enter your institution.';
 
 const EducationSection = () => {
@@ -49,7 +49,7 @@ const EducationSection = () => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5 col-span-2">
-                <Label className="text-[11px] font-medium text-muted-foreground">
+                <Label className="text-xs font-medium text-muted-foreground">
                   Institution <span className="text-destructive" aria-hidden>*</span>
                 </Label>
                 <Input
@@ -64,27 +64,27 @@ const EducationSection = () => {
                   className={cn(INPUT, error && 'border-destructive/60 focus-visible:ring-destructive/30')}
                 />
                 {error && (
-                  <p id={`${edu.id}-error`} className="flex items-start gap-1.5 text-[11px] text-destructive animate-fade-in" role="alert">
+                  <p id={`${edu.id}-error`} className="flex items-start gap-1.5 text-xs text-destructive animate-fade-in" role="alert">
                     {error}
                   </p>
                 )}
               </div>
-              <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">Degree</Label><Input value={edu.degree} onChange={e => updateEdu(edu.id, 'degree', e.target.value)} placeholder="B.S." className={INPUT} /></div>
-              <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">Field of Study</Label><Input value={edu.field} onChange={e => updateEdu(edu.id, 'field', e.target.value)} placeholder="Computer Science" className={INPUT} /></div>
-              <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">Start Date</Label><Input value={edu.startDate} onChange={e => updateEdu(edu.id, 'startDate', e.target.value)} placeholder="Sep 2018" className={INPUT} /></div>
-              <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">End Date</Label><Input value={edu.endDate} onChange={e => updateEdu(edu.id, 'endDate', e.target.value)} placeholder="Jun 2022" className={INPUT} /></div>
-              <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">GPA</Label><Input value={edu.gpa} onChange={e => updateEdu(edu.id, 'gpa', e.target.value)} placeholder="3.9/4.0" className={INPUT} /></div>
+              <div className="space-y-1.5"><Label className="text-xs font-medium text-muted-foreground">Degree</Label><Input value={edu.degree} onChange={e => updateEdu(edu.id, 'degree', e.target.value)} placeholder="B.S." className={INPUT} /></div>
+              <div className="space-y-1.5"><Label className="text-xs font-medium text-muted-foreground">Field of Study</Label><Input value={edu.field} onChange={e => updateEdu(edu.id, 'field', e.target.value)} placeholder="Computer Science" className={INPUT} /></div>
+              <div className="space-y-1.5"><Label className="text-xs font-medium text-muted-foreground">Start Date</Label><Input value={edu.startDate} onChange={e => updateEdu(edu.id, 'startDate', e.target.value)} placeholder="Sep 2018" className={INPUT} /></div>
+              <div className="space-y-1.5"><Label className="text-xs font-medium text-muted-foreground">End Date</Label><Input value={edu.endDate} onChange={e => updateEdu(edu.id, 'endDate', e.target.value)} placeholder="Jun 2022" className={INPUT} /></div>
+              <div className="space-y-1.5"><Label className="text-xs font-medium text-muted-foreground">GPA</Label><Input value={edu.gpa} onChange={e => updateEdu(edu.id, 'gpa', e.target.value)} placeholder="3.9/4.0" className={INPUT} /></div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-muted-foreground">
-                Description <span className="text-[9px] font-normal text-muted-foreground/70">Optional</span>
+              <Label className="text-xs font-medium text-muted-foreground">
+                Description <span className="text-xs font-normal text-muted-2">Optional</span>
               </Label>
               <Textarea
                 rows={2}
                 value={edu.description}
                 onChange={e => updateEdu(edu.id, 'description', e.target.value)}
                 placeholder="Honors, relevant coursework, activities…"
-                className="min-h-[56px] resize-y text-[13px]"
+                className="min-h-[56px] resize-y text-sm"
               />
             </div>
           </div>
@@ -93,7 +93,7 @@ const EducationSection = () => {
       <button
         data-editor-focus-target="add-education"
         onClick={addEducation}
-        className="w-full rounded-md border border-dashed border-border py-2.5 text-[12.5px] text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground"
+        className="w-full rounded-md border border-dashed border-border py-2.5 text-sm text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground"
       >+ Add Education</button>
     </div>
   );

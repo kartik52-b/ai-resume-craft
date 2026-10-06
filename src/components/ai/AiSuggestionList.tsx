@@ -8,15 +8,15 @@ export default function AiSuggestionList({ title, items, onAccept, onDismiss, on
   return (
     <div className="space-y-2 rounded-md border border-border bg-card p-3 animate-fade-in">
       <div className="flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">{title}</span>
-        <button onClick={onDismissAll} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">Dismiss all</button>
+        <span className="flex items-center gap-1.5 text-sm font-medium uppercase tracking-[0.06em] text-muted-2">{title}</span>
+        <Button variant="ghost" size="sm" className="gap-1.5" onClick={onDismissAll}>Dismiss all</Button>
       </div>
       {items.length === 0 && emptyMessage && <p className="text-xs text-muted-foreground">{emptyMessage}</p>}
       {items.map((item) => (
         <div key={item} className="group flex items-start gap-2 rounded border border-border bg-muted/30 p-2.5 transition-colors hover:border-foreground/20">
-          <p className="flex-1 text-[12px] text-foreground/85 leading-relaxed">{item}</p>
+          <p className="flex-1 text-xs text-foreground leading-relaxed">{item}</p>
           <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-            <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px] font-medium text-success hover:bg-success/10 transition-colors" onClick={() => onAccept(item)}>
+            <Button variant="ghost" size="sm" className="h-6 px-2 text-xs font-medium text-success hover:bg-success/10 transition-colors" onClick={() => onAccept(item)}>
               <Check className="h-3 w-3 mr-0.5" /> Accept
             </Button>
             <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" onClick={() => onDismiss(item)} aria-label="Dismiss suggestion">

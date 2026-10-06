@@ -15,6 +15,13 @@
 
      Contrast (WCAG AA): ink on ivory ≈ 16:1, secondary text ≈ 7:1,
      paper on the primary fill ≈ 16:1, bronze on paper ≈ 4.8:1.
+
+     UI type scale (Tailwind `fontSize`): 12 / 14 / 16 / 18 / 20 / 24 / 30 /
+     36 / 48 / hero(clamp 42–72). Nothing in the interface is smaller than
+     12px. Text colour is semantic, never decorative: foreground (primary),
+     muted-foreground (secondary), muted-2 (muted), bronze (accent) and link,
+     plus success and error for state. Printable resume templates keep their
+     own document typography — they represent paper, not the interface.
      ══════════════════════════════════════════════════════════════════════ */
   :root {
     /* ── Surfaces ── */
@@ -42,6 +49,11 @@
     --bronze-hover: 25 40% 38%;      /* #865A3A */
     --bronze-foreground: 43 100% 99%;
     --bronze-soft: 34 42% 88%;       /* #EEE3D5 */
+    /* Action bronze — the primary button fill. One shade deeper than the brand
+       bronze so paper-on-bronze clears WCAG AA (≈4.9:1), while the brand bronze
+       stays for selection, indicators and dividers. */
+    --bronze-solid: 25 42% 40%;      /* #91673B */
+    --bronze-solid-hover: 25 43% 33%;/* #78542F */
 
     /* ── Secondary accents: muted teal + muted coral (extremely sparing) ── */
     --teal: 176 43% 33%;             /* #2F7772 */
@@ -50,10 +62,14 @@
     --coral-foreground: 45 3% 9%;
 
     --muted: 40 29% 92%;
-    --muted-foreground: 40 6% 42%;   /* #706C64 */
+    --muted-foreground: 40 6% 42%;   /* #706C64 — secondary text */
+    --muted-2: 38 7% 54%;            /* #918B81 — muted text */
+    --link: 25 40% 38%;              /* #865A3A — links */
 
-    --destructive: 9 52% 44%;        /* the coral family, at error contrast */
+    --destructive: 5 33% 41%;        /* #8A4B45 — error / destructive fill */
     --destructive-foreground: 43 100% 99%;
+    --error: 5 33% 41%;              /* #8A4B45 — error text */
+    --error-foreground: 43 100% 99%;
 
     --border: 39 20% 84%;            /* #DED8CD */
     --border-strong: 37 19% 77%;     /* #CFC6B8 */
@@ -71,7 +87,7 @@
     --canvas: 43 100% 99%;
     --surface-raised: 43 100% 99%;
 
-    --success: 176 40% 30%;
+    --success: 90 11% 40%;           /* #65705A — sage */
     --success-foreground: 43 100% 99%;
     --warning: 26 58% 38%;
     --warning-foreground: 43 100% 99%;
@@ -123,6 +139,9 @@
     --bronze-hover: 33 40% 59%;      /* #C09A6B */
     --bronze-foreground: 40 10% 8%;
     --bronze-soft: 40 10% 14%;
+    /* Action bronze in the dark theme: the light bronze, with ink on top. */
+    --bronze-solid: 33 35% 53%;      /* #B08A5C */
+    --bronze-solid-hover: 33 40% 59%;/* #C09A6B */
 
     --teal: 176 39% 38%;             /* #3B8580 */
     --teal-foreground: 40 10% 8%;
@@ -130,10 +149,14 @@
     --coral-foreground: 40 10% 8%;
 
     --muted: 40 10% 13%;
-    --muted-foreground: 37 10% 63%;  /* #AAA398 */
+    --muted-foreground: 37 10% 63%;  /* #AAA398 — secondary text */
+    --muted-2: 37 9% 48%;            /* #817B72 — muted text */
+    --link: 33 38% 60%;              /* #C39B6C — links */
 
-    --destructive: 7 49% 60%;
+    --destructive: 6 40% 60%;        /* #C17A70 */
     --destructive-foreground: 40 10% 8%;
+    --error: 6 40% 60%;              /* #C17A70 — error text */
+    --error-foreground: 40 10% 8%;
 
     --border: 36 10% 19%;            /* #35312B */
     --border-strong: 36 10% 26%;
@@ -145,7 +168,7 @@
     --canvas: 43 100% 99%;
     --surface-raised: 40 10% 11%;
 
-    --success: 176 35% 52%;
+    --success: 90 13% 57%;           /* #8FA083 */
     --success-foreground: 40 10% 8%;
     --warning: 33 45% 60%;
     --warning-foreground: 40 10% 8%;
@@ -236,7 +259,7 @@
 
   /* ── Small uppercase label — the editorial "eyebrow" ── */
   .eyebrow {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -275,7 +298,7 @@
   /* ── Section numeral, used by the landing walkthrough ── */
   .numeral {
     font-family: 'Source Serif 4', Georgia, serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.06em;
     font-variant-numeric: tabular-nums;
@@ -284,7 +307,7 @@
 
   /* ── Section group label (sidebar) ── */
   .nav-group-label {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;

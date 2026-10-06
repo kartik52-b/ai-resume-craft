@@ -58,14 +58,14 @@ export default function SectionNav({ activeSection, onSectionClick }: SectionNav
                     className="absolute left-0 top-1/2 h-4 w-[2.5px] -translate-y-1/2 rounded-full bg-bronze"
                   />
                 )}
-                <Icon className={cn('h-3.5 w-3.5 shrink-0 transition-colors', isActive ? 'text-bronze' : 'text-muted-foreground/60')} />
-                <span className="flex-1 text-[12px] font-medium truncate">{meta.title}</span>
+                <Icon className={cn('h-3.5 w-3.5 shrink-0 transition-colors', isActive ? 'text-bronze' : 'text-muted-2')} />
+                <span className="flex-1 text-xs font-medium truncate">{meta.title}</span>
                 {hidden ? (
-                  <EyeOff className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+                  <EyeOff className="h-3 w-3 text-muted-2 shrink-0" />
                 ) : completeness === 100 ? (
                   <CheckCircle2 className="h-3 w-3 text-success shrink-0" />
                 ) : (
-                  <span className="text-[10px] text-muted-foreground/60 tabular-nums shrink-0">{completeness}%</span>
+                  <span className="text-xs text-muted-2 tabular-nums shrink-0">{completeness}%</span>
                 )}
               </button>
             );

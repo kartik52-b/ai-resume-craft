@@ -4,30 +4,40 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * The whole button system: three emphasis levels plus one semantic state.
+ *
+ *   primary      bronze fill — the single main action of a view
+ *   secondary    hairline border on paper — an equally valid, quieter action
+ *   ghost        no border — tertiary actions, icon-only controls
+ *   destructive  the same component with a semantic error state
+ *
+ * Nothing else: every button in the product shares this radius, height,
+ * padding, type, focus ring and transition, so the interface reads as one
+ * designed system rather than a pile of one-off controls.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-[background-color,border-color,box-shadow,transform,color] duration-150 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 hover:shadow-card",
+        primary:
+          "bg-bronze-solid text-bronze-foreground shadow-xs hover:bg-bronze-solid-hover hover:shadow-card",
+        secondary:
+          "border border-border bg-transparent text-foreground hover:border-border-strong hover:bg-secondary/60",
+        ghost: "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        /** Secondary: transparent on the paper, thin border, ink text. */
-        outline: "border border-border bg-transparent text-foreground hover:border-border-strong hover:bg-secondary/70",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
-        ghost: "hover:bg-secondary/70 hover:text-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        /** Reserved for selected / important states — use sparingly. */
-        bronze: "bg-bronze text-bronze-foreground hover:bg-bronze-hover",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-lg px-3",
-        lg: "h-11 rounded-lg px-8",
+        default: "h-10 px-[18px] py-2",
+        sm: "h-9 px-3",
+        lg: "h-11 px-6",
         icon: "h-10 w-10",
+        'icon-sm': "h-9 w-9",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "primary",
       size: "default",
     },
   },

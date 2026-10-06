@@ -38,23 +38,23 @@ export default function TipStrip({ tips, ariaLabel = 'Writing tips', compact = f
       role="group"
       aria-label={ariaLabel}
     >
-      <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+      <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.12em] text-muted-2">
         Tip
       </span>
 
       <div className="min-w-0 flex-1" aria-live="polite">
         <div key={index} className="animate-fade-in">
-          <span className={cn('font-semibold text-foreground', compact ? 'text-[11.5px]' : 'text-[12.5px]')}>
+          <span className={cn('font-semibold text-foreground', compact ? 'text-xs' : 'text-sm')}>
             {tip.title}
           </span>
-          <span className={cn('text-muted-foreground', compact ? 'text-[11.5px]' : 'text-[12.5px]')}>
+          <span className={cn('text-muted-foreground', compact ? 'text-xs' : 'text-sm')}>
             {' '}
             {tip.text}
           </span>
         </div>
       </div>
 
-      <span className="text-[10px] text-muted-foreground/60 tabular-nums shrink-0 hidden sm:block">
+      <span className="text-xs text-muted-2 tabular-nums shrink-0 hidden sm:block">
         {index + 1}/{tips.length}
       </span>
 

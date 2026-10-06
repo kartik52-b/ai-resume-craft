@@ -89,7 +89,7 @@ const Index = () => {
           onClick={() => setMobileView("edit")}
           aria-pressed={mobileView === "edit"}
           className={cn(
-            "relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-medium transition-colors duration-200 w-[116px] justify-center",
+            "relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium transition-colors duration-200 w-[116px] justify-center",
             mobileView === "edit" ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
           )}
         >
@@ -99,7 +99,7 @@ const Index = () => {
           onClick={() => setMobileView("preview")}
           aria-pressed={mobileView === "preview"}
           className={cn(
-            "relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-medium transition-colors duration-200 w-[116px] justify-center",
+            "relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium transition-colors duration-200 w-[116px] justify-center",
             mobileView === "preview" ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
           )}
         >

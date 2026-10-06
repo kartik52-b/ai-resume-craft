@@ -65,8 +65,8 @@ function LayoutBadge({ layoutType }: { layoutType: string }) {
   };
   return (
     <Badge
-      variant="outline"
-      className="text-[9px] border-border/60 text-muted-foreground shrink-0"
+      variant="secondary"
+      className="text-xs border-border/60 text-muted-foreground shrink-0"
     >
       {labels[layoutType] ?? layoutType}
     </Badge>
@@ -116,7 +116,7 @@ function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: Templa
           <ResumeThumbnail data={{ ...data, template: t.id }} />
         </div>
         {isCurrent && (
-          <span className="absolute right-2 top-2 flex items-center gap-1 rounded-sm bg-bronze px-1.5 py-0.5 text-[10px] font-medium text-bronze-foreground shadow-xs">
+          <span className="absolute right-2 top-2 flex items-center gap-1 rounded-sm bg-bronze px-1.5 py-0.5 text-xs font-medium text-bronze-foreground shadow-xs">
             <Check className="h-3 w-3" /> Selected
           </span>
         )}
@@ -125,30 +125,25 @@ function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: Templa
       {/* Info */}
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-1 gap-2">
-          <h3 className="text-[13.5px] font-semibold truncate">{t.label}</h3>
+          <h3 className="text-sm font-semibold">{t.label}</h3>
           <div className="flex items-center gap-1 shrink-0">
             <LayoutBadge layoutType={t.layoutType} />
           </div>
         </div>
-        <p className="text-[11.5px] text-muted-foreground leading-relaxed mb-1.5 flex-1">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-1.5 flex-1">
           {t.description}
         </p>
-        <p className="text-[11px] text-muted-foreground/60 mb-3">
+        <p className="text-xs text-muted-2 mb-3">
           Best for: {t.bestFor}
         </p>
         <div className="flex gap-1.5">
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1 h-8 text-[12px] font-medium"
-            onClick={onPreview}
-          >
+          <Button size="sm" variant="secondary" className="flex-1" onClick={onPreview}>
             Preview
           </Button>
           <Button
             size="sm"
-            variant={isCurrent ? "default" : "outline"}
-            className="flex-1 h-8 text-[12px] font-medium"
+            variant={isCurrent ? "primary" : "secondary"}
+            className="flex-1"
             onClick={onUse}
             disabled={isCurrent}
           >
@@ -282,10 +277,10 @@ export default function TemplatesPage() {
       <div className="h-full overflow-auto bg-workspace scrollbar-thin">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-workspace px-4 py-2.5">
           <div className="flex items-center gap-2">
-            <span className="text-[13px] font-medium">
+            <span className="text-sm font-medium">
               {previewTemplate.label}
             </span>
-            <Badge variant="secondary" className="text-[10px]">
+            <Badge variant="secondary" className="text-xs">
               Fullscreen
             </Badge>
           </div>
@@ -300,7 +295,7 @@ export default function TemplatesPage() {
             >
               <ZoomOut className="h-3.5 w-3.5" />
             </Button>
-            <span className="text-[11px] w-10 text-center tabular-nums">
+            <span className="text-xs w-10 text-center tabular-nums">
               {Math.round(ZOOM_LEVELS[zoomIdx] * 100)}%
             </span>
             <Button
@@ -328,7 +323,7 @@ export default function TemplatesPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 text-[12px]"
+              className="h-7 text-xs"
               onClick={() => setFullscreen(false)}
             >
               Exit
@@ -385,10 +380,10 @@ export default function TemplatesPage() {
           {/* ── Header ── */}
           <Reveal className="mb-7">
             <p className="eyebrow mb-3">Design library</p>
-            <h1 className="font-display text-[26px] font-semibold leading-tight text-foreground lg:text-[32px]">
+            <h1 className="font-display text-2xl font-semibold leading-tight text-foreground lg:text-3xl">
               Choose your template.
             </h1>
-            <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
               {TEMPLATE_REGISTRY.length} professionally designed templates.
               Find the structure that fits your career.
             </p>
@@ -403,9 +398,9 @@ export default function TemplatesPage() {
                 <div key={s.id} className="p-4 sm:p-5 grid sm:grid-cols-[1fr_1.5fr] gap-4 items-center">
                   <div className="min-w-0">
                     <p className="eyebrow mb-2.5">Collection</p>
-                    <h2 className="font-display text-[18px] font-semibold leading-snug text-foreground">{s.label}</h2>
-                    <p className="mt-2 text-[12.5px] leading-relaxed text-muted-foreground">{s.blurb}</p>
-                    <p className="mt-2 text-[11px] text-muted-foreground/80">Open a preview to inspect it full-page — sample content only.</p>
+                    <h2 className="font-display text-lg font-semibold leading-snug text-foreground">{s.label}</h2>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.blurb}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">Open a preview to inspect it full-page — sample content only.</p>
                   </div>
                   <div className="grid grid-cols-4 gap-2">
                     {s.items.map((t) => (
@@ -428,12 +423,12 @@ export default function TemplatesPage() {
           {/* ── Search + Categories ── */}
           <div className="space-y-3 mb-5">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-2" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search templates…"
-                className="h-9 pl-9 text-[13px] bg-card"
+                className="h-9 pl-9 text-sm bg-card"
                 aria-label="Search templates"
               />
               {searchQuery && (
@@ -464,14 +459,14 @@ export default function TemplatesPage() {
                     key={cat.value}
                     onClick={() => setActiveFilter(cat.value)}
                     className={cn(
-                      "whitespace-nowrap rounded-md border px-3 py-1.5 text-[12px] transition-colors duration-150",
+                      "whitespace-nowrap rounded-md border px-3 py-1.5 text-xs transition-colors duration-150",
                       activeFilter === cat.value
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground",
                     )}
                   >
                     {cat.label}
-                    <span className="ml-1.5 text-[10px] opacity-60">
+                    <span className="ml-1.5 text-xs opacity-60">
                       {count}
                     </span>
                   </button>
@@ -512,15 +507,15 @@ export default function TemplatesPage() {
             </Reveal>
           ) : (
             <div className="text-center py-16 animate-fade-up">
-              <Search className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-[14px] font-medium mb-1">No templates found</p>
-              <p className="text-[12px] text-muted-foreground">
+              <Search className="h-8 w-8 text-muted-2 mx-auto mb-3" />
+              <p className="text-sm font-medium mb-1">No templates found</p>
+              <p className="text-xs text-muted-foreground">
                 Try a different search or category.
               </p>
               <Button
                 variant="ghost"
                 size="sm"
-                className="mt-3 text-[12px]"
+                className="mt-3 text-xs"
                 onClick={() => {
                   setSearchQuery("");
                   setActiveFilter("all");
@@ -540,26 +535,28 @@ export default function TemplatesPage() {
           <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-3.5">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-[15px] font-bold truncate">
+                <h2 className="text-lg font-semibold" title={previewTemplate.label}>
                   {previewTemplate.label}
                 </h2>
                 <LayoutBadge layoutType={previewTemplate.layoutType} />
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {previewTemplate.layoutDescription}
               </p>
-              <p className="text-[11px] text-muted-foreground/60 capitalize">
+              <p className="text-xs text-muted-2 capitalize">
                 {previewTemplate.category} · Best for{" "}
                 {previewTemplate.bestFor}
               </p>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="shrink-0"
               onClick={() => setPreviewing(null)}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               aria-label="Close preview"
             >
-              <X className="h-4 w-4" />
-            </button>
+              <X />
+            </Button>
           </div>
 
           {/* Scrollable preview area */}
@@ -602,14 +599,14 @@ export default function TemplatesPage() {
 
             {/* Template features */}
             <div className="px-5 py-4 space-y-3">
-              <p className="text-[12px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 {previewTemplate.description}
               </p>
               <div className="grid grid-cols-2 gap-1.5">
                 {previewTemplate.features.map((f) => (
                   <div
                     key={f}
-                    className="flex items-center gap-1.5 text-[11.5px] text-foreground"
+                    className="flex items-center gap-1.5 text-xs text-foreground"
                   >
                     <Check className="h-3 w-3 text-success shrink-0" />{f}
                   </div>
@@ -621,12 +618,12 @@ export default function TemplatesPage() {
           {/* Apply bar */}
           <div className="shrink-0 border-t border-border bg-card p-4">
             {isCurrent ? (
-              <div className="flex h-10 items-center justify-center gap-2 rounded-md bg-bronze-soft text-[13px] font-medium text-foreground">
+              <div className="flex h-10 items-center justify-center gap-2 rounded-md bg-bronze-soft text-sm font-medium text-foreground">
                 <CheckCircle2 className="h-4 w-4" /> This is your active design
               </div>
             ) : (
               <Button
-                className="h-10 w-full gap-2 rounded-md text-[13px]"
+                className="h-10 w-full gap-2 rounded-md text-sm"
                 onClick={() => handleUseTemplate(previewTemplate)}
               >
                 Use This Template <ArrowRight className="h-4 w-4" />
@@ -636,7 +633,7 @@ export default function TemplatesPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex-1 h-7 text-[11px]"
+                className="flex-1 h-7 text-xs"
                 onClick={() => setFullscreen(true)}
               >
                 <Maximize2 className="h-3 w-3 mr-1" /> Fullscreen
@@ -644,7 +641,7 @@ export default function TemplatesPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex-1 h-7 text-[11px]"
+                className="flex-1 h-7 text-xs"
                 onClick={() =>
                   setZoomIdx((z) => Math.min(ZOOM_LEVELS.length - 1, z + 1))
                 }
@@ -655,7 +652,7 @@ export default function TemplatesPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex-1 h-7 text-[11px]"
+                className="flex-1 h-7 text-xs"
                 onClick={() => setZoomIdx((z) => Math.max(0, z - 1))}
                 disabled={zoomIdx === 0}
               >
@@ -664,7 +661,7 @@ export default function TemplatesPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex-1 h-7 text-[11px]"
+                className="flex-1 h-7 text-xs"
                 onClick={() => setZoomIdx(2)}
               >
                 <RotateCcw className="h-3 w-3 mr-1" /> Fit
@@ -683,10 +680,10 @@ export default function TemplatesPage() {
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-[15px]">
+            <DialogTitle className="text-base">
               Use {confirmApply?.label}?
             </DialogTitle>
-            <DialogDescription className="text-[13px] text-muted-foreground leading-relaxed">
+            <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
               Your existing resume information will be kept. Only the design
               will change.
             </DialogDescription>

@@ -31,23 +31,23 @@ const PersonalSection = () => {
       <div className="grid grid-cols-2 gap-x-3 gap-y-3">
         {fields.map(({ key, label, icon: Icon, placeholder }) => (
           <div key={key} className="space-y-1.5">
-            <Label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+            <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
               <Icon className="h-3 w-3 opacity-50" />{label}
             </Label>
             <Input data-editor-focus-target={key} value={p[key]} onChange={(e) => updatePersonal(key, e.target.value)} placeholder={placeholder}
-              className="h-9 text-[13px]" />
+              className="h-9 text-sm" />
           </div>
         ))}
       </div>
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <Label className="text-[11px] font-medium text-muted-foreground">Professional Summary</Label>
+          <Label className="text-xs font-medium text-muted-foreground">Professional Summary</Label>
           <SummaryGenerator resumeText={resumeToPlainText(resume)} currentSummary={p.summary} onAccept={(text) => updatePersonal('summary', text)} />
         </div>
         <div className="relative">
           <Textarea value={p.summary} onChange={(e) => updatePersonal('summary', e.target.value)}
             placeholder="Experienced software engineer with 5+ years..."
-            className="min-h-[80px] resize-none pr-2 text-[13px]" />
+            className="min-h-[80px] resize-none pr-2 text-sm" />
           <div className="flex justify-end mt-0.5">
             <AiToolbar text={p.summary} onAccept={(text) => updatePersonal('summary', text)} />
           </div>

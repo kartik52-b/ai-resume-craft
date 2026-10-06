@@ -43,7 +43,7 @@ export default function AiToolbar({ text, onAccept, className }: AiToolbarProps)
         type="button"
         disabled={loading}
         onClick={() => { setPreview(null); clearError(); setMenuOpen(v => !v); }}
-        className="inline-flex items-center gap-1.5 rounded px-1.5 py-0.5 text-[11.5px] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
         aria-expanded={menuOpen}
         aria-haspopup="menu"
       >
@@ -63,8 +63,8 @@ export default function AiToolbar({ text, onAccept, className }: AiToolbarProps)
               onClick={() => rewrite(mode.id)}
               className="block w-full rounded px-2.5 py-2 text-left transition-colors hover:bg-muted"
             >
-              <span className="block text-[12px] font-medium text-foreground">{mode.label}</span>
-              <span className="block text-[10.5px] text-muted-foreground">{mode.hint}</span>
+              <span className="block text-xs font-medium text-foreground">{mode.label}</span>
+              <span className="block text-xs text-muted-foreground">{mode.hint}</span>
             </button>
           ))}
         </div>
@@ -75,7 +75,7 @@ export default function AiToolbar({ text, onAccept, className }: AiToolbarProps)
       {preview && preview !== originalText && (
         <div className="mt-2 rounded-md border border-border bg-card p-3 animate-fade-in">
           <div className="flex items-start justify-between gap-3">
-            <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+            <span className="text-sm font-medium uppercase tracking-[0.06em] text-muted-2">
               Suggestion
             </span>
             <button
@@ -86,12 +86,12 @@ export default function AiToolbar({ text, onAccept, className }: AiToolbarProps)
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
-          <p className="mt-2 text-[12.5px] leading-relaxed text-foreground/90">{preview}</p>
+          <p className="mt-2 text-sm leading-relaxed text-foreground">{preview}</p>
           <div className="mt-3 flex gap-2">
-            <Button size="sm" className="h-7 rounded px-3 text-[11.5px]" onClick={() => { onAccept(preview); setPreview(null); }}>
+            <Button size="sm" className="h-7 rounded px-3 text-xs" onClick={() => { onAccept(preview); setPreview(null); }}>
               Apply
             </Button>
-            <Button variant="ghost" size="sm" className="h-7 rounded px-3 text-[11.5px]" onClick={() => setPreview(null)}>
+            <Button variant="ghost" size="sm" className="h-7 rounded px-3 text-xs" onClick={() => setPreview(null)}>
               Discard
             </Button>
           </div>

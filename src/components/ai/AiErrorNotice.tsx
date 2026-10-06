@@ -22,14 +22,14 @@ export default function AiErrorNotice({
 
   if (code !== 'not_configured') {
     return (
-      <p role="status" className={cn('text-[11px] text-destructive', className)}>
+      <p role="status" className={cn('text-xs text-destructive', className)}>
         {message}
       </p>
     );
   }
 
   return (
-    <p role="status" className={cn('text-[11px] text-muted-foreground', className)}>
+    <p role="status" className={cn('text-xs text-muted-foreground', className)}>
       {message}{' '}
       <Link
         to="/settings"

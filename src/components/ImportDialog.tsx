@@ -47,37 +47,37 @@ export const ImportDialog = ({ open, onOpenChange }: { open: boolean; onOpenChan
     <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-[15px]">Import resume</DialogTitle>
-          <DialogDescription className="text-[12px]">Import a .txt, .md or .docx file. Review the detected content before it replaces the current resume — nothing is overwritten until you confirm.</DialogDescription>
+          <DialogTitle className="text-base">Import resume</DialogTitle>
+          <DialogDescription className="text-xs">Import a .txt, .md or .docx file. Review the detected content before it replaces the current resume — nothing is overwritten until you confirm.</DialogDescription>
         </DialogHeader>
         {!parsed && !error && (
           <div role="button" tabIndex={0} onClick={() => inputRef.current?.click()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) void handleFile(f); }}
             className="cursor-pointer rounded-md border border-dashed border-border p-8 text-center transition-colors duration-150 hover:border-foreground/30 hover:bg-muted/40">
-            <Upload className="h-8 w-8 mx-auto text-muted-foreground/60" />
-            <p className="text-[13px] font-medium mt-2">Click or drop a file</p>
-            <p className="text-[11px] text-muted-foreground mt-1">.txt · .md · .docx — up to 2 MB</p>
+            <Upload className="h-8 w-8 mx-auto text-muted-2" />
+            <p className="text-sm font-medium mt-2">Click or drop a file</p>
+            <p className="text-xs text-muted-foreground mt-1">.txt · .md · .docx — up to 2 MB</p>
             <input ref={inputRef} type="file" accept=".txt,.text,.md,.docx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFile(f); }} />
           </div>
         )}
-        {parsing && <p className="text-[13px] text-muted-foreground py-6 text-center">Reading file...</p>}
+        {parsing && <p className="text-sm text-muted-foreground py-6 text-center">Reading file...</p>}
         {error && (
           <div className="space-y-3">
-            <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3"><AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" /><div className="text-[13px]"><p className="font-medium text-destructive">{error.message}</p><p className="text-[11px] text-muted-foreground mt-1">Your current resume was not modified.</p></div></div>
-            <Button variant="outline" onClick={reset} className="text-[12px]">Try another file</Button>
+            <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3"><AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" /><div className="text-sm"><p className="font-medium text-destructive">{error.message}</p><p className="text-xs text-muted-foreground mt-1">Your current resume was not modified.</p></div></div>
+            <Button variant="secondary" onClick={reset} className="text-xs">Try another file</Button>
           </div>
         )}
         {parsed && d && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-[13px]"><CheckCircle2 className="h-4 w-4 text-success" /><span className="font-medium">Detected content</span><Badge variant="secondary" className="ml-auto text-[11px]">{count(d.experience.length)} roles</Badge><Badge variant="secondary" className="text-[11px]">{count(d.education.length)} education</Badge><Badge variant="secondary" className="text-[11px]">{count(d.skills.length)} skills</Badge></div>
-            <div className="rounded-lg border border-border p-3 space-y-2 text-[13px] max-h-64 overflow-y-auto">
+            <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="h-4 w-4 text-success" /><span className="font-medium">Detected content</span><Badge variant="secondary" className="ml-auto text-xs">{count(d.experience.length)} roles</Badge><Badge variant="secondary" className="text-xs">{count(d.education.length)} education</Badge><Badge variant="secondary" className="text-xs">{count(d.skills.length)} skills</Badge></div>
+            <div className="rounded-lg border border-border p-3 space-y-2 text-sm max-h-64 overflow-y-auto">
               <p><span className="text-muted-foreground">Name:</span> {d.personal.fullName || '—'}</p>
               <p><span className="text-muted-foreground">Email:</span> {d.personal.email || '—'}</p>
-              {d.experience.slice(0, 4).map((e) => <p key={e.id} className="text-[12px] text-muted-foreground"><FileText className="h-3 w-3 inline mr-1" />{e.position || '(untitled)'}{e.company && ` — ${e.company}`}</p>)}
+              {d.experience.slice(0, 4).map((e) => <p key={e.id} className="text-xs text-muted-foreground"><FileText className="h-3 w-3 inline mr-1" />{e.position || '(untitled)'}{e.company && ` — ${e.company}`}</p>)}
             </div>
-            {parsed.warnings.length > 0 && (<div className="rounded-lg border border-warning/30 bg-warning/10 p-3 space-y-1">{parsed.warnings.map((w, i) => <p key={i} className="text-[11px] text-warning flex items-start gap-1.5"><AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />{w}</p>)}</div>)}
+            {parsed.warnings.length > 0 && (<div className="rounded-lg border border-warning/30 bg-warning/10 p-3 space-y-1">{parsed.warnings.map((w, i) => <p key={i} className="text-xs text-warning flex items-start gap-1.5"><AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />{w}</p>)}</div>)}
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={reset} className="text-[12px]">Choose a different file</Button>
-              <Button onClick={confirm} className="text-[12px] font-medium">
+              <Button variant="secondary" onClick={reset} className="text-xs">Choose a different file</Button>
+              <Button onClick={confirm} className="text-xs font-medium">
                 {hasResume ? "Replace current resume with this draft" : "Create my resume from this draft"}
               </Button>
             </DialogFooter>

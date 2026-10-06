@@ -90,7 +90,7 @@ function ProgressIndicator({ current, onStepClick }: { current: number; onStepCl
                 <span
                   key={state}
                   className={cn(
-                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10.5px] font-medium tabular-nums',
+                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium tabular-nums',
                     state === 'done' && 'bg-success border-success text-success-foreground',
                     state === 'current' && 'border-transparent bg-primary text-primary-foreground',
                     state === 'upcoming' && 'border-border text-muted-foreground',
@@ -101,13 +101,13 @@ function ProgressIndicator({ current, onStepClick }: { current: number; onStepCl
                 <span className="min-w-0 hidden sm:block">
                   <span
                     className={cn(
-                      'block text-[12px] font-medium truncate transition-colors duration-200',
+                      'block text-xs font-medium transition-colors duration-200',
                       state === 'upcoming' ? 'text-muted-foreground' : 'text-foreground',
                     )}
                   >
                     {step.label}
                   </span>
-                  <span className="block text-[10px] text-muted-foreground truncate">{step.hint}</span>
+                  <span className="block text-xs text-muted-foreground">{step.hint}</span>
                 </span>
               </button>
               {i < STEPS.length - 1 && (
@@ -173,13 +173,13 @@ function DetailsStep({
           const inputId = `onboarding-${key}`;
           return (
             <div key={key} className="space-y-1.5">
-              <Label htmlFor={inputId} className="text-[12px] font-medium flex items-center gap-1.5">
+              <Label htmlFor={inputId} className="text-xs font-medium flex items-center gap-1.5">
                 <Icon className="h-3 w-3 opacity-50" />
                 {label}
                 {required ? (
                   <span className="text-destructive" aria-hidden>*</span>
                 ) : (
-                  <span className="text-[10px] font-normal text-muted-foreground">Optional</span>
+                  <span className="text-xs font-normal text-muted-foreground">Optional</span>
                 )}
               </Label>
               <Input
@@ -192,12 +192,12 @@ function DetailsStep({
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? `${inputId}-error` : undefined}
                 className={cn(
-                  'h-11 text-[14px] transition-colors',
+                  'h-11 text-sm transition-colors',
                   error ? 'border-destructive/60 focus-visible:ring-destructive/30' : '',
                 )}
               />
               {error && (
-                <p id={`${inputId}-error`} className="flex items-start gap-1.5 text-[11.5px] text-destructive animate-fade-in">
+                <p id={`${inputId}-error`} className="flex items-start gap-1.5 text-xs text-destructive animate-fade-in">
                   <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
                   {error}
                 </p>
@@ -207,7 +207,7 @@ function DetailsStep({
         })}
       </div>
 
-      <p className="text-[11.5px] text-muted-foreground leading-relaxed">
+      <p className="text-xs text-muted-foreground leading-relaxed">
         Start with the essentials — a short professional summary and an optional background
         section come next, then you choose your design.
       </p>
@@ -215,11 +215,11 @@ function DetailsStep({
       <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
         <Link
           to="/"
-          className="text-[12.5px] text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to home
         </Link>
-        <Button type="submit" size="lg" className="h-11 gap-2 rounded-md px-6 text-[13.5px] font-medium">
+        <Button type="submit" size="lg" className="h-11 gap-2 rounded-md px-6 text-sm font-medium">
           Continue <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
@@ -248,8 +248,8 @@ function Field({
 }) {
   return (
     <div className={cn('space-y-1.5', className)}>
-      <Label htmlFor={id} className="text-[12px] font-medium">
-        {label} <span className="text-[10px] font-normal text-muted-foreground">Optional</span>
+      <Label htmlFor={id} className="text-xs font-medium">
+        {label} <span className="text-xs font-normal text-muted-foreground">Optional</span>
       </Label>
       <Input
         id={id}
@@ -257,7 +257,7 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-11 text-[14px]"
+        className="h-11 text-sm"
       />
     </div>
   );
@@ -278,8 +278,8 @@ function BackgroundCard({
         <span className="h-7 w-7 rounded-lg bg-accent/10 flex items-center justify-center">
           <Icon className="h-3.5 w-3.5 text-accent" />
         </span>
-        <h3 className="text-[13.5px] font-semibold">{title}</h3>
-        <span className="ml-auto text-[10px] text-muted-foreground">Optional</span>
+        <h3 className="text-sm font-semibold">{title}</h3>
+        <span className="ml-auto text-xs text-muted-foreground">Optional</span>
       </div>
       {children}
     </div>
@@ -309,9 +309,9 @@ function SummaryStep({
       noValidate
     >
       <div className="max-w-2xl space-y-1.5">
-        <Label htmlFor="onboarding-summary" className="flex items-center gap-1.5 text-[12px] font-medium">
+        <Label htmlFor="onboarding-summary" className="flex items-center gap-1.5 text-xs font-medium">
           Professional Summary
-          <span className="text-[10px] font-normal text-muted-foreground">Optional</span>
+          <span className="text-xs font-normal text-muted-foreground">Optional</span>
         </Label>
         <Textarea
           id="onboarding-summary"
@@ -319,19 +319,19 @@ function SummaryStep({
           value={summary}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Two or three sentences on who you are, what you do best, and the impact you deliver."
-          className="resize-y text-[14px]"
+          className="resize-y text-sm"
         />
-        <p className="text-[11.5px] text-muted-foreground leading-relaxed">
+        <p className="text-xs text-muted-foreground leading-relaxed">
           You can leave this for later — the AI assistant in the editor can draft or polish your
           summary, and every suggestion is reviewed by you before it lands.
         </p>
       </div>
 
       <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
-        <Button type="button" variant="outline" onClick={onBack} className="h-11 gap-2 rounded-md text-[13px]">
+        <Button type="button" variant="secondary" size="lg" className="gap-2" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
-        <Button type="submit" size="lg" className="h-11 gap-2 rounded-md px-6 text-[13.5px] font-medium">
+        <Button type="submit" size="lg" className="h-11 gap-2 rounded-md px-6 text-sm font-medium">
           Continue <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
@@ -375,7 +375,7 @@ function EducationEntryFields({
       className="space-y-3 rounded-md border border-border bg-muted/40 p-3"
     >
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-muted-foreground">Education {index + 1}</span>
+        <span className="text-xs font-semibold text-muted-foreground">Education {index + 1}</span>
         <button
           type="button"
           aria-label={`Remove education ${index + 1}`}
@@ -388,7 +388,7 @@ function EducationEntryFields({
       <div className="grid gap-3 sm:grid-cols-2">
         {/* Institution — the only required field once an entry exists. */}
         <div className="space-y-1.5 sm:col-span-2">
-          <Label htmlFor={inputId('school')} className="text-[12px] font-medium flex items-center gap-1.5">
+          <Label htmlFor={inputId('school')} className="text-xs font-medium flex items-center gap-1.5">
             Institution <span className="text-destructive" aria-hidden>*</span>
           </Label>
           <Input
@@ -399,12 +399,12 @@ function EducationEntryFields({
             aria-invalid={Boolean(error)}
             aria-describedby={error ? `${inputId('school')}-error` : undefined}
             className={cn(
-              'h-11 text-[14px] transition-colors',
+              'h-11 text-sm transition-colors',
               error ? 'border-destructive/60 focus-visible:ring-destructive/30' : '',
             )}
           />
           {error && (
-            <p id={`${inputId('school')}-error`} className="flex items-start gap-1.5 text-[11.5px] text-destructive animate-fade-in" role="alert">
+            <p id={`${inputId('school')}-error`} className="flex items-start gap-1.5 text-xs text-destructive animate-fade-in" role="alert">
               <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
               {error}
             </p>
@@ -415,8 +415,8 @@ function EducationEntryFields({
         <Field id={inputId('start')} label="Start Date" value={entry.startDate} onChange={(v) => onChange({ startDate: v })} placeholder="09 / 2018" />
         <Field id={inputId('end')} label="End Date" value={entry.endDate} onChange={(v) => onChange({ endDate: v })} placeholder="06 / 2022" />
         <div className="space-y-1.5 sm:col-span-2">
-          <Label htmlFor={inputId('description')} className="text-[12px] font-medium">
-            Description <span className="text-[10px] font-normal text-muted-foreground">Optional</span>
+          <Label htmlFor={inputId('description')} className="text-xs font-medium">
+            Description <span className="text-xs font-normal text-muted-foreground">Optional</span>
           </Label>
           <Textarea
             id={inputId('description')}
@@ -424,7 +424,7 @@ function EducationEntryFields({
             value={entry.description}
             onChange={(e) => onChange({ description: e.target.value })}
             placeholder="Honors, relevant coursework, activities — anything worth highlighting."
-            className="resize-y text-[14px]"
+            className="resize-y text-sm"
           />
         </div>
       </div>
@@ -531,7 +531,7 @@ function BackgroundStep({
         {/* Education — optional section; entries carry a required institution. */}
         <BackgroundCard icon={GraduationCap} title="Education">
           {background.education.length === 0 && (
-            <p className="text-[11.5px] text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               No education added yet — that is perfectly fine. Add one only if it strengthens your resume.
             </p>
           )}
@@ -550,12 +550,12 @@ function BackgroundStep({
           <button
             type="button"
             onClick={addEducation}
-            className="w-full rounded-md border border-dashed border-border py-2.5 text-[12.5px] text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground"
+            className="w-full rounded-md border border-dashed border-border py-2.5 text-sm text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground"
           >
             + Add Education
           </button>
           {background.education.length > 0 && (
-            <p className="text-[11px] text-muted-foreground">Institution is required for each added entry.</p>
+            <p className="text-xs text-muted-foreground">Institution is required for each added entry.</p>
           )}
         </BackgroundCard>
 
@@ -567,8 +567,8 @@ function BackgroundStep({
             <Field id="exp-start" label="Start Date" value={exp.startDate} onChange={(v) => setExp({ startDate: v })} placeholder="03 / 2022" />
             <Field id="exp-end" label="End Date" value={exp.endDate} onChange={(v) => setExp({ endDate: v })} placeholder="Present" />
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="exp-description" className="text-[12px] font-medium">
-                Description <span className="text-[10px] font-normal text-muted-foreground">Optional</span>
+              <Label htmlFor="exp-description" className="text-xs font-medium">
+                Description <span className="text-xs font-normal text-muted-foreground">Optional</span>
               </Label>
               <Textarea
                 id="exp-description"
@@ -576,7 +576,7 @@ function BackgroundStep({
                 value={exp.description}
                 onChange={(e) => setExp({ description: e.target.value })}
                 placeholder="What you owned and the impact you made. Add more bullets in the editor."
-                className="resize-y text-[14px]"
+                className="resize-y text-sm"
               />
             </div>
           </div>
@@ -596,16 +596,16 @@ function BackgroundStep({
                 }
               }}
               placeholder="Type a skill and press Enter"
-              className="h-11 text-[14px]"
+              className="h-11 text-sm"
             />
-            <Button type="button" variant="outline" onClick={addSkill} className="h-11 px-4 gap-1.5 shrink-0">
+            <Button type="button" variant="secondary" className="gap-1.5 shrink-0" onClick={addSkill}>
               <Plus className="h-3.5 w-3.5" /> Add
             </Button>
           </div>
           {background.skills.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {background.skills.map((skill) => (
-                <Badge key={skill} variant="secondary" className="gap-1 pr-1 text-[12px] font-medium">
+                <Badge key={skill} variant="secondary" className="gap-1 pr-1 text-xs font-medium">
                   {skill}
                   <button
                     type="button"
@@ -619,7 +619,7 @@ function BackgroundStep({
               ))}
             </div>
           )}
-          <p className="text-[11px] text-muted-foreground">Press Enter after each skill — you can refine the list in the editor.</p>
+          <p className="text-xs text-muted-foreground">Press Enter after each skill — you can refine the list in the editor.</p>
         </BackgroundCard>
 
         <div className="grid gap-4">
@@ -630,8 +630,8 @@ function BackgroundStep({
               <Field id="project-tech" label="Technologies" value={project.technologies} onChange={(v) => setProject({ technologies: v })} placeholder="React, TypeScript" />
               <Field id="project-link" label="Project Link" value={project.link} onChange={(v) => setProject({ link: v })} placeholder="https://…" className="sm:col-span-2" />
               <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="project-description" className="text-[12px] font-medium">
-                  Description <span className="text-[10px] font-normal text-muted-foreground">Optional</span>
+                <Label htmlFor="project-description" className="text-xs font-medium">
+                  Description <span className="text-xs font-normal text-muted-foreground">Optional</span>
                 </Label>
                 <Textarea
                   id="project-description"
@@ -639,7 +639,7 @@ function BackgroundStep({
                   value={project.description}
                   onChange={(e) => setProject({ description: e.target.value })}
                   placeholder="One or two sentences about what it does."
-                  className="resize-y text-[14px]"
+                  className="resize-y text-sm"
                 />
               </div>
             </div>
@@ -657,16 +657,16 @@ function BackgroundStep({
         </div>
       </div>
 
-      <p className="text-[11.5px] text-muted-foreground leading-relaxed">
+      <p className="text-xs text-muted-foreground leading-relaxed">
         Everything on this step is optional — rows you leave empty are simply not added. You can
         grow each section later in the editor.
       </p>
 
       <div className="flex flex-col-reverse gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <Button type="button" variant="outline" onClick={onBack} className="h-11 gap-2 rounded-md text-[13px]">
+        <Button type="button" variant="secondary" size="lg" className="gap-2" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
-        <Button type="submit" size="lg" className="h-11 gap-2 rounded-md px-6 text-[13.5px] font-medium">
+        <Button type="submit" size="lg" className="h-11 gap-2 rounded-md px-6 text-sm font-medium">
           Next: Choose Design <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
@@ -707,7 +707,7 @@ function DesignCard({
       >
         <ResumeThumbnail data={{ ...data, template: template.id }} />
         {selected && (
-          <span className="absolute right-2 top-2 flex items-center gap-1 rounded bg-bronze px-1.5 py-0.5 text-[10px] font-medium text-bronze-foreground">
+          <span className="absolute right-2 top-2 flex items-center gap-1 rounded bg-bronze px-1.5 py-0.5 text-xs font-medium text-bronze-foreground">
             <CheckCircle2 className="h-3 w-3" /> Selected
           </span>
         )}
@@ -715,21 +715,21 @@ function DesignCard({
 
       <div className="p-3.5 flex-1 flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-[13.5px] font-semibold leading-tight">{template.label}</h3>
-          <Badge variant="outline" className="shrink-0 border-border text-[9px] capitalize text-muted-foreground">
+          <h3 className="text-sm font-semibold leading-tight">{template.label}</h3>
+          <Badge variant="secondary" className="shrink-0 border-border text-xs capitalize text-muted-foreground">
             {template.category}
           </Badge>
         </div>
-        <p className="text-[11.5px] text-muted-foreground leading-relaxed flex-1">{template.description}</p>
-        <p className="text-[11px] text-muted-foreground/70">Best for: {template.bestFor}</p>
+        <p className="text-xs text-muted-foreground leading-relaxed flex-1">{template.description}</p>
+        <p className="text-xs text-muted-foreground/70">Best for: {template.bestFor}</p>
         <div className="flex gap-1.5 pt-1">
-          <Button variant="outline" size="sm" className="flex-1 h-8 text-[12px]" onClick={onPreview}>
+          <Button variant="secondary" size="sm" className="flex-1" onClick={onPreview}>
             <Eye className="h-3.5 w-3.5 mr-1" /> Preview
           </Button>
           <Button
             size="sm"
-            variant={selected ? 'default' : 'outline'}
-            className="flex-1 h-8 text-[12px] font-medium"
+            variant={selected ? 'primary' : 'secondary'}
+            className="flex-1 h-8 text-xs font-medium"
             onClick={onUse}
           >
             Use This Template
@@ -791,7 +791,7 @@ function DesignStep({
               type="button"
               onClick={() => setCollectionId(c.id)}
               className={cn(
-                'px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-all duration-150',
+                'px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-150',
                 collectionId === c.id
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -806,7 +806,7 @@ function DesignStep({
           onClick={() => setShowMyDetails((v) => !v)}
           aria-pressed={showMyDetails}
           className={cn(
-            'self-start lg:self-auto shrink-0 flex items-center gap-2 text-[11.5px] font-medium px-3 py-1.5 rounded-full border transition-colors',
+            'self-start lg:self-auto shrink-0 flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full border transition-colors',
             showMyDetails
               ? 'border-accent/40 bg-accent/10 text-accent'
               : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/40',
@@ -819,7 +819,7 @@ function DesignStep({
         </button>
       </div>
 
-      <p className="text-[12px] text-muted-foreground -mt-2">
+      <p className="text-xs text-muted-foreground -mt-2">
         {collection.blurb}{' '}
         {details.fullName.trim() ? `Your details go into ${selectedName} — the design only changes the look.` : 'Pick any design; you can switch it later without losing content.'}
       </p>
@@ -839,14 +839,14 @@ function DesignStep({
       </div>
 
       <div className="flex flex-col-reverse gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <Button variant="outline" onClick={onBack} className="h-11 gap-2 rounded-md text-[13px]">
+        <Button variant="secondary" onClick={onBack} className="h-11 gap-2 rounded-md text-sm">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
         <div className="flex items-center gap-3">
-          <span className="text-[12px] text-muted-foreground hidden sm:block">
+          <span className="text-xs text-muted-foreground hidden sm:block">
             Design: <span className="font-medium text-foreground">{selectedName}</span>
           </span>
-          <Button size="lg" onClick={onBuild} className="h-11 gap-2 rounded-md px-6 text-[13.5px] font-medium">
+          <Button size="lg" onClick={onBuild} className="h-11 gap-2 rounded-md px-6 text-sm font-medium">
             Build My Resume
           </Button>
         </div>
@@ -856,8 +856,8 @@ function DesignStep({
       <Dialog open={previewing !== null} onOpenChange={(open) => !open && setPreviewing(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 gap-0">
           <DialogHeader className="border-b border-border px-5 py-4">
-            <DialogTitle className="text-[15px]">{previewing?.label} design</DialogTitle>
-            <DialogDescription className="text-[12px] text-muted-foreground">
+            <DialogTitle className="text-base">{previewing?.label} design</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
               {previewing?.layoutDescription} · Best for {previewing?.bestFor}
             </DialogDescription>
           </DialogHeader>
@@ -869,11 +869,11 @@ function DesignStep({
             </div>
           </div>
           <div className="flex items-center justify-between gap-3 border-t border-border px-5 py-3.5">
-            <span className="text-[11.5px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {showMyDetails ? 'Previewing with your details' : 'Previewing with sample content'}
             </span>
             <Button
-              className="h-9 gap-2 rounded-md text-[13px] font-medium"
+              className="h-9 gap-2 rounded-md text-sm font-medium"
               onClick={() => {
                 if (previewing) onUse(previewing.id);
                 setPreviewing(null);
@@ -894,8 +894,8 @@ function BuildStep({ name, design }: { name: string; design: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
       <Loader2 className="mb-5 h-6 w-6 animate-spin text-muted-foreground" />
-      <h2 className="text-[18px] font-semibold mb-1.5">Building your resume…</h2>
-      <p className="text-[13px] text-muted-foreground max-w-sm leading-relaxed">
+      <h2 className="text-lg font-semibold mb-1.5">Building your resume…</h2>
+      <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
         {name ? `${name}'s` : 'Your'} resume is being generated with the {design} design and your
         details.
       </p>
@@ -903,7 +903,7 @@ function BuildStep({ name, design }: { name: string; design: string }) {
         {['Applying your personal details', `Laying out the ${design} design`, 'Opening the editor'].map((item, i) => (
           <li
             key={item}
-            className="flex items-center gap-2 text-[12.5px] text-muted-foreground animate-fade-in"
+            className="flex items-center gap-2 text-sm text-muted-foreground animate-fade-in"
             style={{ animationDelay: `${i * 140}ms` }}
           >
             <Check className="h-3.5 w-3.5 text-success" /> {item}
@@ -1041,14 +1041,14 @@ export default function Onboarding() {
           <p className="eyebrow mb-3">
             {hasResume ? 'New resume' : 'Create your resume'}
           </p>
-          <h1 className="font-display text-[24px] font-semibold leading-tight text-foreground lg:text-[28px]">
+          <h1 className="font-display text-2xl font-semibold leading-tight text-foreground lg:text-3xl">
             {step === 1 && 'Tell us about yourself'}
             {step === 2 && 'Your professional summary'}
             {step === 3 && 'Round out your background'}
             {step === 4 && 'Choose a design for your resume'}
             {step === 5 && 'Creating your resume'}
           </h1>
-          <p className="text-[13.5px] text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
+          <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
             {step === 1 && 'Your contact details come first — a short summary and background section follow, then you choose a design.'}
             {step === 2 && 'Two or three sentences about who you are and the value you bring. You can refine this later with the AI assistant.'}
             {step === 3 && 'Everything here is optional — add what you have now, and grow each section later in the editor.'}
@@ -1107,7 +1107,7 @@ export default function Onboarding() {
         </div>
 
         {step === 1 && (
-          <p className="text-[11.5px] text-muted-foreground text-center mt-5">
+          <p className="text-xs text-muted-foreground text-center mt-5">
             Nothing is uploaded — your resume is saved locally in this browser.
           </p>
         )}

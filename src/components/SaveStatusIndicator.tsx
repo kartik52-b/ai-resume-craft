@@ -16,7 +16,7 @@ const SaveStatusIndicator = () => {
 
   return (
     <span
-      className={cn('inline-flex items-center gap-1.5 text-[11px] font-medium transition-colors duration-200', config.className)}
+      className={cn('inline-flex items-center gap-1.5 text-xs font-medium transition-colors duration-200', config.className)}
       role="status"
       aria-live="polite"
     >

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { createEmptyCertification } from '@/types/resume';
 import { Trash2 } from 'lucide-react';
 
-const INPUT = "h-9 text-[13px]";
+const INPUT = "h-9 text-sm";
 
 const CertificationsSection = () => {
   const { resume, updateField } = useResume();
@@ -19,14 +19,20 @@ const CertificationsSection = () => {
         <div key={cert.id} data-entry-id={cert.id} className="group relative space-y-3 rounded-md border border-border bg-muted/30 p-3.5 transition-colors hover:border-foreground/20">
           <div className="flex justify-end"><Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive transition-colors" onClick={() => removeCert(cert.id)}><Trash2 className="h-3.5 w-3.5" /></Button></div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">Name</Label><Input value={cert.name} onChange={e => updateCert(cert.id, 'name', e.target.value)} placeholder="AWS Solutions Architect" className={INPUT} /></div>
-            <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">Issuer</Label><Input value={cert.issuer} onChange={e => updateCert(cert.id, 'issuer', e.target.value)} placeholder="Amazon" className={INPUT} /></div>
-            <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">Date</Label><Input value={cert.date} onChange={e => updateCert(cert.id, 'date', e.target.value)} placeholder="Mar 2024" className={INPUT} /></div>
-            <div className="space-y-1.5"><Label className="text-[11px] font-medium text-muted-foreground">Link</Label><Input value={cert.link} onChange={e => updateCert(cert.id, 'link', e.target.value)} placeholder="https://..." className={INPUT} /></div>
+            <div className="space-y-1.5"><Label className="text-xs font-medium text-muted-foreground">Name</Label><Input value={cert.name} onChange={e => updateCert(cert.id, 'name', e.target.value)} placeholder="AWS Solutions Architect" className={INPUT} /></div>
+            <div className="space-y-1.5"><Label className="text-xs font-medium text-muted-foreground">Issuer</Label><Input value={cert.issuer} onChange={e => updateCert(cert.id, 'issuer', e.target.value)} placeholder="Amazon" className={INPUT} /></div>
+            <div className="space-y-1.5"><Label className="text-xs font-medium text-muted-foreground">Date</Label><Input value={cert.date} onChange={e => updateCert(cert.id, 'date', e.target.value)} placeholder="Mar 2024" className={INPUT} /></div>
+            <div className="space-y-1.5"><Label className="text-xs font-medium text-muted-foreground">Link</Label><Input value={cert.link} onChange={e => updateCert(cert.id, 'link', e.target.value)} placeholder="https://..." className={INPUT} /></div>
           </div>
         </div>
       ))}
-      <button onClick={addCert} className="w-full rounded-md border border-dashed border-border py-2.5 text-[12.5px] text-muted-foreground transition-colors duration-150 hover:border-foreground/30 hover:text-foreground">+ Add Certification</button>
+      <Button
+        variant="secondary"
+        className="w-full gap-1"
+        onClick={addCert}
+      >
+        <Plus /> Add Certification
+      </Button>
     </div>
   );
 };

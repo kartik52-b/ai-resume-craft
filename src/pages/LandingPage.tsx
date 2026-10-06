@@ -11,6 +11,10 @@ import TemplateTile from '@/components/TemplateTile';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
+import HeroPaperCore from './HeroPaperCore';
+import HeroPaper from './HeroPaper';
+import { usePrefersReducedMotion } from '@/hooks/useInteraction';
+import type { ResumeData } from '@/types/resume';
 
 /* ── Content ─────────────────────────────────────────────────────────────── */
 
@@ -44,14 +48,7 @@ const STEPS = [
   },
 ];
 
-/**
- * Hero parallax.
- *
- * One rAF-throttled pointer listener writes the cursor position into
- * `--hero-x` / `--hero-y` (-0.5 … 0.5) on the hero stage; CSS does the rest.
- * Touch devices and reduced-motion visitors never attach it, so the sheet is
- * simply still for them.
- */
+/**\n * Hero parallax.\n *\n * One rAF-throttled pointer listener writes the cursor position into\n * `--hero-x` / `--hero-y` (-0.5 … 0.5) on the hero stage; CSS does the rest.\n * Touch devices and reduced-motion visitors never attach it, so the sheet is\n * simply still for them.\n */
 function useHeroStage() {
   const ref = useRef<HTMLDivElement>(null);
   const [engaged, setEngaged] = useState(false);
@@ -119,22 +116,19 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-full bg-background">
-      {/* ══ Hero ═══════════════════════════════════════════════════════════════
-          The resume is the hero visual: one real A4 sheet, with the page's own
-          paper tones (ivory, beige, antique bronze, a whisper of teal) drifting
-          behind it. */}
+      {/* ══ Hero ═══════════════════════════════════════════════════════════════\n          The resume is the hero visual: one real A4 sheet, with the page's own\n          paper tones (ivory, beige, antique bronze, a whisper of teal) drifting\n          behind it. */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-24 grid lg:grid-cols-[1.02fr_0.98fr] gap-12 lg:gap-16 items-center">
           <div>
             <p className="eyebrow mb-5 animate-fade-down">Resume design studio</p>
-            <h1 className="font-display text-balance text-[34px] sm:text-[44px] lg:text-[54px] font-semibold leading-[1.07] tracking-[-0.015em] text-foreground animate-fade-up">
+            <h1 className="font-display text-balance text-hero font-semibold text-foreground animate-fade-up">
               <span className="block">Create a professional</span>{' '}
               <span className="block">resume without the</span>{' '}
               <span className="block">
                 <span className="text-bronze">busywork</span>.
               </span>
             </h1>
-            <p className="mt-6 max-w-lg text-[16.5px] leading-relaxed text-muted-foreground animate-fade-up">
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground animate-fade-up">
               Beautiful templates. Smart suggestions. Complete control.
               Everything stays in your browser.
             </p>
@@ -142,25 +136,16 @@ const LandingPage = () => {
             <div className="rule-bronze mt-8 animate-fade-up" aria-hidden />
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-fade-up">
-              <Button
-                size="lg"
-                className="h-11 px-6 rounded-md text-[14px] font-medium gap-2"
-                onClick={() => navigate('/create')}
-              >
+              <Button size="lg" className="gap-2" onClick={() => navigate('/create')}>
                 Create My Resume
                 <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-11 px-6 rounded-md text-[14px]"
-                onClick={() => navigate('/templates')}
-              >
+              <Button size="lg" variant="secondary" onClick={() => navigate('/templates')}>
                 Explore Templates
               </Button>
             </div>
 
-            <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-muted-foreground animate-fade-up">
+            <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground animate-fade-up">
               {FACTS.map((fact) => (
                 <li key={fact} className="flex items-center gap-2">
                   <span className="h-1 w-1 rounded-full bg-bronze" aria-hidden />
@@ -170,10 +155,17 @@ const LandingPage = () => {
             </ul>
 
             {hasResume && (
-              <p className="mt-6 text-[12.5px] text-muted-foreground animate-fade-up">
+              <p className="mt-6 text-sm text-muted-foreground animate-fade-up">
                 Already started?{' '}
-                <Link to="/resumes" className="text-foreground underline decoration-border underline-offset-4 hover:decoration-bronze">
+                <Link
+                  to="/resumes"
+                  className="group inline-flex items-center gap-1 font-medium text-link underline decoration-link/40 underline-offset-4 transition-colors hover:decoration-link"
+                >
                   Open My Resumes
+                  <ArrowRight
+                    className="h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
                 </Link>
               </p>
             )}
@@ -185,8 +177,7 @@ const LandingPage = () => {
             data-engaged={engaged ? 'true' : 'false'}
             className="hero-stage relative isolate flex justify-center lg:justify-end animate-fade-up"
           >
-            {/* Decorative shapes — ivory, beige, bronze and a hint of teal.
-                Kept soft and large rather than blobby: they set the light. */}
+            {/* Decorative shapes — ivory, beige, bronze and a hint of teal.\n                Kept soft and large rather than blobby: they set the light. */}
             <span
               aria-hidden
               className="hero-shape pointer-events-none absolute -left-8 -top-6 hidden h-[240px] w-[240px] rounded-full sm:block"
@@ -197,19 +188,19 @@ const LandingPage = () => {
               className="hero-shape pointer-events-none absolute -bottom-12 right-0 hidden h-[280px] w-[280px] rounded-full sm:block"
               style={{ '--hero-k': '14px', background: 'radial-gradient(circle at 50% 50%, hsl(var(--teal) / 0.10), transparent 70%)' } as CSSProperties}
             />
-            <span
+            {/* The homepage hero resume absolutely stays paper, stays square, stays\n          unscrollable. The only thing that changes is depth and a faint light wash. */}
+        {/* Decorative warm wash behind/around the sheet — motionless, opposed to the\n          sheet so the paper feels like it is floating above the page, not glued to it. */}
+        <span
               aria-hidden
               className="hero-shape pointer-events-none absolute -top-16 left-1/4 hidden h-[260px] w-[260px] rounded-full sm:block"
               style={{ '--hero-k': '-7px', background: 'radial-gradient(circle at 50% 50%, hsl(var(--card)), transparent 72%)' } as CSSProperties}
             />
 
             <figure className="relative w-full max-w-[330px]">
-              <div className="hero-sheet paper relative aspect-[210/297] w-full overflow-hidden border border-border">
-                <ResumeThumbnail data={sample} />
-              </div>
-              <figcaption className="mt-4 flex items-center justify-between text-[11.5px] text-muted-foreground">
+              <HeroPaper data={sample} />
+              <figcaption className="mt-4 flex items-center justify-between text-xs text-muted-2">
                 <span>Design preview · sample content</span>
-                <span className="font-mono text-[10.5px] tabular-nums">{sample.personal.fullName}</span>
+                <span className="font-mono text-xs tabular-nums">{sample.personal.fullName}</span>
               </figcaption>
             </figure>
           </div>
@@ -222,10 +213,10 @@ const LandingPage = () => {
           <Reveal>
             <div className="max-w-2xl">
               <p className="eyebrow mb-4">How it works</p>
-              <h2 className="font-display text-[26px] lg:text-[34px] font-semibold leading-tight text-foreground">
+              <h2 className="font-display text-2xl lg:text-3xl font-semibold leading-tight text-foreground">
                 Four steps, no blank page.
               </h2>
-              <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                 A short guided setup puts your details into the design. Everything
                 after that happens in the editor, section by section.
               </p>
@@ -237,17 +228,17 @@ const LandingPage = () => {
               <li key={step.num} className="border-t border-border pt-5">
                 <Reveal delayMs={i * 70}>
                   <div className="flex items-baseline gap-2.5">
-                    <span className="font-display text-[21px] font-semibold leading-none tabular-nums text-bronze">
+                    <span className="font-display text-xl font-semibold leading-none tabular-nums text-bronze">
                       {step.num}
                     </span>
-                    <span className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    <span className="text-xs font-semibold tracking-[0.14em] text-muted-2">
                       {step.label}
                     </span>
                   </div>
-                  <h3 className="mt-4 font-display text-[18px] font-semibold leading-snug text-foreground">
+                  <h3 className="mt-4 font-display text-lg font-semibold leading-snug text-foreground">
                     {step.title}
                   </h3>
-                  <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{step.desc}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.desc}</p>
                 </Reveal>
               </li>
             ))}
@@ -260,18 +251,21 @@ const LandingPage = () => {
         <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20 grid lg:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-center">
           <Reveal>
             <p className="eyebrow mb-3">One resume, many designs</p>
-            <h2 className="font-display text-[26px] lg:text-[32px] font-semibold leading-tight text-foreground">
+            <h2 className="font-display text-2xl lg:text-3xl font-semibold leading-tight text-foreground">
               Swap the layout, keep the words.
             </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground">
               Every template reads the same resume data. Pick a different design
               and only the layout, typography and colour change — your content is
               untouched.
             </p>
 
-            <div className="mt-7">
-              <p className="mb-2.5 text-[11.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
-                Showing · {showcaseName}
+            {/* The label belongs to the grid below it: 12px apart, never adrift. */}
+            <div className="mt-6">
+              <p className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                Showing
+                <span aria-hidden className="h-1 w-1 rounded-full bg-bronze" />
+                <span className="font-medium text-foreground">{showcaseName}</span>
               </p>
               <div className="grid grid-cols-3 gap-2 max-w-md">
                 {SHOWCASE_IDS.map((id) => {
@@ -293,16 +287,12 @@ const LandingPage = () => {
                   );
                 })}
               </div>
-              <p className="mt-2 text-[11px] text-muted-foreground capitalize">
+              <p className="mt-3 text-xs text-muted-foreground capitalize">
                 {getTemplate(showcase).layoutType.replace('-', ' ')} · {getTemplate(showcase).bestFor}
               </p>
             </div>
 
-            <Button
-              variant="outline"
-              className="mt-6 h-10 rounded-md gap-2"
-              onClick={() => navigate('/templates')}
-            >
+            <Button variant="secondary" className="mt-6 gap-2" onClick={() => navigate('/templates')}>
               Browse all {totalTemplates} designs
               <ArrowRight className="h-4 w-4" />
             </Button>
@@ -313,7 +303,7 @@ const LandingPage = () => {
               <div className="relative aspect-[210/297] w-full overflow-hidden border border-border paper">
                 <ResumeThumbnail data={{ ...sample, template: showcase }} />
               </div>
-              <figcaption className="mt-3 text-[11.5px] text-muted-foreground">
+              <figcaption className="mt-3 text-xs text-muted-foreground">
                 {showcaseName} · rendered from the same content
               </figcaption>
             </figure>
@@ -326,10 +316,13 @@ const LandingPage = () => {
         <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20 grid gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <p className="eyebrow mb-3">Writing help</p>
-            <h2 className="font-display text-[24px] lg:text-[28px] font-semibold leading-tight text-foreground">
-              Help with the wording, when you want it.
-            </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span className="text-[0.65rem] font-semibold tracking-[0.18em] uppercase text-bronze">Premium</span>
+              <h2 className="font-display text-2xl lg:text-3xl font-semibold leading-tight text-foreground">
+                Help with the wording, when you want it.
+              </h2>
+            </div>
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground">
               Summaries, bullet points and project descriptions can be rewritten
               for clarity or impact. Every suggestion appears as a draft — you
               read it, then apply or discard it.
@@ -338,18 +331,18 @@ const LandingPage = () => {
             {/* A quiet demonstration of the real interaction. */}
             <div className="mt-6 rounded-md border border-border bg-card p-4">
               <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium text-foreground">Professional summary</span>
-                <span className="text-[11.5px] text-muted-foreground">Improve with AI</span>
+                <span className="text-xs font-medium text-foreground">Professional summary</span>
+                <span className="text-xs text-muted-foreground">Improve with AI</span>
               </div>
-              <p className="mt-2.5 rounded border border-border bg-background p-3 text-[12px] leading-relaxed text-foreground/85">
+              <p className="mt-2.5 rounded border border-border bg-background p-3 text-xs leading-relaxed">
                 Product engineer with eight years building and maintaining
                 customer-facing web platforms.
               </p>
               <div className="mt-3 flex gap-2">
-                <span className="inline-flex h-7 items-center rounded-md bg-primary px-3 text-[11.5px] font-medium text-primary-foreground">
+                <span className="inline-flex h-7 items-center rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground">
                   Apply
                 </span>
-                <span className="inline-flex h-7 items-center rounded-md border border-border px-3 text-[11.5px] text-muted-foreground">
+                <span className="inline-flex h-7 items-center rounded-md border border-border px-3 text-xs text-muted-foreground">
                   Discard
                 </span>
               </div>
@@ -358,10 +351,13 @@ const LandingPage = () => {
 
           <Reveal>
             <p className="eyebrow mb-3">Ownership</p>
-            <h2 className="font-display text-[24px] lg:text-[28px] font-semibold leading-tight text-foreground">
-              Your content stays yours.
-            </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span className="text-[0.65rem] font-semibold tracking-[0.18em] uppercase text-bronze">Premium</span>
+              <h2 className="font-display text-2xl lg:text-3xl font-semibold leading-tight text-foreground">
+                Your content stays yours.
+              </h2>
+            </div>
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground">
               Resumes are saved in this browser. No account, no upload, no
               watermark. Create once and refine it any time.
             </p>
@@ -374,8 +370,8 @@ const LandingPage = () => {
                 { k: 'Designs', v: 'Change any time, content intact' },
               ].map((row) => (
                 <div key={row.k} className="flex items-baseline justify-between gap-6 py-3">
-                  <dt className="text-[12px] uppercase tracking-[0.08em] text-muted-foreground">{row.k}</dt>
-                  <dd className="text-[13.5px] text-foreground text-right">{row.v}</dd>
+                  <dt className="text-xs uppercase tracking-[0.08em] text-muted-2">{row.k}</dt>
+                  <dd className="text-sm text-foreground text-right">{row.v}</dd>
                 </div>
               ))}
             </dl>
@@ -389,16 +385,19 @@ const LandingPage = () => {
           <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-6">
             <div className="max-w-2xl">
               <p className="eyebrow mb-3">The collection</p>
-              <h2 className="font-display text-[26px] lg:text-[32px] font-semibold leading-tight text-foreground">
-                {totalTemplates} designs, genuinely different.
-              </h2>
-              <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span className="text-[0.65rem] font-semibold tracking-[0.18em] uppercase text-bronze">Premium</span>
+                <h2 className="font-display text-2xl lg:text-3xl font-semibold leading-tight text-foreground">
+                  {totalTemplates} designs, genuinely different.
+                </h2>
+              </div>
+              <p className="mt-3 text-base leading-relaxed text-muted-foreground">
                 Single column, sidebar, editorial, timeline, compact — different
                 structures, not recolours of one layout.
               </p>
             </div>
-            <Button variant="outline" className="h-10 rounded-md gap-2" onClick={() => navigate('/templates')}>
-              Open the gallery
+            <Button variant="secondary" className="gap-2" onClick={() => navigate('/templates')}>
+              Browse all {totalTemplates} designs
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Reveal>
@@ -418,8 +417,8 @@ const LandingPage = () => {
                   to="/templates"
                   className="group flex h-full min-h-[232px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-card p-4 text-center transition-colors hover:border-foreground/30"
                 >
-                  <span className="text-[12.5px] font-semibold text-foreground">All {totalTemplates} designs</span>
-                  <span className="text-[11px] text-muted-foreground">Search and filter the gallery</span>
+                  <span className="text-sm font-semibold text-foreground">All {totalTemplates} designs</span>
+                  <span className="text-xs text-muted-foreground">Search and filter the gallery</span>
                   <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform duration-150 group-hover:translate-x-0.5" />
                 </Link>,
               ]}
@@ -427,7 +426,7 @@ const LandingPage = () => {
           </Reveal>
 
           <Reveal className="mt-3">
-            <p className="text-[11.5px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Design previews use sample content — your resume only ever contains what you enter.
             </p>
           </Reveal>
@@ -439,19 +438,19 @@ const LandingPage = () => {
         <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20">
           <Reveal>
             <div className="rounded-lg border border-border bg-card px-6 py-10 lg:px-12 lg:py-14 text-center">
-              <h2 className="font-display text-[26px] lg:text-[32px] font-semibold leading-tight text-foreground">
+              <h2 className="font-display text-2xl lg:text-3xl font-semibold leading-tight text-foreground">
                 Ready when you are.
               </h2>
-              <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mx-auto mt-3 max-w-lg text-base leading-relaxed text-muted-foreground">
                 Start with your contact details. You will be editing a real
                 resume in under a minute.
               </p>
               <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button size="lg" className="h-11 px-7 rounded-md gap-2" onClick={() => navigate('/create')}>
+                <Button size="lg" className="gap-2" onClick={() => navigate('/create')}>
                   Create My Resume
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-                <Button size="lg" variant="outline" className="h-11 px-7 rounded-md" onClick={() => navigate('/resumes')}>
+                <Button size="lg" variant="secondary" onClick={() => navigate('/resumes')}>
                   My Resumes
                 </Button>
               </div>
@@ -462,10 +461,10 @@ const LandingPage = () => {
 
       <footer className="border-t border-border">
         <div className="mx-auto max-w-6xl px-5 lg:px-8 py-7 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[12px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             AI Resume Craft — resumes, designed properly.
           </p>
-          <nav className="flex items-center gap-5 text-[12px] text-muted-foreground" aria-label="Footer">
+          <nav className="flex items-center gap-5 text-xs text-muted-foreground" aria-label="Footer">
             <Link to="/templates" className="hover:text-foreground transition-colors">Templates</Link>
             <Link to="/resumes" className="hover:text-foreground transition-colors">My Resumes</Link>
             <Link to="/settings" className="hover:text-foreground transition-colors">Settings</Link>

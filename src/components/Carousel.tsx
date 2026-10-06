@@ -293,7 +293,7 @@ export default function Carousel({
             />
           ))}
           {!compact && (
-            <span className="ml-2 text-[11.5px] text-muted-foreground tabular-nums hidden sm:block" aria-live="polite">
+            <span className="ml-2 text-xs text-muted-foreground tabular-nums hidden sm:block" aria-live="polite">
               {index + 1} / {count}
             </span>
           )}
