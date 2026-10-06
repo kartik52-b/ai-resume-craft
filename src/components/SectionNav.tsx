@@ -55,7 +55,7 @@ export default function SectionNav({ activeSection, onSectionClick }: SectionNav
                 {isActive && (
                   <span
                     aria-hidden
-                    className="absolute left-0 top-1/2 h-4 w-[2.5px] -translate-y-1/2 rounded-full bg-bronze"
+                    className="absolute left-0 top-1/2 h-4 w-[2.5px] -translate-y-1/2 rounded-full bg-bronze animate-nav-bar"
                   />
                 )}
                 <Icon className={cn('h-3.5 w-3.5 shrink-0 transition-colors', isActive ? 'text-bronze' : 'text-muted-2')} />

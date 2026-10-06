@@ -15,20 +15,27 @@ import {
 import { Monitor, Moon, Sun, AlertTriangle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { STORAGE_KEY, clearStoredResume } from '@/lib/storage';
+import { delay } from '@/lib/motion';
 import { toast } from 'sonner';
 
-/** A settings section: hairline rule, quiet label, no card chrome. */
+/** A settings section: hairline rule, quiet label, no card chrome. Sections
+ *  rise in sequence so the page arrives as choreography, not as a block. */
 function Section({
   title,
   hint,
+  delayMs = 0,
   children,
 }: {
   title: string;
   hint?: string;
+  delayMs?: number;
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-t border-border pt-6 first:border-t-0 first:pt-0">
+    <section
+      className="border-t border-border pt-6 first:border-t-0 first:pt-0 animate-fade-up stagger"
+      style={delay(delayMs)}
+    >
       <h2 className="text-base font-semibold text-foreground">{title}</h2>
       {hint && <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted-foreground">{hint}</p>}
       <div className="mt-4">{children}</div>
@@ -116,9 +123,9 @@ export default function SettingsPage() {
           </p>
         </header>
 
-        <div className="space-y-1 animate-fade-up">
+        <div className="space-y-1">
           {/* Appearance — kept exactly as before, only tightened rhythm. */}
-          <Section hint="System follows your operating system setting.">
+          <Section title="Appearance" hint="System follows your operating system setting." delayMs={0}>
             <div className="inline-flex rounded-lg border border-border bg-secondary/70 p-[3px]">
               {([
                 { value: 'light', label: 'Light', icon: Sun },
@@ -146,6 +153,7 @@ export default function SettingsPage() {
           {/* Account — edit the active resume's contact details. */}
           <Section
             title="Account"
+            delayMs={60}
             hint="These are the contact details of your active resume. New resumes always start blank and are filled in through the create flow."
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -175,6 +183,7 @@ export default function SettingsPage() {
           {/* Data & Privacy — clean info rows + one consistent action row. */}
           <Section
             title="Data & Privacy"
+            delayMs={120}
             hint="Resumes are saved automatically to this browser's local storage. Data leaves your device only when you explicitly request help with wording."
           >
             <dl className="divide-y divide-border">
@@ -229,6 +238,7 @@ export default function SettingsPage() {
           {/* AI — user-friendly, with setup and help links kept functional. */}
           <Section
             title="AI Writing Assistance"
+            delayMs={180}
             hint="Get optional help improving your resume summary and bullet points."
           >
             <div className="rounded-lg border border-border bg-card p-4">
@@ -265,7 +275,7 @@ export default function SettingsPage() {
           </Section>
 
           {/* Environment — compact reference rows. */}
-          <Section title="Environment" hint="What this app runs on, and where your work is kept.">
+          <Section title="Environment" delayMs={240} hint="What this app runs on, and where your work is kept.">
             <dl className="divide-y divide-border">
               <InfoRow label="Runs in" value="This browser — no server round-trips for your data" />
               <InfoRow label="Storage key" value={STORAGE_KEY} mono />

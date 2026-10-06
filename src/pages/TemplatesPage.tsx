@@ -1,4 +1,4 @@
-import { useState, useMemo, type CSSProperties } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResume } from "@/context/ResumeContext";
 import {
@@ -32,6 +32,7 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { stagger } from "@/lib/motion";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -93,7 +94,7 @@ interface TemplateCardProps {
 function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: TemplateCardProps) {
   // A light tilt plus the cursor sheen, in one listener pair. Elevation on hover
   // is shadow-only (no CSS translate) so the two transforms never fight.
-  const fx = useCardInteraction<HTMLDivElement>({ maxTilt: 1.4, maxShift: 3 });
+  const fx = useCardInteraction<HTMLDivElement>({ maxTilt: 1.4, maxShift: 4 });
 
   return (
     <div
@@ -112,7 +113,7 @@ function TemplateCard({ template: t, data, isCurrent, onPreview, onUse }: Templa
         onClick={onPreview}
         aria-label={`Preview ${t.label} template`}
       >
-        <div className="relative h-[167px] w-[118px] overflow-hidden border border-border shadow-sm transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:shadow-card-hover">
+        <div className="relative h-[167px] w-[118px] overflow-hidden border border-border shadow-sm transition-[transform,box-shadow] duration-200 group-hover:-translate-y-0.5 group-hover:scale-[1.02] group-hover:shadow-card-hover">
           <ResumeThumbnail data={{ ...data, template: t.id }} />
         </div>
         {isCurrent && (
@@ -492,7 +493,7 @@ export default function TemplatesPage() {
                   <div
                     key={t.id}
                     className="h-full animate-fade-up stagger"
-                    style={{ '--stagger': `${Math.min(i, 8) * 45}ms` } as CSSProperties}
+                    style={stagger(i, 45, 8)}
                   >
                     <TemplateCard
                       template={t}
@@ -574,7 +575,8 @@ export default function TemplatesPage() {
                   }}
                 />
                 <div
-                  className="relative overflow-hidden bg-paper"
+                  key={previewTemplate.id}
+                  className="relative overflow-hidden bg-paper animate-fade-in"
                   style={{ aspectRatio: "210/297" }}
                 >
                   <div

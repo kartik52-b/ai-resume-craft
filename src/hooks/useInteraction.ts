@@ -244,8 +244,10 @@ function usePointerFollow<T extends HTMLElement>(
  * container. The element is never scrollable and never moves on its own:
  * releasing the pointer returns it home via the CSS transition.
  */
-export function useTilt<T extends HTMLElement>(options: { maxTilt?: number; maxShift?: number } = {}) {
-  const { maxTilt = 3.5, maxShift = 6 } = options;
+export function useTilt<T extends HTMLElement>(
+  options: { maxTilt?: number; maxShift?: number; maxRotX?: number; maxRotY?: number } = {},
+) {
+  const { maxTilt = 3.5, maxShift = 6, maxRotX = maxTilt, maxRotY = maxTilt } = options;
   const reduced = usePrefersReducedMotion();
 
   return usePointerFollow<T>(
@@ -257,7 +259,7 @@ export function useTilt<T extends HTMLElement>(options: { maxTilt?: number; maxS
       // Near edge lifts toward the cursor; the whole card drifts a few pixels. The
       // perspective lives in the transform so the effect is self-contained.
       el.style.transform =
-        `perspective(1100px) rotateX(${(ny * maxTilt).toFixed(2)}deg) rotateY(${(-nx * maxTilt).toFixed(2)}deg) ` +
+        `perspective(1100px) rotateX(${(ny * maxRotX).toFixed(2)}deg) rotateY(${(-nx * maxRotY).toFixed(2)}deg) ` +
         `translate3d(${(nx * maxShift).toFixed(2)}px, ${(ny * maxShift).toFixed(2)}px, 0)`;
     },
     (el) => {

@@ -1,5 +1,4 @@
 import { type ResumeData } from '@/types/resume';
-import { type ResumeData } from '@/types/resume';
 import {
   ACCENTS, Block, SectionBlocks, Contact, Summary, hidden, SkillList, CertificationList,
 } from './shared';

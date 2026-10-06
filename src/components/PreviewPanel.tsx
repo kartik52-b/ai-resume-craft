@@ -119,7 +119,11 @@ const PreviewPanel = () => {
             className="bg-canvas transition-transform duration-200 relative origin-top-left"
             style={{ width: "210mm", minHeight: "297mm", padding: "18mm 20mm", transform: `scale(${zoom})` }}
           >
-            <Template data={resume} />
+            {/* Keyed on the template so a design swap enters with a whisper
+                of motion while typing never remounts the page. */}
+            <div key={resume.template} className="animate-fade-in">
+              <Template data={resume} />
+            </div>
             {isEmpty && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center px-8 pointer-events-none">
                 <Eye className="h-6 w-6 text-muted-2" />

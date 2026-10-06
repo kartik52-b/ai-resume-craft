@@ -32,11 +32,11 @@ export default function TemplateTile({ id, data, to, className }: TemplateTilePr
       onPointerMove={spot.onPointerMove}
       onPointerLeave={spot.onPointerLeave}
       className={cn(
-        'group block h-full overflow-hidden rounded-lg border border-border bg-card transition-colors duration-150 hover:border-foreground/25',
+        'group block h-full overflow-hidden rounded-lg border border-border bg-card lift-card pointer-sheen hover:border-foreground/25 hover:shadow-card',
         className,
       )}
     >
-      <div className="relative aspect-[210/297] bg-paper overflow-hidden">
+      <div className="relative aspect-[210/297] bg-paper overflow-hidden transition-transform duration-200 group-hover:scale-[1.03]">
         <ResumeThumbnail data={{ ...data, template: id }} />
       </div>
       <div className="px-3 py-2.5 flex items-center justify-between gap-2">

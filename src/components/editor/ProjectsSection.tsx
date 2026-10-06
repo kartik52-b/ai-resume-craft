@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { createEmptyProject } from '@/types/resume';
-import { Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 const INPUT = "h-9 text-sm";
 const TEXTAREA = "min-h-[60px] resize-none text-sm";

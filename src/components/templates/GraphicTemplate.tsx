@@ -47,7 +47,7 @@ const GraphicTemplate = ({ data }: { data: ResumeData }) => {
                 <SectionBlocks
                   data={data}
                   accent={accent}
-                  config={{ projects: 'cards', gap: 'mb-0' }}
+                  config={{ heading: 'plain', projects: 'cards', gap: 'mb-0' }}
                 />
               </Block>
             )}

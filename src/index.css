@@ -252,6 +252,58 @@
      pressed into the paper. Never applied to the document itself. */
   .field-inset { box-shadow: var(--shadow-inset); }
 
+  /* ── Card lift ──
+     The hover elevation for cards that are not pointer-tracked. Guarded by
+     (hover) + fine pointer so touch devices never get a sticky hover state,
+     and by motion-safe so reduced-motion visitors see colour only. */
+  .lift-card {
+    transition:
+      transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.24s ease,
+      border-color 0.16s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .lift-card:hover { transform: translateY(-4px) scale(1.01); }
+  }
+
+  /* ── Pointer sheen ──
+     A faint warm light that follows the cursor across a card or the hero
+     sheet. `--spot-x` / `--spot-y` are written by `usePointerSpotlight`
+     (rAF-throttled, mouse-only); without pointer movement the wash simply
+     stays hidden. */
+  .pointer-sheen { position: relative; }
+  .pointer-sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(
+      420px circle at var(--spot-x, 50%) var(--spot-y, 40%),
+      hsl(var(--bronze) / 0.07),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pointer-sheen:hover::after { opacity: 1; }
+  }
+  .tilt-surface[data-tilting="true"]::after { opacity: 1; }
+
+  /* ── Skeleton shimmer ──
+     Used by the loading skeleton; a slow sheet of light instead of a blink. */
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      100deg,
+      transparent 20%,
+      hsl(var(--foreground) / 0.06) 50%,
+      transparent 80%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
   /* ── Layered surfaces ── */
   .surface-base { background: hsl(var(--background)); }
   .surface-raised { background: hsl(var(--card)); }
@@ -398,13 +450,24 @@
   from { opacity: 0; transform: translate3d(0, 8px, 0); }
   to { opacity: 1; transform: none; }
 }
-/* Onboarding step transitions. */
+/* Active navigation indicator — the bronze bar settles rather than pops. */
+@keyframes nav-bar-in {
+  from { opacity: 0; transform: translateY(-50%) scaleY(0.25); }
+  to { opacity: 1; transform: translateY(-50%) scaleY(1); }
+}
+/* Skeleton shimmer for lazy content — a slow sheet of light, not a pulse. */
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+/* Onboarding step transitions — a directional slide, driven by `data-dir`.
+   Kept to 12px (spec: horizontal travel only ever very subtle). */
 @keyframes step-in-right {
-  from { opacity: 0; transform: translate3d(20px, 0, 0); }
+  from { opacity: 0; transform: translate3d(12px, 0, 0); }
   to { opacity: 1; transform: none; }
 }
 @keyframes step-in-left {
-  from { opacity: 0; transform: translate3d(-20px, 0, 0); }
+  from { opacity: 0; transform: translate3d(-12px, 0, 0); }
   to { opacity: 1; transform: none; }
 }
 /* Mobile navigation drawer. */
@@ -434,6 +497,7 @@
 .animate-drawer-in { animation: drawer-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .animate-panel-left { animation: panel-in-left 0.26s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .animate-panel-right { animation: panel-in-right 0.26s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-nav-bar { animation: nav-bar-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 /* Cards arrive in sequence, never all at once: set --stagger inline. */
 .stagger { animation-delay: var(--stagger, 0ms); }
@@ -494,8 +558,15 @@
     border-color 0.3s ease;
   will-change: transform;
 }
+/* While tracking, the follow is spring-like but immediate: a short ease-out
+   interpolates between pointer samples; releasing springs home over 0.5s.
+   The card also gains a step of elevation while it is engaged. */
 .tilt-surface[data-tilting="true"] {
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    transform 0.14s ease-out,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  box-shadow: var(--shadow-md);
 }
 
 .magnetic {
@@ -530,6 +601,16 @@
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
 }
+/* Variants (spec §12): fade-up is the default; the others only change the
+   travel — timing, one-shot behaviour and reduced-motion handling are shared.
+   `:not([data-reveal="shown"])` keeps the variant's specificity on the hidden
+   state only, so the shown state always resolves to opacity 1 + no transform. */
+[data-reveal][data-reveal-variant="fade-in"]:not([data-reveal="shown"]) { transform: none; }
+[data-reveal][data-reveal-variant="scale"]:not([data-reveal="shown"]) {
+  transform: translate3d(0, 8px, 0) scale(0.985);
+}
+[data-reveal][data-reveal-variant="slide-left"]:not([data-reveal="shown"]) { transform: translate3d(-16px, 0, 0); }
+[data-reveal][data-reveal-variant="slide-right"]:not([data-reveal="shown"]) { transform: translate3d(16px, 0, 0); }
 [data-reveal="shown"] {
   opacity: 1;
   transform: none;
@@ -570,7 +651,14 @@
   .animate-page-enter,
   .animate-drawer-in,
   .animate-panel-left,
-  .animate-panel-right { animation: none; }
+  .animate-panel-right,
+  .animate-nav-bar,
+  .skeleton-shimmer { animation: none; }
   .magnetic[data-tracking="true"],
   .premium-card:hover { transform: none; }
+  .lift-card:hover { transform: none; }
+  .tilt-surface[data-tilting="true"] { box-shadow: none; }
+  /* Decorative light washes are removed entirely under reduced motion. */
+  .pointer-sheen:hover::after,
+  .pointer-sheen::after { opacity: 0; transition: none; }
 }

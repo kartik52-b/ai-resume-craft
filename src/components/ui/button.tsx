@@ -17,14 +17,17 @@ import { cn } from "@/lib/utils";
  * designed system rather than a pile of one-off controls.
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-[background-color,border-color,box-shadow,transform,color] duration-150 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-[background-color,border-color,box-shadow,transform,color] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
+        /* The two action weights lift a hair toward the cursor on hover and
+           settle flat on press — responsive, never flashy. `motion-safe` so
+           reduced-motion visitors only ever see the colour change. */
         primary:
-          "bg-bronze-solid text-bronze-foreground shadow-xs hover:bg-bronze-solid-hover hover:shadow-card",
+          "bg-bronze-solid text-bronze-foreground shadow-xs hover:bg-bronze-solid-hover hover:shadow-card motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0",
         secondary:
-          "border border-border bg-transparent text-foreground hover:border-border-strong hover:bg-secondary/60",
+          "border border-border bg-transparent text-foreground hover:border-border-strong hover:bg-secondary/60 motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0",
         ghost: "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
       },

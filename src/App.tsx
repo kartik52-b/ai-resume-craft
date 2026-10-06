@@ -147,7 +147,7 @@ function Sidebar({ onNav, collapsed, onToggle }: { onNav?: () => void; collapsed
                     {active && (
                       <span
                         aria-hidden
-                        className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[2.5px] rounded-full bg-bronze"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[2.5px] rounded-full bg-bronze animate-nav-bar"
                       />
                     )}
                     <Icon className="h-4 w-4 shrink-0" />
@@ -181,7 +181,7 @@ function Sidebar({ onNav, collapsed, onToggle }: { onNav?: () => void; collapsed
             )}
           >
             {isActive("/settings") && (
-              <span aria-hidden className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[2.5px] rounded-full bg-bronze" />
+              <span aria-hidden className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[2.5px] rounded-full bg-bronze animate-nav-bar" />
             )}
             <Settings className="h-4 w-4 shrink-0" />
             {!collapsed && <span className="text-[13px]">Settings</span>}

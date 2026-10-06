@@ -176,8 +176,8 @@ const Dashboard = () => {
       <div
         key={r.id}
         className={cn(
-          "group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card transition-[border-color,box-shadow] duration-150",
-          isActive ? "border-bronze shadow-card" : "border-border hover:border-border-strong hover:shadow-card",
+          "group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card lift-card pointer-sheen",
+          isActive ? "border-bronze shadow-card" : "border-border hover:border-border-strong hover:shadow-card-hover",
         )}
       >
         {/* Thumbnail — the user's real resume */}

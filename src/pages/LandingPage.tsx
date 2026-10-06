@@ -14,7 +14,7 @@ import { ArrowRight } from 'lucide-react';
 import HeroPaperCore from './HeroPaperCore';
 import HeroPaper from './HeroPaper';
 import { usePrefersReducedMotion } from '@/hooks/useInteraction';
-import type { ResumeData } from '@/types/resume';
+import { delay } from '@/lib/motion';
 
 /* ── Content ─────────────────────────────────────────────────────────────── */
 
@@ -121,21 +121,24 @@ const LandingPage = () => {
         <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-24 grid lg:grid-cols-[1.02fr_0.98fr] gap-12 lg:gap-16 items-center">
           <div>
             <p className="eyebrow mb-5 animate-fade-down">Resume design studio</p>
-            <h1 className="font-display text-balance text-hero font-semibold text-foreground animate-fade-up">
+            <h1 className="font-display text-balance text-hero font-semibold text-foreground animate-fade-up stagger" style={delay(0)}>
               <span className="block">Create a professional</span>{' '}
               <span className="block">resume without the</span>{' '}
               <span className="block">
                 <span className="text-bronze">busywork</span>.
               </span>
             </h1>
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground animate-fade-up">
+            <p
+              className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground animate-fade-up stagger"
+              style={delay(60)}
+            >
               Beautiful templates. Smart suggestions. Complete control.
               Everything stays in your browser.
             </p>
 
-            <div className="rule-bronze mt-8 animate-fade-up" aria-hidden />
+            <div className="rule-bronze mt-8 animate-fade-up stagger" style={delay(90)} aria-hidden />
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-fade-up">
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-fade-up stagger" style={delay(120)}>
               <Button size="lg" className="gap-2" onClick={() => navigate('/create')}>
                 Create My Resume
                 <ArrowRight className="h-4 w-4" />
@@ -145,7 +148,7 @@ const LandingPage = () => {
               </Button>
             </div>
 
-            <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground animate-fade-up">
+            <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground animate-fade-up stagger" style={delay(160)}>
               {FACTS.map((fact) => (
                 <li key={fact} className="flex items-center gap-2">
                   <span className="h-1 w-1 rounded-full bg-bronze" aria-hidden />
@@ -155,7 +158,7 @@ const LandingPage = () => {
             </ul>
 
             {hasResume && (
-              <p className="mt-6 text-sm text-muted-foreground animate-fade-up">
+              <p className="mt-6 text-sm text-muted-foreground animate-fade-up stagger" style={delay(180)}>
                 Already started?{' '}
                 <Link
                   to="/resumes"
@@ -175,7 +178,8 @@ const LandingPage = () => {
           <div
             ref={heroRef}
             data-engaged={engaged ? 'true' : 'false'}
-            className="hero-stage relative isolate flex justify-center lg:justify-end animate-fade-up"
+            className="hero-stage relative isolate flex justify-center lg:justify-end animate-fade-up stagger"
+            style={delay(180)}
           >
             {/* Decorative shapes — ivory, beige, bronze and a hint of teal.\n                Kept soft and large rather than blobby: they set the light. */}
             <span
@@ -298,9 +302,12 @@ const LandingPage = () => {
             </Button>
           </Reveal>
 
-          <Reveal className="flex justify-center lg:justify-end">
+          <Reveal variant="scale" className="flex justify-center lg:justify-end">
             <figure className="w-full max-w-[400px]">
-              <div className="relative aspect-[210/297] w-full overflow-hidden border border-border paper">
+              <div
+                key={showcase}
+                className="relative aspect-[210/297] w-full overflow-hidden border border-border paper animate-scale-in"
+              >
                 <ResumeThumbnail data={{ ...sample, template: showcase }} />
               </div>
               <figcaption className="mt-3 text-xs text-muted-foreground">
@@ -314,7 +321,7 @@ const LandingPage = () => {
       {/* ══ Editorial two-up: writing help & ownership ══════════════════════ */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20 grid gap-12 lg:grid-cols-2 lg:gap-16">
-          <Reveal>
+          <Reveal variant="slide-left">
             <p className="eyebrow mb-3">Writing help</p>
             <div className="flex flex-wrap items-baseline gap-2">
               <span className="text-[0.65rem] font-semibold tracking-[0.18em] uppercase text-bronze">Premium</span>
@@ -349,7 +356,7 @@ const LandingPage = () => {
             </div>
           </Reveal>
 
-          <Reveal>
+          <Reveal variant="slide-right">
             <p className="eyebrow mb-3">Ownership</p>
             <div className="flex flex-wrap items-baseline gap-2">
               <span className="text-[0.65rem] font-semibold tracking-[0.18em] uppercase text-bronze">Premium</span>
