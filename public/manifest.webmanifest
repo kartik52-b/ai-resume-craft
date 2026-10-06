@@ -1,11 +1,11 @@
 {
   "name": "AI Resume Craft",
   "short_name": "Resume Craft",
-  "description": "Create professional, ATS-friendly resumes with premium templates, AI-assisted writing, live preview, and PDF export.",
+  "description": "Create a professional resume without the busywork.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#F4F1EA",
+  "theme_color": "#F4F1EA",
   "icons": [
     {
       "src": "/icon.svg",
