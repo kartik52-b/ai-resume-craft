@@ -8,6 +8,8 @@ import {
   getCategoryCounts,
   DESIGN_COLLECTIONS,
   getCollectionTemplates,
+  matchesCareerStage,
+  type CareerStage,
   type TemplateDefinition,
   type TemplateCategory,
 } from "@/lib/templateRegistry";
@@ -46,6 +48,13 @@ import {
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
 type FilterType = "all" | TemplateCategory;
+const CAREER_STAGES: { value: CareerStage; label: string }[] = [
+  { value: "all", label: "Any stage" },
+  { value: "student", label: "Student" },
+  { value: "early", label: "Early career" },
+  { value: "experienced", label: "Experienced" },
+  { value: "leadership", label: "Leadership" },
+];
 
 export function matchesFilter(t: TemplateDefinition, filter: FilterType): boolean {
   if (filter === "all") return true;
@@ -170,6 +179,7 @@ export default function TemplatesPage() {
 
   /* ── State ── */
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
+  const [careerStage, setCareerStage] = useState<CareerStage>("all");
   const [searchQuery, setSearchQuery] = useState("");
   // The category pills overflow on small screens; dragging is a friendlier way
   // to reach the last one than fighting a thin scrollbar.
@@ -207,6 +217,7 @@ export default function TemplatesPage() {
     const q = searchQuery.toLowerCase().trim();
     return TEMPLATE_REGISTRY.filter((t) => {
       if (!matchesFilter(t, activeFilter)) return false;
+        if (!matchesCareerStage(t, careerStage)) return false;
       if (q) {
         return (
           t.label.toLowerCase().includes(q) ||
@@ -217,7 +228,7 @@ export default function TemplatesPage() {
       }
       return true;
     });
-  }, [activeFilter, searchQuery]);
+  }, [activeFilter, careerStage, searchQuery]);
 
   /* ── Preview template ── */
   const previewTemplate = previewing ? getTemplate(previewing as never) : null;
@@ -476,6 +487,28 @@ export default function TemplatesPage() {
             </div>
           </div>
 
+          <div className="flex flex-wrap items-center gap-2.5 mb-5" aria-label="Filter by career stage">
+            <span className="text-xs font-medium text-muted-foreground">Career stage</span>
+            <div className="flex flex-wrap gap-1">
+              {CAREER_STAGES.map((stage) => (
+                <button
+                  key={stage.value}
+                  type="button"
+                  aria-pressed={careerStage === stage.value}
+                  onClick={() => setCareerStage(stage.value)}
+                  className={cn(
+                    "whitespace-nowrap rounded-md border px-2.5 py-1 text-xs transition-colors",
+                    careerStage === stage.value
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {stage.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* ── Template Grid ── */}
           {filtered.length > 0 ? (
             <Reveal>
@@ -520,6 +553,7 @@ export default function TemplatesPage() {
                 onClick={() => {
                   setSearchQuery("");
                   setActiveFilter("all");
+                  setCareerStage("all");
                 }}
               >
                 Clear filters
@@ -584,7 +618,7 @@ export default function TemplatesPage() {
                       width: "210mm",
                       minHeight: "297mm",
                       padding: "16mm 18mm",
-                      transform: `scale(${0.53 * (ZOOM_LEVELS[zoomIdx] / ZOOM_LEVELS[2])})`,
+                      transform: `scale(${0.47 * (ZOOM_LEVELS[zoomIdx] / ZOOM_LEVELS[2])})`,
                       transformOrigin: "top left",
                       position: "absolute",
                       top: 0,

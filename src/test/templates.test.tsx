@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
-import { TEMPLATE_REGISTRY, getTemplate } from '@/lib/templateRegistry';
+import { describe, it, expect, vi } from 'vitest';
+import { act, render } from '@testing-library/react';
+import { TEMPLATE_REGISTRY, getTemplate, matchesCareerStage } from '@/lib/templateRegistry';
 import { createEmptyResume } from '@/types/resume';
+import { printResumePdf } from '@/lib/printResume';
 
 describe('template registry', () => {
   it('contains all templates with unique ids', () => {
@@ -14,11 +15,48 @@ describe('template registry', () => {
       'healthcare', 'legal', 'international', 'social', 'tim', 'mark', 'shelah', 'moon', 'max',
       'lana', 'timeless', 'plain', 'blogger', 'pacific', 'comic', 'kaly', 'mula', 'bela',
       'general-ats', 'freshman', 'graphic',
+      'blueprint', 'fieldnotes', 'ledger', 'signal', 'studio', 'frontier', 'index',
     ]));
+    expect(TEMPLATE_REGISTRY).toHaveLength(50);
   });
 
   it('falls back to the first template for unknown ids', () => {
     expect(getTemplate('nonexistent' as never).id).toBe('modern');
+  });
+});
+
+describe('career-stage template filtering', () => {
+  it('surfaces student, early-career and leadership designs', () => {
+    expect(matchesCareerStage(getTemplate('index'), 'student')).toBe(true);
+    expect(matchesCareerStage(getTemplate('index'), 'early')).toBe(true);
+    expect(matchesCareerStage(getTemplate('frontier'), 'leadership')).toBe(true);
+    expect(matchesCareerStage(getTemplate('frontier'), 'student')).toBe(false);
+  });
+});
+
+describe('template-matched PDF printing', () => {
+  it('prints the selected template component with its A4 styles', async () => {
+    const resume = createEmptyResume();
+    resume.template = 'studio';
+    resume.personal.fullName = 'Aarav Singh';
+    const originalPrint = window.print;
+    const originalFrame = window.requestAnimationFrame;
+    const printSpy = vi.fn();
+    Object.defineProperty(window, 'print', { configurable: true, value: printSpy });
+    Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: (callback: FrameRequestCallback) => { callback(0); return 1; } });
+    try {
+      await act(async () => { await printResumePdf(resume); });
+      const host = document.getElementById('resume-print-host');
+      expect(printSpy).toHaveBeenCalledOnce();
+      expect(host?.textContent).toContain('Aarav Singh');
+      expect(host?.querySelector('.bg-fuchsia-950')).not.toBeNull();
+      expect(document.head.textContent).toContain('size: A4 portrait');
+    } finally {
+      act(() => { window.dispatchEvent(new Event('afterprint')); });
+      Object.defineProperty(window, 'print', { configurable: true, value: originalPrint });
+      Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: originalFrame });
+    }
+    expect(document.getElementById('resume-print-host')).toBeNull();
   });
 });
 

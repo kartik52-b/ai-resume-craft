@@ -13,7 +13,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import SaveStatusIndicator from "@/components/SaveStatusIndicator";
-import { downloadResumePdf } from "@/lib/pdfEngine";
 import { toast } from "sonner";
 
 const LandingPage = React.lazy(() => import("./pages/LandingPage.tsx"));
@@ -306,10 +305,10 @@ function TopBar({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }) {
             </button>
             <div className="h-5 w-px bg-border mx-1 hidden md:block" />
             <button
-              onClick={() => { try { downloadResumePdf(resume); toast.success("PDF exported"); } catch { toast.error("Export failed"); } }}
+              onClick={async () => { try { const { printResumePdf } = await import("@/lib/printResume"); await printResumePdf(resume); toast.info("Choose Save as PDF in the print dialog."); } catch { toast.error("PDF export failed"); } }}
               className="h-8 px-3 rounded-md bg-primary text-primary-foreground text-[12px] font-medium flex items-center gap-1.5 hover:bg-primary/88 transition-colors"
             >
-              <Download className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Export</span> PDF
+              <Download className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Save</span> PDF
             </button>
             <TemplatePickerDialog open={templatePickerOpen} onOpenChange={setTemplatePickerOpen} />
           </>

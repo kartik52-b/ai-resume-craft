@@ -17,20 +17,19 @@ import ScrollRail from "@/components/ScrollRail";
 import Reveal from "@/components/Reveal";
 import TipStrip from "@/components/TipStrip";
 import TemplateTile from "@/components/TemplateTile";
-import { downloadResumePdf } from "@/lib/pdfEngine";
 import { toast } from "sonner";
 
 const ONBOARDING_PREVIEWS = ["modern", "professional", "developer", "two-column"] as const;
 
 const WHAT_YOU_GET = [
   { title: "Guided setup", desc: "Personal details, a short summary, then your background — three calm steps." },
-  { title: "25 designs", desc: "Switch design whenever you like; your content never changes." },
+  { title: "50 designs", desc: "Switch design whenever you like; your content never changes." },
   { title: "Clean PDF export", desc: "A selectable-text A4 document that matches the preview." },
 ];
 
 const QUICK_ACCESS = [
   { href: "/create", label: "Create resume", desc: "Start a new resume from your details" },
-  { href: "/templates", label: "Browse designs", desc: "Compare all 25 layouts side by side" },
+  { href: "/templates", label: "Browse designs", desc: "Compare all 50 layouts side by side" },
   { href: "/settings", label: "Settings", desc: "Data, appearance and writing assistance" },
 ];
 
@@ -237,8 +236,8 @@ const Dashboard = () => {
               variant="ghost"
               size="icon-sm"
               className="ml-auto"
-              onClick={() => { try { downloadResumePdf(r); toast.success("PDF exported"); } catch { toast.error("Export failed"); } }}
-              aria-label={`Export ${r.title} as PDF`}
+              onClick={async () => { try { const { printResumePdf } = await import("@/lib/printResume"); await printResumePdf(r); toast.info("Choose Save as PDF in the print dialog."); } catch { toast.error("PDF export failed"); } }}
+              aria-label={`Save ${r.title} as PDF`}
             >
               <FileText />
             </Button>

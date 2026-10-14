@@ -237,6 +237,39 @@ const STYLE_PROFILES: Record<string, StyleProfile> = {
     font: 'helvetica', nameSize: 22, contactSize: 9, titleSize: 10, bodySize: 9.5,
     lineHeightFactor: 1.45, sectionUppercase: true, sectionRule: true, bullet: '·', charRatio: 0.5,
   },
+  blueprint: {
+    font: 'courier', nameSize: 24, contactSize: 8.5, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.5, sectionUppercase: true, sectionRule: true, bullet: '›', charRatio: 0.58,
+    sidebarBg: [8, 47, 73], sidebarText: [224, 242, 254],
+  },
+  fieldnotes: {
+    font: 'times', nameSize: 25, contactSize: 8.5, titleSize: 11, bodySize: 10.5,
+    lineHeightFactor: 1.55, sectionUppercase: false, sectionRule: false, bullet: '•', charRatio: 0.48,
+  },
+  ledger: {
+    font: 'courier', nameSize: 22, contactSize: 8, titleSize: 9, bodySize: 9,
+    lineHeightFactor: 1.35, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.58,
+    sidebarBg: [250, 250, 250], sidebarText: [39, 39, 42],
+  },
+  signal: {
+    font: 'helvetica', nameSize: 26, contactSize: 8.5, titleSize: 10, bodySize: 10,
+    lineHeightFactor: 1.5, sectionUppercase: true, sectionRule: true, bullet: '→', charRatio: 0.5,
+  },
+  studio: {
+    font: 'helvetica', nameSize: 24, contactSize: 8, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.5, sectionUppercase: true, sectionRule: true, bullet: '·', charRatio: 0.5,
+    sidebarBg: [74, 4, 78], sidebarText: [250, 232, 255],
+  },
+  frontier: {
+    font: 'helvetica', nameSize: 20, contactSize: 8, titleSize: 9, bodySize: 9.5,
+    lineHeightFactor: 1.5, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+    sidebarBg: [2, 44, 34], sidebarText: [209, 250, 229],
+  },
+  index: {
+    font: 'helvetica', nameSize: 23, contactSize: 8, titleSize: 10, bodySize: 9.5,
+    lineHeightFactor: 1.5, sectionUppercase: true, sectionRule: true, bullet: '•', charRatio: 0.5,
+    sidebarBg: [255, 251, 235], sidebarText: [68, 64, 60],
+  },
 };
 
 export function getStyleProfile(template: ResumeData['template']): StyleProfile {
@@ -293,6 +326,13 @@ const LAYOUT_PROFILES: Record<string, LayoutProfile> = {
   'general-ats': { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: false },
   freshman: { headerAlign: 'center', columns: 'sidebar-left', sidebarRatio: 0.36, nameRule: true },
   graphic: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.38, nameRule: true },
+  blueprint: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.34, nameRule: true },
+  fieldnotes: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.28, nameRule: true },
+  ledger: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.27, nameRule: true },
+  signal: { headerAlign: 'left', columns: 'single', sidebarRatio: 0.34, nameRule: true },
+  studio: { headerAlign: 'left', columns: 'sidebar-right', sidebarRatio: 0.32, nameRule: false },
+  frontier: { headerAlign: 'left', columns: 'sidebar-right', sidebarRatio: 0.32, nameRule: false },
+  index: { headerAlign: 'left', columns: 'sidebar-left', sidebarRatio: 0.28, nameRule: true },
 };
 
 export function getLayoutProfile(template: ResumeData['template']): LayoutProfile {
@@ -309,6 +349,7 @@ export interface PdfElement {
   bold?: boolean;
   gray?: boolean;
   italic?: boolean;
+  sidebar?: boolean;
 }
 
 /** Pure word-wrap using per-font average char width. Mirrors jsPDF closely enough for layout. */
@@ -342,6 +383,7 @@ interface LayoutCursor {
   page: number;
   y: number;
   elements: PdfElement[];
+  sidebar?: boolean;
 }
 
 function ensureSpace(cursor: LayoutCursor, neededMm: number): void {
@@ -360,7 +402,7 @@ function pushLines(
     ensureSpace(cursor, opts.lh);
     cursor.elements.push({
       page: cursor.page, x: opts.x, y: cursor.y, text: line,
-      size: opts.size, font: opts.font, bold: opts.bold, gray: opts.gray, italic: opts.italic,
+      size: opts.size, font: opts.font, bold: opts.bold, gray: opts.gray, italic: opts.italic, sidebar: cursor.sidebar,
     });
     cursor.y += opts.lh;
   }
@@ -389,7 +431,7 @@ export function layoutResume(resume: ResumeData): { elements: PdfElement[]; tota
   const MAIN_W = isSidebar ? CONTENT_W - SIDEBAR_W - GAP : CONTENT_W;
   const SIDEBAR_X = isRightSide ? MARGIN_X + MAIN_W + GAP : MARGIN_X;
   const headerCenter = layout.headerAlign === 'center';
-  const sideCursor: LayoutCursor = { page: 1, y: MARGIN_TOP, elements: [] };
+  const sideCursor: LayoutCursor = { page: 1, y: MARGIN_TOP, elements: [], sidebar: true };
 
   const textW = (text: string, size: number) => text.length * size * PT_TO_MM * style.charRatio;
   const headerX = (text: string, size: number) =>
@@ -445,7 +487,7 @@ export function layoutResume(resume: ResumeData): { elements: PdfElement[]; tota
       const title = style.sectionUppercase ? section.title.toUpperCase() : section.title;
       const titleLines = wrapText(title, style.titleSize - 0.5, SIDEBAR_W, style.charRatio);
       for (const tLine of titleLines) {
-        sideCursor.elements.push({ page: sideCursor.page, x: SIDEBAR_X, y: sideCursor.y, text: tLine, size: style.titleSize - 0.5, font: style.font, bold: true });
+        sideCursor.elements.push({ page: sideCursor.page, x: SIDEBAR_X, y: sideCursor.y, text: tLine, size: style.titleSize - 0.5, font: style.font, bold: true, sidebar: true });
         sideCursor.y += lh(style.titleSize - 0.5);
       }
       sideCursor.y += 0.5;
@@ -596,7 +638,9 @@ export function buildResumePdf(resume: ResumeData): jsPDF {
     }
     doc.setFont(el.font, el.bold ? 'bold' : el.italic ? 'italic' : 'normal');
     doc.setFontSize(el.size);
-    doc.setTextColor(el.gray ? 120 : 30);
+    const sideColor = el.sidebar ? style.sidebarText : undefined;
+    if (sideColor) doc.setTextColor(sideColor[0], sideColor[1], sideColor[2]);
+    else doc.setTextColor(el.gray ? 120 : 30);
     doc.text(el.text, el.x, el.y, { baseline: 'top' });
   }
   void style;

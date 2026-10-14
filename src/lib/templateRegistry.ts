@@ -43,6 +43,13 @@ import BelaTemplate from '@/components/templates/BelaTemplate';
 import GeneralAtsTemplate from '@/components/templates/GeneralAtsTemplate';
 import FreshmanTemplate from '@/components/templates/FreshmanTemplate';
 import GraphicTemplate from '@/components/templates/GraphicTemplate';
+import BlueprintTemplate from '@/components/templates/BlueprintTemplate';
+import FieldnotesTemplate from '@/components/templates/FieldnotesTemplate';
+import LedgerTemplate from '@/components/templates/LedgerTemplate';
+import SignalTemplate from '@/components/templates/SignalTemplate';
+import StudioTemplate from '@/components/templates/StudioTemplate';
+import FrontierTemplate from '@/components/templates/FrontierTemplate';
+import IndexTemplate from '@/components/templates/IndexTemplate';
 
 /**
  * Design directions. Each template belongs to exactly one; the gallery uses
@@ -84,7 +91,7 @@ export interface TemplateDefinition {
  * Layout structure is defined in `src/components/templates/layouts.tsx` and the
  * shared section primitives in `src/components/templates/shared.tsx`.
  */
-export const TEMPLATE_REGISTRY: TemplateDefinition[] = [
+  export const TEMPLATE_REGISTRY: TemplateDefinition[] = [
   {
     id: 'modern',
     label: 'Modern',
@@ -601,6 +608,42 @@ export const TEMPLATE_REGISTRY: TemplateDefinition[] = [
     tags: ['graphic', 'asymmetric', 'project-cards', 'creative', 'visual'],
     Component: GraphicTemplate,
   },
+
+  {
+    id: 'blueprint', label: 'Blueprint', description: 'Technical profile with a full-width ink masthead, numbered story and a dedicated toolkit rail.',
+    category: 'developer', bestFor: 'Software / AI / Platform engineering', features: ['Full-bleed masthead', 'Numbered sections', 'Technical toolkit rail', 'Project cards'],
+    layoutType: 'sidebar', layoutDescription: 'Dark identity band above a wide narrative and narrow technical rail.', tags: ['blueprint', 'software', 'ai', 'machine-learning', 'technical', 'projects'], Component: BlueprintTemplate,
+  },
+  {
+    id: 'fieldnotes', label: 'Fieldnotes', description: 'Literary research CV with a ruled editorial masthead and a numbered chronology.',
+    category: 'academic', bestFor: 'Researchers / Writers / Policy professionals', features: ['Serif editorial hierarchy', 'Timeline experience', 'Numbered sections', 'Publication-ready spacing'],
+    layoutType: 'one-column', layoutDescription: 'Editorial single column with a narrow index margin and timeline entries.', tags: ['fieldnotes', 'academic', 'research', 'editorial', 'timeline', 'serif'], Component: FieldnotesTemplate,
+  },
+  {
+    id: 'ledger', label: 'Ledger', description: 'Precise career record with a narrow inventory rail and dense chronology.',
+    category: 'professional', bestFor: 'Finance / Consulting / Operations', features: ['Compact chronology', 'Inventory rail', 'Strong rule hierarchy', 'Data-forward format'],
+    layoutType: 'sidebar', layoutDescription: 'Dense main record balanced by a narrow ruled skills and credentials rail.', tags: ['ledger', 'finance', 'consulting', 'compact', 'data', 'formal'], Component: LedgerTemplate,
+  },
+  {
+    id: 'signal', label: 'Signal', description: 'Impact-first profile with a prominent identity, skill strip and accomplishment-led entries.',
+    category: 'modern', bestFor: 'Product / Marketing / Startup teams', features: ['Impact-first hierarchy', 'Horizontal skill strip', 'Accomplishment entries', 'Modern masthead'],
+    layoutType: 'one-column', layoutDescription: 'Single column led by an oversized identity and horizontal capabilities band.', tags: ['signal', 'startup', 'product', 'marketing', 'impact', 'modern'], Component: SignalTemplate,
+  },
+  {
+    id: 'studio', label: 'Studio', description: 'Portfolio-forward creative resume with a dark identity band and a selected-work gallery.',
+    category: 'creative', bestFor: 'Designers / Art directors / Creative technologists', features: ['Project-first rail', 'Dark identity band', 'Work cards', 'Toolbox sidebar'],
+    layoutType: 'two-column', layoutDescription: 'Project gallery beside a clean experience column under a dark studio masthead.', tags: ['studio', 'portfolio', 'creative', 'designer', 'projects', 'visual'], Component: StudioTemplate,
+  },
+  {
+    id: 'frontier', label: 'Frontier', description: 'Right-anchored evergreen credentials rail paired with a chronological achievement story.',
+    category: 'executive', bestFor: 'Senior leaders / Global professionals / Program directors', features: ['Right-side full-bleed rail', 'Timeline experience', 'Capabilities index', 'Leadership profile'],
+    layoutType: 'sidebar', layoutDescription: 'Wide narrative column with an evergreen right rail for identity and capabilities.', tags: ['frontier', 'executive', 'leadership', 'international', 'timeline', 'right-rail'], Component: FrontierTemplate,
+  },
+  {
+    id: 'index', label: 'Index', description: 'Grid-conscious candidate record with a labeled identity block and indexed credentials column.',
+    category: 'student', bestFor: 'Students / Early-career analysts / Graduate applicants', features: ['Candidate index masthead', 'Education and project focus', 'Credential rail', 'Ordered record'],
+    layoutType: 'two-column', layoutDescription: 'Labeled split masthead above an indexed sidebar and structured main record.', tags: ['index', 'student', 'graduate', 'early-career', 'grid', 'analyst'], Component: IndexTemplate,
+  },
 ];
 
 /** Gallery filter pills, derived from the template categories. */
@@ -636,6 +679,17 @@ export function searchTemplates(query: string): TemplateDefinition[] {
       t.category.toLowerCase().includes(q) ||
       t.tags.some((tag) => tag.includes(q)),
   );
+}
+
+export type CareerStage = 'all' | 'student' | 'early' | 'experienced' | 'leadership';
+
+export function matchesCareerStage(t: TemplateDefinition, stage: CareerStage): boolean {
+  if (stage === 'all') return true;
+  const text = `${t.bestFor} ${t.tags.join(' ')}`.toLowerCase();
+  if (stage === 'student') return t.category === 'student' || /student|graduate|fresher/.test(text);
+  if (stage === 'early') return /entry-level|early-career|junior|new graduate|fresher/.test(text);
+  if (stage === 'leadership') return t.category === 'executive' || /leadership|c-suite|director|\bvp\b|executive|team lead/.test(text);
+  return /experienced|senior|principal|manager|director|consultant|c-suite|\bvp\b/.test(text);
 }
 
 export function getTemplate(id: ResumeData['template']): TemplateDefinition {
@@ -689,31 +743,31 @@ export const DESIGN_COLLECTIONS: DesignCollection[] = [
     id: 'engineering',
     label: 'Engineering',
     blurb: 'Structured layouts that surface skills and technical depth.',
-    templates: ['engineering', 'tech', 'developer'],
+    templates: ['engineering', 'tech', 'developer', 'blueprint'],
   },
   {
     id: 'finance',
     label: 'Finance',
     blurb: 'Conservative, formal formats for finance and banking.',
-    templates: ['finance', 'corporate', 'professional', 'consultant'],
+    templates: ['finance', 'corporate', 'professional', 'consultant', 'ledger'],
   },
   {
     id: 'academic',
     label: 'Academic',
     blurb: 'Publication- and research-friendly formats.',
-    templates: ['academic', 'research', 'student', 'plain'],
+    templates: ['academic', 'research', 'student', 'plain', 'fieldnotes'],
   },
   {
     id: 'designer',
     label: 'Designer',
     blurb: 'Visual layouts for UI, UX and graphic designers.',
-    templates: ['designer', 'portfolio', 'creative', 'two-column', 'graphic', 'shelah', 'moon', 'bela'],
+    templates: ['designer', 'portfolio', 'creative', 'two-column', 'graphic', 'shelah', 'moon', 'bela', 'studio'],
   },
   {
     id: 'marketing',
     label: 'Marketing',
     blurb: 'Bold, metrics-forward layouts for marketing roles.',
-    templates: ['marketing', 'creative', 'startup'],
+    templates: ['marketing', 'creative', 'startup', 'signal'],
   },
   {
     id: 'healthcare',
@@ -731,7 +785,7 @@ export const DESIGN_COLLECTIONS: DesignCollection[] = [
     id: 'executive',
     label: 'Executive',
     blurb: 'Authority-forward designs for leadership roles.',
-    templates: ['executive', 'consultant', 'corporate', 'finance'],
+    templates: ['executive', 'consultant', 'corporate', 'finance', 'frontier'],
   },
 ];
 
