@@ -1,9 +1,9 @@
 # AI Resume Craft
 
-An elegant, local-first **resume design studio**. Pick one of 25 structurally
+An elegant, local-first **resume design studio**. Pick one of 50 structurally
 different layouts, write your resume in a two-pane editor with a live A4
-preview, and export a clean, selectable-text PDF. No account, no upload — your
-resumes live in this browser.
+preview, and export a clean A4 PDF. No account is required; resumes live in this
+browser. Optional AI requests send only the selected resume text to Google Gemini.
 
 ## Product
 
@@ -12,7 +12,7 @@ resumes live in this browser.
 | `/` | Landing page. The resume itself is the hero: a real A4 sheet on a desk, with a continuously moving design rail. |
 | `/create` | Guided setup — personal details → summary → background → design → build. Education is optional, each added entry is validated, and the draft is cached locally so a refresh never loses your typing. |
 | `/editor` | Section editors on the left, live A4 preview on the right. Drag-reorder and hide sections, undo/redo, autosave (800 ms), inline validation, import (.txt / .md / .docx) and PDF export. |
-| `/templates` | 25 designs by collection and category, each previewed as a full A4 page. |
+| `/templates` | 50 designs by collection, category, career stage and search, each previewed as a full A4 page. |
 | `/resumes` | Rename, duplicate, delete and export; several resumes side by side. |
 | `/settings` | Appearance, resume details, data export/import, AI configuration, environment notes. |
 
@@ -42,13 +42,22 @@ little, the carousel loops on a 4.5 s dwell, and the template rail drifts at
 
 ## Writing assistance (optional)
 
-Every AI action is **review-before-apply** — a suggestion appears, then you
-apply or discard it. Requests go through a small server-side proxy
-(`api/app.py`) so the provider key never reaches the browser:
+AI tools include field rewriting (professional, concise, impact, grammar and
+plain-language modes), summary drafting, skill suggestions and bullet ideas.
+Every action is **review-before-apply**. Summary input excludes name/contact
+details; bullet ideas require your own factual work notes. Requests go through
+the server-side Gemini proxy (`api/app.py`); the key never reaches the browser.
 
 ```sh
-GOOGLE_API_KEY=... python3 api/app.py    # installs from api/requirements.txt
+python -m pip install -r requirements.txt
+# PowerShell: $env:GOOGLE_API_KEY = "your-key"; python api/app.py
+# Bash: GOOGLE_API_KEY=your-key python api/app.py
 ```
+
+For Vercel, add `GOOGLE_API_KEY` as a server-side project environment variable.
+Do not prefix it with `VITE_`. The Python functions under `api/ai/` reuse the
+same Flask routes for deployed `/api/ai/*` requests. The existing `/api/ai/match`
+route has no user-facing control and is intentionally not exposed as a product feature.
 
 Without it the product is fully functional: editing, templates, import, saving
 and PDF export are unaffected, and writing actions simply report that
@@ -66,12 +75,19 @@ bun run e2e              # Playwright journey tests (server must be running)
 bun run lint
 ```
 
+The Flask proxy checks can be run with:
+
+```sh
+python -m unittest discover -s tests -p test_ai_api.py -v
+```
+
 ## Deploying
 
-A static Vite build. `vercel.json` pins `framework: vite`, `vite build` →
-`dist` and the SPA rewrite, so the repo can be imported into Vercel as-is. The
-build step is Node-only (`bun install` + `bun run build`); Python that must run
-in production belongs in `api/*.py` beside a `requirements.txt`.
+Vite builds the frontend to `dist`; `api/ai/*.py` are Python serverless functions
+with dependencies declared in the root `requirements.txt`. The deployment needs
+both the frontend build and server-side `GOOGLE_API_KEY`
+configuration for AI assistance. Without that variable, AI responds with an
+explicit setup message while local resume editing and PDF export remain available.
 
 ## Stack
 

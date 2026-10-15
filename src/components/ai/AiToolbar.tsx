@@ -56,6 +56,9 @@ export default function AiToolbar({ text, onAccept, className }: AiToolbarProps)
           role="menu"
           className="absolute right-0 z-30 mt-1.5 w-56 rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-elevated animate-scale-in"
         >
+          <p role="presentation" className="border-b border-border px-2.5 py-2 text-xs leading-relaxed text-muted-foreground">
+            Choosing an action sends this field's text to Google Gemini. The original stays until you apply a draft.
+          </p>
           {MODES.map((mode) => (
             <button
               key={mode.id}

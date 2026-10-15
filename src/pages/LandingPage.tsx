@@ -18,7 +18,7 @@ import { delay } from '@/lib/motion';
 
 /* ── Content ─────────────────────────────────────────────────────────────── */
 
-const FACTS = ['25 resume designs', '6 editable sections', 'Nothing uploaded'];
+const FACTS = ['6 editable sections', 'No account required'];
 
 /** The four movements of the product, as an editorial walkthrough (01…04). */
 const STEPS = [
@@ -26,13 +26,13 @@ const STEPS = [
     num: '01',
     label: 'Create',
     title: 'Start with your details',
-    desc: 'Name, email and phone are enough to open a real resume. No account, nothing uploaded.',
+    desc: 'Start with your details. Your resume stays in this browser unless you explicitly request AI writing help.',
   },
   {
     num: '02',
     label: 'Choose',
     title: 'Pick the structure',
-    desc: 'Twenty-five layouts — single column, sidebar, editorial, compact — each previewed as a full A4 page.',
+    desc: 'Fifty layouts — single column, sidebar, editorial, compact — each previewed as a full A4 page.',
   },
   {
     num: '03',
@@ -149,7 +149,7 @@ const LandingPage = () => {
             </div>
 
             <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground animate-fade-up stagger" style={delay(160)}>
-              {FACTS.map((fact) => (
+              {[`${totalTemplates} resume designs`, ...FACTS].map((fact) => (
                 <li key={fact} className="flex items-center gap-2">
                   <span className="h-1 w-1 rounded-full bg-bronze" aria-hidden />
                   {fact}
@@ -330,30 +330,26 @@ const LandingPage = () => {
               </h2>
             </div>
             <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-              Summaries, bullet points and project descriptions can be rewritten
-              for clarity or impact. Every suggestion appears as a draft — you
-              read it, then apply or discard it.
+              Rewrite a field, draft a summary from your resume, or suggest skills
+              and bullets from your own work notes. Suggestions stay drafts until
+              you choose to apply them.
             </p>
-
-            {/* A quiet demonstration of the real interaction. */}
-            <div className="mt-6 rounded-md border border-border bg-card p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-foreground">Professional summary</span>
-                <span className="text-xs text-muted-foreground">Improve with AI</span>
-              </div>
-              <p className="mt-2.5 rounded border border-border bg-background p-3 text-xs leading-relaxed">
-                Product engineer with eight years building and maintaining
-                customer-facing web platforms.
-              </p>
-              <div className="mt-3 flex gap-2">
-                <span className="inline-flex h-7 items-center rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground">
-                  Apply
-                </span>
-                <span className="inline-flex h-7 items-center rounded-md border border-border px-3 text-xs text-muted-foreground">
-                  Discard
-                </span>
-              </div>
-            </div>
+            <dl className="mt-6 divide-y divide-border border-y border-border">
+              {[
+                { k: 'Rewrite', v: 'Selected field text and chosen writing mode' },
+                { k: 'Summary', v: 'Headline and resume sections; contact details excluded' },
+                { k: 'Bullet ideas', v: 'Role, company, skills and your factual work notes' },
+                { k: 'Skills', v: 'Role and experience titles/companies' },
+              ].map((row) => (
+                <div key={row.k} className="flex flex-col gap-1 py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+                  <dt className="text-xs uppercase tracking-[0.08em] text-muted-2">{row.k}</dt>
+                  <dd className="text-sm text-foreground sm:text-right">{row.v}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+              AI requests send only the listed text to Google Gemini when you ask. A server-side <code>GOOGLE_API_KEY</code> is required; without it, the editor remains fully usable.
+            </p>
           </Reveal>
 
           <Reveal variant="slide-right">
@@ -365,14 +361,15 @@ const LandingPage = () => {
               </h2>
             </div>
             <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-              Resumes are saved in this browser. No account, no upload, no
-              watermark. Create once and refine it any time.
+              Resumes are saved in this browser. No account or watermark. AI is
+              optional; only text needed for a requested suggestion is sent to Gemini.
             </p>
 
             <dl className="mt-6 divide-y divide-border border-y border-border">
               {[
                 { k: 'Stored', v: 'Locally, in your browser' },
                 { k: 'Account', v: 'Not required' },
+                { k: 'AI requests', v: 'Sent to Gemini only when you ask' },
                 { k: 'Export', v: 'Clean, selectable-text A4 PDF' },
                 { k: 'Designs', v: 'Change any time, content intact' },
               ].map((row) => (

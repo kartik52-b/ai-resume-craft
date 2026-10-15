@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAiAction } from './useAiAction';
 import AiErrorNotice from './AiErrorNotice';
+import AiRequestNotice from './AiRequestNotice';
 import { aiBullets } from '@/lib/aiClient';
 import AiSuggestionList from './AiSuggestionList';
 
@@ -20,13 +21,15 @@ export default function BulletGenerator({ role, company, existingBullets, skills
 
   return (
     <div className="space-y-1.5">
-      <Textarea value={context} onChange={(e) => setContext(e.target.value)} placeholder="Optional: describe what you did..." className="text-xs min-h-[56px]" />
+      <Textarea value={context} onChange={(e) => setContext(e.target.value)} placeholder="Describe tasks, tools and outcomes you actually handled..." className="text-xs min-h-[72px]" aria-label="Your actual work context for bullet suggestions" />
+      <AiRequestNotice>Sends this role, company, selected skills and any note you enter.</AiRequestNotice>
       <div className="flex items-center gap-2">
-        <Button variant="secondary" size="sm" className="gap-1.5" onClick={generate} disabled={loading}>
+        <Button variant="secondary" size="sm" className="gap-1.5" onClick={generate} disabled={loading || !context.trim()}>
           {loading && <Loader2 className="h-3 w-3 animate-spin" />}
           {loading ? 'Writing…' : 'Suggest bullets'}
         </Button>
       </div>
+      {!context.trim() && <p className="text-xs text-muted-foreground">Add your own work notes first so suggestions do not invent accomplishments.</p>}
       <AiErrorNotice code={errorCode} />
       <AiSuggestionList title="Suggested bullets — review before adding" items={suggestions} onAccept={accept} onDismiss={(b) => setSuggestions((cur) => cur.filter((x) => x !== b))} onDismissAll={() => setSuggestions([])} />
     </div>

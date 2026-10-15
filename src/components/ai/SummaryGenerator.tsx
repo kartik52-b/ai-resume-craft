@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAiAction } from './useAiAction';
 import AiErrorNotice from './AiErrorNotice';
+import AiRequestNotice from './AiRequestNotice';
 import { aiSummary } from '@/lib/aiClient';
 import { resumeToPlainText } from '@/lib/resumeText';
 
@@ -16,10 +17,12 @@ export default function SummaryGenerator({ resumeText, currentSummary, onAccept 
 
   return (
     <div className="space-y-1.5">
-      <Button variant="secondary" size="sm" className="gap-1.5" onClick={generate} disabled={loading}>
+      <Button variant="secondary" size="sm" className="gap-1.5" onClick={generate} disabled={loading || !resumeText.trim()}>
         {loading && <Loader2 className="h-3 w-3 animate-spin" />}
         {loading ? 'Writing…' : currentSummary.trim() ? 'Suggest a new summary' : 'Write one from my resume'}
       </Button>
+      {!resumeText.trim() && <p className="text-xs text-muted-foreground">Add a headline or resume section before drafting a summary.</p>}
+      <AiRequestNotice>Uses your headline and resume sections, not your name or contact details.</AiRequestNotice>
       <AiErrorNotice code={errorCode} />
       {preview && (
         <div className="space-y-2 rounded-md border border-border bg-card p-3 animate-fade-in">

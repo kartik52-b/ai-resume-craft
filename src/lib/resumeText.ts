@@ -81,3 +81,13 @@ export function resumeToPlainText(resume: ResumeData): string {
     .join('\n\n');
   return [header, headline, contact, body].filter(Boolean).join('\n\n');
 }
+
+/** Summary-generation context excludes identifying contact details and the existing summary. */
+export function resumeToAiContext(resume: ResumeData): string {
+  const headline = resume.personal.headline.trim();
+  const body = resumeToSections(resume)
+    .filter((section) => section.id !== 'personal')
+    .map((section) => `${section.title.toUpperCase()}\n${section.lines.join('\n')}`)
+    .join('\n\n');
+  return [headline, body].filter(Boolean).join('\n\n');
+}

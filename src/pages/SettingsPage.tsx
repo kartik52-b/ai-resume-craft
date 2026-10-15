@@ -119,7 +119,7 @@ export default function SettingsPage() {
             Settings
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Everything runs in this browser. Your resumes are stored locally and never uploaded.
+            Your resumes are stored locally. Only text needed for an AI suggestion leaves this browser, and only when you request it.
           </p>
         </header>
 
@@ -184,7 +184,7 @@ export default function SettingsPage() {
           <Section
             title="Data & Privacy"
             delayMs={120}
-            hint="Resumes are saved automatically to this browser's local storage. Data leaves your device only when you explicitly request help with wording."
+            hint="Resumes are saved automatically to this browser's local storage. Text is sent to Google Gemini only when you explicitly request AI help."
           >
             <dl className="divide-y divide-border">
               <InfoRow label="Stored resumes" value={resumes.length} />
@@ -239,32 +239,40 @@ export default function SettingsPage() {
           <Section
             title="AI Writing Assistance"
             delayMs={180}
-            hint="Get optional help improving your resume summary and bullet points."
+            hint="Optional Gemini-powered writing tools. Review each suggestion before applying it."
           >
             <div className="rounded-lg border border-border bg-card p-4">
               <p className="text-sm font-medium text-foreground">Optional help when you want it.</p>
               <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                You can ask for suggestions on your summary and bullet points. Every
-                suggestion is shown to you before it is applied, and nothing is sent from
-                your browser without your explicit request.
+                Rewrite selected text, draft a summary from your headline and resume
+                sections (without name/contact details), suggest skills from your role
+                history, or draft bullets from factual work notes. Each request sends
+                only that input to Google Gemini. Review every suggestion before applying it.
               </p>
 
+              <dl className="mt-4 divide-y divide-border border-y border-border">
+                <InfoRow label="Provider" value="Google Gemini" />
+                <InfoRow label="Server variable" value="GOOGLE_API_KEY" mono />
+                <InfoRow label="Bullet suggestions" value="Require your own work notes; review for accuracy" />
+                <InfoRow label="When missing" value="AI tools show setup guidance; all other features work" />
+              </dl>
+
               <div className="mt-4 flex flex-wrap items-center gap-2">
-                <a
-                  href="https://ai.google.dev/pricing"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="inline-flex h-9 items-center rounded-lg border border-border bg-card px-3 text-sm font-medium text-foreground shadow-xs transition-colors hover:border-border-strong hover:bg-secondary/60"
-                >
-                  Set up AI
-                </a>
                 <a
                   href="https://ai.google.dev/gemini-api/docs/api-key"
                   target="_blank"
                   rel="noreferrer noopener"
+                  className="inline-flex h-9 items-center rounded-lg border border-border bg-card px-3 text-sm font-medium text-foreground shadow-xs transition-colors hover:border-border-strong hover:bg-secondary/60"
+                >
+                  Get a Gemini API key
+                </a>
+                <a
+                  href="https://ai.google.dev/pricing"
+                  target="_blank"
+                  rel="noreferrer noopener"
                   className="text-sm text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground hover:decoration-bronze"
                 >
-                  How to get a key
+                  Gemini API pricing
                 </a>
               </div>
 

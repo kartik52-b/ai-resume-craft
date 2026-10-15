@@ -123,7 +123,7 @@ const Dashboard = () => {
               </Button>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              Saved in this browser — nothing is uploaded.
+              Saved in this browser. Only text for an AI suggestion is sent when you request it.
             </p>
           </Reveal>
 

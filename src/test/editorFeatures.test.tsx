@@ -7,6 +7,7 @@ import {
   resolveSectionOrder, isSectionHidden, toggleSectionHidden, reorderSections, nudgeSection, moveItem,
 } from '@/lib/sections';
 import { validateResume, sectionCompleteness } from '@/lib/resumeValidation';
+import ExperienceSection from '@/components/editor/ExperienceSection';
 
 describe('sections: order and visibility helpers', () => {
   it('resolves stored order and appends new sections', () => {
@@ -161,5 +162,12 @@ describe('undo/redo', () => {
 
     const stored = JSON.parse(localStorage.getItem('ai-resume-craft:store')!);
     expect(stored.store.resumes[0].personal.fullName).toBe('');
+  });
+
+  it('adds an experience entry through the editor without corrupting history', () => {
+    render(<ResumeProvider><ExperienceSection /></ResumeProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'Add Experience' }));
+    expect(document.querySelectorAll('[data-entry-id]')).toHaveLength(1);
+    expect(screen.getByPlaceholderText('Software Engineer')).toBeInTheDocument();
   });
 });

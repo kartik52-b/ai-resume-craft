@@ -148,7 +148,9 @@ def rewrite():
         return _error("invalid_input", 400)
     prompt = (
         "You are a professional resume writer. Rewrite the following resume text. "
-        f"{instruction} Return ONLY the rewritten text, no commentary, no quotes, "
+        f"{instruction} Preserve the original meaning and use only facts in the input. "
+        "Never add numbers, metrics, skills, credentials, employers, or outcomes. "
+        "Return ONLY the rewritten text, no commentary, no quotes, "
         "no markdown. Keep it under 120 words.\n\nTEXT:\n" + text
     )
     result, err = _gemini_generate(prompt)
@@ -168,20 +170,24 @@ def bullets():
     if err:
         return err
     company = str(data.get("company") or "").strip()[:120]
-    context = str(data.get("context") or "").strip()[:MAX_INPUT_CHARS]
+    context, err = _require_text(data, "context")
+    if err:
+        return err
+    context = context[:MAX_INPUT_CHARS]
     skills = data.get("skills")
     skills = ", ".join(s.strip() for s in skills if isinstance(s, str))[:300] if isinstance(skills, list) else ""
 
     prompt = (
         "You are a professional resume writer. Generate 4-6 strong resume bullet "
-        "points for the role described below. Each bullet starts with a strong action "
-        "verb, is one line, and includes a plausible measurable outcome where the "
-        "context supports one (never invent specific numbers beyond realistic ranges). "
+        "points grounded only in the user's supplied context. Each bullet starts with "
+        "a strong action verb and is one line. Never invent metrics, numbers, "
+        "responsibilities, employers, tools, or outcomes; if the user supplied no "
+        "measurable result, do not add one. "
         f"Return ONLY the bullets, one per line, no numbering, no commentary.\n\n"
         f"ROLE: {role}\n"
         + (f"COMPANY: {company}\n" if company else "")
         + (f"SKILLS: {skills}\n" if skills else "")
-        + (f"CONTEXT (user's own notes): {context}\n" if context else "")
+        + f"CONTEXT (the user's own factual notes): {context}\n"
     )
     result, err = _gemini_generate(prompt)
     if err:
@@ -200,7 +206,8 @@ def summary():
     prompt = (
         "You are a professional resume writer. Based on the resume content below, "
         "write a professional summary of 2-3 sentences (80-400 characters) written "
-        "in first person implied style (no 'I'). Return ONLY the summary text, no "
+        "in first person implied style (no 'I'). Use only facts explicitly present; "
+        "never add credentials, metrics, skills or experience. Return ONLY the summary text, no "
         "commentary, no quotes.\n\nRESUME:\n" + resume_text
     )
     result, err = _gemini_generate(prompt)

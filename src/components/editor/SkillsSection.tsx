@@ -37,7 +37,7 @@ const SkillsSection = () => {
         ))}
         {resume.skills.length === 0 && <p className="text-xs text-muted-foreground py-2">No skills added yet. Add 6–10 relevant skills.</p>}
       </div>
-      <SkillsSuggester role={resume.personal.fullName ? resume.experience[0]?.position ?? '' : ''}
+      <SkillsSuggester role={resume.experience[0]?.position || resume.personal.headline}
         experienceContext={resume.experience.map((e) => [e.position, e.company].filter(Boolean).join(' at ')).join('; ')}
         existingSkills={resume.skills} onAddSkills={(newSkills) => updateField('skills', [...resume.skills, ...newSkills.filter((s) => !resume.skills.includes(s))])} />
     </div>

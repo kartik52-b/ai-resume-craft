@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import SummaryGenerator from '@/components/ai/SummaryGenerator';
 import AiToolbar from '@/components/ai/AiToolbar';
-import { resumeToPlainText } from '@/lib/resumeText';
+import { resumeToAiContext } from '@/lib/resumeText';
 import { User, Mail, Phone, MapPin, Globe, Linkedin, Github, Briefcase } from 'lucide-react';
 
 /**
@@ -40,10 +40,8 @@ const PersonalSection = () => {
         ))}
       </div>
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <Label className="text-xs font-medium text-muted-foreground">Professional Summary</Label>
-          <SummaryGenerator resumeText={resumeToPlainText(resume)} currentSummary={p.summary} onAccept={(text) => updatePersonal('summary', text)} />
-        </div>
+        <Label className="text-xs font-medium text-muted-foreground">Professional Summary</Label>
+        <SummaryGenerator resumeText={resumeToAiContext(resume)} currentSummary={p.summary} onAccept={(text) => updatePersonal('summary', text)} />
         <div className="relative">
           <Textarea value={p.summary} onChange={(e) => updatePersonal('summary', e.target.value)}
             placeholder="Experienced software engineer with 5+ years..."

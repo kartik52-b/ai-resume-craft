@@ -1108,7 +1108,7 @@ export default function Onboarding() {
 
         {step === 1 && (
           <p className="text-xs text-muted-foreground text-center mt-5">
-            Nothing is uploaded — your resume is saved locally in this browser.
+            Your resume is saved locally. Text leaves this browser only when you request AI writing help.
           </p>
         )}
       </div>
