@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '@/App';
 import { clearStoredResume, STORAGE_KEY } from '@/lib/storage';
 import { clearOnboardingDraft } from '@/lib/onboardingDraft';
+import { ALL_TEMPLATE_TYPES } from '@/types/resume';
 
 /**
  * Integration smoke test: mounts the real router + providers and walks the
@@ -85,6 +86,7 @@ describe('app smoke: fresh visitor', () => {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
     expect(stored.store.resumes).toHaveLength(1);
     expect(stored.store.resumes[0].personal.fullName).toBe('Jane Smith');
+    expect(ALL_TEMPLATE_TYPES).toContain(stored.store.resumes[0].template);
     expect(stored.store.resumes[0].experience).toEqual([]);
     // Skipping education leaves it empty — no fabricated entries.
     expect(stored.store.resumes[0].education).toEqual([]);

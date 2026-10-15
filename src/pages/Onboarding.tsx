@@ -1016,8 +1016,11 @@ export default function Onboarding() {
   }, [details, goTo]);
 
   const finish = useCallback(
-    (chosen: TemplateType = template) => {
+    (requestedTemplate: unknown = template) => {
       if (createdRef.current) return;
+      const chosen = typeof requestedTemplate === 'string' && ALL_TEMPLATE_TYPES.includes(requestedTemplate as TemplateType)
+        ? requestedTemplate as TemplateType
+        : template;
       createdRef.current = true;
       setTemplate(chosen);
       goTo(5);

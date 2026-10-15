@@ -9,6 +9,22 @@ import {
 import { validateResume, sectionCompleteness } from '@/lib/resumeValidation';
 import ExperienceSection from '@/components/editor/ExperienceSection';
 
+function CreateResumeProbe() {
+  const { createResumeFromDetails } = useResume();
+  return (
+    <button onClick={() => createResumeFromDetails({
+      fullName: 'Morgan Example',
+      email: 'morgan@example.test',
+      phone: '+1 555 010 4433',
+      location: '',
+      headline: 'Product Engineer',
+      linkedin: '',
+      website: '',
+      summary: '',
+    }, 'modern')}>Create onboarding resume</button>
+  );
+}
+
 describe('sections: order and visibility helpers', () => {
   it('resolves stored order and appends new sections', () => {
     const resume = createEmptyResume();
@@ -169,5 +185,13 @@ describe('undo/redo', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Add Experience' }));
     expect(document.querySelectorAll('[data-entry-id]')).toHaveLength(1);
     expect(screen.getByPlaceholderText('Software Engineer')).toBeInTheDocument();
+  });
+
+  it('adds experience after the onboarding builder creates the first resume', () => {
+    clearStoredResume();
+    render(<ResumeProvider><><CreateResumeProbe /><ExperienceSection /></></ResumeProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'Create onboarding resume' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add Experience' }));
+    expect(document.querySelectorAll('[data-entry-id]')).toHaveLength(1);
   });
 });
